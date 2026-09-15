@@ -1,0 +1,134 @@
+name: Frontend Main CI
+
+on:
+  push:
+    branches:
+      - main
+paths-ignore: # 문서 변경 시에는 CI를 진행하지 않는다
+      - "/*.md"
+      - "docs/"
+
+main에 새로운 push가 오면 이전 Workflow는 취소하고 최신 코드만 확인한다
+concurrency:
+  group: fe-main-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+현재 main commit이 GitHub PR을 통해 merge된 결과인지 확인한다
+  check_trigger:
+    runs-on: ubuntu-26.04
+
+    permissions:
+      contents: read
+      # 현재 commit과 연결된 GitHub PR을 조회하기 위해 필요
+      pull-requests: read
+
+    outputs:
+      run_ci: ${{ steps.check.outputs.run_ci }}
+
+    steps:
+      - name: Check Main Push Type
+        id: check
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { data: pulls } =
+              await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                commit_sha: context.sha
+              });
+
+            const mergedToMain = pulls.some(
+              pr => pr.merged_at && pr.base.ref === 'main'
+            );
+
+            // GitHub PR Merge 결과 → CI Skip
+            // main 직접 Push → CI 진행
+            core.setOutput('run_ci', mergedToMain ? 'false' : 'true');
+main에 직접 push된 경우에만 CI를 진행한다
+  test-build:
+    needs: check_trigger
+    if: needs.check_trigger.outputs.run_ci == 'true'
+
+    runs-on: ubuntu-26.04
+
+    permissions:
+      # Repository 코드를 가져오기 위해 필요
+      contents: read
+
+      # GitHub OIDC를 통해 AWS 임시 인증 정보를 발급받기 위해 필요
+      id-token: write
+
+    steps:
+      # 1. CI Runner에 Repo의 코드를 가져온다
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # 2. Node.js 실행 환경을 구성하고 npm 의존성 Cache를 사용한다
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      # 3. 이전 Next.js Build Cache를 복원한다
+      - name: Restore Next.js cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-next-${{ hashFiles('package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-next-${{ hashFiles('package-lock.json') }}-
+
+      # 4. 의존성을 설치한다
+      - name: Install dependencies
+        run: npm ci
+
+      # 5. Biome을 이용해 정적으로 발견 가능한 코드 문제를 검사한다
+      - name: Lint
+        run: npm run lint
+
+      # 6. TypeScript 타입 오류를 검사한다
+      - name: Typecheck
+        run: npm run typecheck
+
+      # 7. 테스트 코드를 실행한다
+      - name: Test
+        run: npm test
+
+      # 8. 실제 Build가 가능한 코드인지 확인한다
+      - name: Build
+        run: npm run build
+
+      # 9. Docker Image Build를 위해 Buildx 환경을 구성한다
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      # 10. GitHub OIDC를 이용해 AWS 인증을 진행한다
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-2
+
+      # 11. ECR에 로그인한다
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 12. 실제 배포할 Docker Image를 Build하고 ECR에 저장한다
+      - name: Docker Image Build and Push to ECR
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/stocks-frontend:${{ github.sha }}
+
+      # main의 이전 Docker Layer Cache를 GitHub Actions Cache에서 불러온다
+          cache-from: type=gha,scope=stocks-frontend-main
+
+      # 이번 Docker Build Layer를 다음 main Build에서 재사용할 수 있도록 저장한다
+          cache-to: type=gha,mode=max,scope=stocks-frontend-main

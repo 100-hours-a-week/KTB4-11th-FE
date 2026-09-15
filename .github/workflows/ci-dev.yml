@@ -1,0 +1,63 @@
+name: Frontend Dev CI
+
+on:
+  push:
+    branches:
+      - dev
+    paths-ignore: # 문서 변경 시에는 CI를 진행하지 않는다
+      - "**/*.md"
+      - "docs/**"
+
+permissions:
+  contents: read
+
+# dev에 새로운 push가 오면 이전 CI는 취소하고 최신 코드만 검사한다
+concurrency:
+  group: fe-dev-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-build:
+    runs-on: ubuntu-26.04
+
+    steps:
+      # 1. CI Runner에 Repo의 코드를 가져온다
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # 2. Node.js 실행 환경을 구성하고 npm 의존성 Cache를 사용한다
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      # 3. 이전 Next.js Build Cache를 복원한다
+      - name: Restore Next.js cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-next-${{ hashFiles('package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-next-${{ hashFiles('package-lock.json') }}-
+
+      # 4. 의존성을 설치한다
+      - name: Install dependencies
+        run: npm ci
+
+      # 5. Biome을 이용해 정적으로 발견 가능한 코드 문제를 검사한다
+      - name: Lint
+        run: npm run lint
+
+      # 6. TypeScript 타입 오류를 검사한다
+      - name: Typecheck
+        run: npm run typecheck
+
+      # 7. 테스트 코드를 실행한다
+      - name: Test
+        run: npm test
+
+      # 8. 실제 Build가 가능한 코드인지 확인한다
+      - name: Build
+        run: npm run build
