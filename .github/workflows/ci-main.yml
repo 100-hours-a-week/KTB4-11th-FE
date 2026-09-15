@@ -100,32 +100,32 @@ jobs:
       - name: Build
         run: npm run build
 
-      # 9. Docker Image Build를 위해 Buildx 환경을 구성한다
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+      # # 9. Docker Image Build를 위해 Buildx 환경을 구성한다
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v4
 
-      # 10. GitHub OIDC를 이용해 AWS 인증을 진행한다
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ap-northeast-2
+      # # 10. GitHub OIDC를 이용해 AWS 인증을 진행한다
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v6
+      #   with:
+      #     role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+      #     aws-region: ap-northeast-2
 
-      # 11. ECR에 로그인한다
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      # # 11. ECR에 로그인한다
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
 
-      # 12. 실제 배포할 Docker Image를 Build하고 ECR에 저장한다
-      - name: Docker Image Build and Push to ECR
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/stocks-frontend:${{ github.sha }}
+      # # 12. 실제 배포할 Docker Image를 Build하고 ECR에 저장한다
+      # - name: Docker Image Build and Push to ECR
+      #   uses: docker/build-push-action@v7
+      #   with:
+      #     context: .
+      #     push: true
+      #     tags: ${{ steps.login-ecr.outputs.registry }}/stocks-frontend:${{ github.sha }}
 
-      # main의 이전 Docker Layer Cache를 GitHub Actions Cache에서 불러온다
-          cache-from: type=gha,scope=stocks-frontend-main
+      # # main의 이전 Docker Layer Cache를 GitHub Actions Cache에서 불러온다
+      #     cache-from: type=gha,scope=stocks-frontend-main
 
-      # 이번 Docker Build Layer를 다음 main Build에서 재사용할 수 있도록 저장한다
-          cache-to: type=gha,mode=max,scope=stocks-frontend-main
+      # # 이번 Docker Build Layer를 다음 main Build에서 재사용할 수 있도록 저장한다
+      #     cache-to: type=gha,mode=max,scope=stocks-frontend-main
