@@ -46,7 +46,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 5. Biome을 이용해 정적으로 발견 가능한 코드 문제를 검사한다
+      # 5. ESLint를 이용해 정적으로 발견 가능한 코드 문제를 검사한다
       - name: Lint
         run: npm run lint
 
