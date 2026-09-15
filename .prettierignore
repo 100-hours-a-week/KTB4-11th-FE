@@ -1,0 +1,7 @@
+.next
+node_modules
+coverage
+build
+out
+public
+package-lock.json

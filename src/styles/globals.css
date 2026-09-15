@@ -1,26 +1,157 @@
 @import "tailwindcss";
+@import "pretendard/dist/web/variable/pretendardvariable.css";
+@import "./typography.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/** 디자인 토큰 정의 (v1 범위) */
+@theme {
+  --font-sans:
+    "Pretendard Variable", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /** Atomic Color Tokens */
+  --color-base-50: #ffffff;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-gray-50: #f4f4f6;
+  --color-gray-75: #e9e9ed;
+  --color-gray-100: #dcdee2;
+  --color-gray-200: #c5c8ce;
+  --color-gray-300: #adb1bb;
+  --color-gray-400: #959ba7;
+  --color-gray-500: #7d8594;
+  --color-gray-600: #686f7e;
+  --color-gray-700: #545a66;
+  --color-gray-800: #40454e;
+  --color-gray-900: #2d3037;
+  --color-gray-950: #191b1f;
+
+  --color-blue-50: #ecf3fe;
+  --color-blue-100: #c5dbfb;
+  --color-blue-200: #9dc3f9;
+  --color-blue-300: #74abf9;
+  --color-blue-400: #4a93f9;
+  --color-blue-500: #1f7af9;
+  --color-blue-600: #0861de;
+  --color-blue-700: #084cab;
+  --color-blue-800: #073679;
+  --color-blue-900: #052148;
+  --color-blue-950: #020b18;
+
+  --color-sky-blue-50: #ecf8fe;
+  --color-sky-blue-100: #c5e9fd;
+  --color-sky-blue-200: #9edbfd;
+  --color-sky-blue-300: #76cefd;
+  --color-sky-blue-400: #4dc1ff;
+  --color-sky-blue-500: #1baefd;
+  --color-sky-blue-600: #0494e2;
+  --color-sky-blue-700: #0473ae;
+  --color-sky-blue-800: #04527b;
+  --color-sky-blue-900: #033149;
+  --color-sky-blue-950: #011018;
+
+  --color-red-50: #feedec;
+  --color-red-100: #fbc9c8;
+  --color-red-200: #faa5a2;
+  --color-red-300: #f9807c;
+  --color-red-400: #f95b56;
+  --color-red-500: #fa352e;
+  --color-red-600: #e91008;
+  --color-red-700: #b30e08;
+  --color-red-800: #7e0b07;
+  --color-red-900: #4b0705;
+  --color-red-950: #180302;
+
+  --color-green-50: #f0faf6;
+  --color-green-100: #ceeee2;
+  --color-green-200: #ace3ce;
+  --color-green-300: #8ad9bb;
+  --color-green-400: #67cfa7;
+  --color-green-500: #44c594;
+  --color-green-600: #34a57a;
+  --color-green-700: #2a805f;
+  --color-green-800: #1e5b44;
+  --color-green-900: #133729;
+  --color-green-950: #07130e;
+
+  --color-yellow-50: #fefaec;
+  --color-yellow-100: #fcf2cb;
+  --color-yellow-200: #fbebaa;
+  --color-yellow-300: #fae488;
+  --color-yellow-400: #fbdd65;
+  --color-yellow-500: #f8d031;
+  --color-yellow-600: #e9bd0a;
+  --color-yellow-700: #b49109;
+  --color-yellow-800: #7f6708;
+  --color-yellow-900: #4b3d05;
+  --color-yellow-950: #181302;
+
+  /** Semantic Color Tokens */
+  --color-bg-accent: var(--color-sky-blue-500);
+  --color-bg-warning: var(--color-yellow-50);
+  --color-bg-error: var(--color-red-50);
+  --color-bg-success: var(--color-green-50);
+  --color-bg-informative: var(--color-blue-50);
+
+  --color-bg-layer-default: var(--color-base-50);
+  --color-bg-layer-floating: var(--color-base-50);
+  --color-bg-layer-basement: var(--color-gray-50);
+  --color-bg-layer-overlay: #00000066;
+
+  --color-bg-neutral-primary: var(--color-gray-900);
+  --color-bg-neutral-secondary: var(--color-gray-800);
+  --color-bg-neutral-tertiary: var(--color-gray-75);
+
+  --color-text-accent: var(--color-sky-blue-600);
+  --color-text-warning: var(--color-yellow-900);
+  --color-text-error: var(--color-red-600);
+  --color-text-success: var(--color-green-600);
+  --color-text-informative: var(--color-blue-600);
+
+  --color-text-neutral-primary: var(--color-gray-950);
+  --color-text-neutral-secondary: var(--color-gray-600);
+  --color-text-neutral-tertiary: var(--color-gray-300);
+  --color-text-neutral-inverse: var(--color-base-50);
+
+  --color-border-accent: var(--color-sky-blue-400);
+  --color-border-warning: var(--color-yellow-400);
+  --color-border-error: var(--color-red-400);
+  --color-border-success: var(--color-green-400);
+  --color-border-informative: var(--color-blue-400);
+
+  --color-border-neutral-primary: var(--color-gray-700);
+  --color-border-neutral-secondary: var(--color-gray-500);
+  --color-border-neutral-tertiary: var(--color-gray-300);
+  --color-border-neutral-muted: var(--color-gray-75);
+
+  --color-icon-accent: var(--color-sky-blue-500);
+  --color-icon-warning: var(--color-yellow-500);
+  --color-icon-error: var(--color-red-300);
+  --color-icon-success: var(--color-green-600);
+  --color-icon-informative: var(--color-blue-600);
+
+  --color-icon-neutral-primary: var(--color-gray-600);
+  --color-icon-neutral-secondary: var(--color-gray-300);
+  --color-icon-neutral-inverse: var(--color-base-50);
+
+  /** 시세 등락 (국내 주식 컨벤션: 상승 빨강 / 하락 파랑 / 보합 회색) */
+  --color-text-price-rise: var(--color-red-600);
+  --color-text-price-fall: var(--color-blue-600);
+  --color-text-price-flat: var(--color-gray-600);
+
+  --color-bg-price-rise: var(--color-red-50);
+  --color-bg-price-fall: var(--color-blue-50);
+  --color-bg-price-flat: var(--color-gray-75);
+
+  --color-icon-price-rise: var(--color-red-600);
+  --color-icon-price-fall: var(--color-blue-600);
+  --color-icon-price-flat: var(--color-gray-600);
+
+  /** Radius Tokens */
+  --radius-r3: 12px;
+  --radius-full: 9999px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg-layer-basement);
+  color: var(--color-text-neutral-primary);
+  font-family: var(--font-sans);
 }
