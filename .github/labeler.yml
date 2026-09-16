@@ -1,0 +1,58 @@
+settings:
+  onMissingLabel: create
+
+rules:
+  issue:
+    - label: bug
+      matches:
+        - operator: any
+          conditions:
+            - title: /\[Bug\]/i
+    - label: feature
+      matches:
+        - operator: any
+          conditions:
+            - title: /\[Feature\]/i
+    - label: refactor
+      matches:
+        - operator: any
+          conditions:
+            - title: /\[Refactor\]/i
+
+  pr:
+    - label: feat
+      matches:
+        - operator: any
+          conditions:
+            - title: /feat/i
+            - head-branch: /feat/i
+    - label: fix
+      matches:
+        - operator: any
+          conditions:
+            - title: /fix/i
+            - head-branch: /fix/i
+    - label: refactor
+      matches:
+        - operator: any
+          conditions:
+            - title: /refactor/i
+            - head-branch: /refactor/i
+    - label: chore
+      matches:
+        - operator: any
+          conditions:
+            - title: /chore/i
+            - head-branch: /chore/i
+    - label: docs
+      matches:
+        - operator: any
+          conditions:
+            - title: /docs/i
+            - head-branch: /docs/i
+    - label: style
+      matches:
+        - operator: any
+          conditions:
+            - title: /style/i
+            - head-branch: /style/i
