@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { MSWProvider } from "@/mocks/MSWProvider";
+import { MobileContainer } from "@/shared/ui/MobileContainer";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="ko" className="h-full antialiased">
       <body className="flex min-h-full flex-col">
-        <MSWProvider>{children}</MSWProvider>
+        <MobileContainer>
+          <MSWProvider>{children}</MSWProvider>
+        </MobileContainer>
       </body>
     </html>
   );
