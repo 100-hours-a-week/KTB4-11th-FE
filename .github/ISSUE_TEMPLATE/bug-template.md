@@ -1,8 +1,8 @@
 ---
 name: Bug Report
 about: 버그를 이슈에 등록한다.
-title: "[Bug] "
-labels: bug
+title: "fix: "
+labels: fix
 ---
 
 ## 버그 내용
