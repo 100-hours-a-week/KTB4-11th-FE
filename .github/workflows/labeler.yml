@@ -3,8 +3,8 @@ name: Auto Labeler
 on:
   issues:
     types: [opened, edited]
-  pull_request_target:
-    types: [opened, edited]
+  pull_request:
+    types: [opened, edited, synchronize]
 
 permissions:
   contents: read
@@ -17,6 +17,7 @@ jobs:
     steps:
       # 이슈/PR 제목을 .github/labeler.yml 규칙과 비교해 라벨을 자동으로 붙인다
       - name: Apply labels
-        uses: fuxingloh/multi-labeler@v5
+        uses: hoho4190/issue-pr-labeler@v3
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file-path: labeler.yml
