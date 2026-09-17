@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { MSWProvider } from "@/mocks/MSWProvider";
 import { MobileContainer } from "@/shared/ui/MobileContainer";
 import { Toaster } from "@/shared/ui/Toaster";
+import { Providers } from "./providers";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -17,7 +18,9 @@ export default function RootLayout({
     <html lang="ko" className="h-full overflow-hidden antialiased">
       <body className="h-full overflow-hidden">
         <MobileContainer>
-          <MSWProvider>{children}</MSWProvider>
+          <MSWProvider>
+            <Providers>{children}</Providers>
+          </MSWProvider>
         </MobileContainer>
         <Toaster />
       </body>
