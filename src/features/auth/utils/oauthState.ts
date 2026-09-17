@@ -6,7 +6,7 @@ export function createOAuthState() {
   return state;
 }
 
-export function verifyOAuthState(state: string | null) {
+export function verifyOAuthState(state: string | null): state is string {
   const savedState = sessionStorage.getItem(OAUTH_STATE_STORAGE_KEY);
   sessionStorage.removeItem(OAUTH_STATE_STORAGE_KEY);
   return Boolean(state) && state === savedState;
