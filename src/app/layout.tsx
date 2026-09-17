@@ -13,8 +13,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="ko" className="h-full antialiased">
-      <body className="flex min-h-full flex-col">
+    <html lang="ko" className="h-full overflow-hidden antialiased">
+      <body className="h-full overflow-hidden">
         <MobileContainer>
           <MSWProvider>{children}</MSWProvider>
         </MobileContainer>
