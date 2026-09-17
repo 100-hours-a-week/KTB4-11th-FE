@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "pretendard/dist/web/variable/pretendardvariable.css";
 @import "./typography.css";
+@plugin "tailwindcss-animate";
 
 /** 디자인 토큰 정의 (v1 범위) */
 @theme {
@@ -147,6 +148,7 @@
 
   /** Radius Tokens */
   --radius-r3: 12px;
+  --radius-r4: 24px;
   --radius-full: 9999px;
 }
 
