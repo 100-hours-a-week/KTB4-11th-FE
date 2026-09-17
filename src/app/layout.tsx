@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { MSWProvider } from "@/mocks/MSWProvider";
 import { MobileContainer } from "@/shared/ui/MobileContainer";
+import { Toaster } from "@/shared/ui/Toaster";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({
         <MobileContainer>
           <MSWProvider>{children}</MSWProvider>
         </MobileContainer>
+        <Toaster />
       </body>
     </html>
   );
