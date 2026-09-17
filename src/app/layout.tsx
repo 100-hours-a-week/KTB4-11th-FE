@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { MSWProvider } from "@/mocks/MSWProvider";
-import { MobileContainer } from "@/shared/ui/MobileContainer";
-import { Toaster } from "@/shared/ui/Toaster";
+import { MobileContainer } from "@/shared/components/MobileContainer";
+import { Toaster } from "@/shared/components/Toaster";
 import { Providers } from "./providers";
 import "@/styles/globals.css";
 
