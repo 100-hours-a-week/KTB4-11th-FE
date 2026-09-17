@@ -7,6 +7,12 @@ on:
     paths-ignore: # 문서 변경 시에는 CI를 진행하지 않는다
       - "**/*.md"
       - "docs/**"
+  pull_request:
+    branches:
+      - main
+    paths-ignore: # 문서 변경 시에는 CI를 진행하지 않는다
+      - "**/*.md"
+      - "docs/**"
 
 # main에 새로운 push가 오면 이전 Workflow는 취소하고 최신 코드만 확인한다
 concurrency:
