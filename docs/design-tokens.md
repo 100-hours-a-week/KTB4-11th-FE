@@ -90,6 +90,7 @@ v1 화면 설계서를 기준으로 현재 필요한 Token만 우선 정의하�
 | Token | 값 | 적용 상황 |
 | --- | --- | --- |
 | `radius-r3` | 12px | Card, Button |
+| `radius-r4` | 24px | Modal |
 | `radius-full` | 9999px | Avatar, Pill Button, Badge |
 
-> `r1`, `r2`, `r4` 등 추가 Radius Scale은 현재 v1 화면에서 확인되지 않아 정의하지 않으며, 필요 시 Figma 확인 후 추가한다.
+> `r1`, `r2` 등 그 외 Radius Scale은 현재 v1 화면에서 확인되지 않아 정의하지 않으며, 필요 시 Figma 확인 후 추가한다.
