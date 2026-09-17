@@ -1,0 +1,9 @@
+import type { ReactNode } from "react";
+
+export function MobileContainer({ children }: { children: ReactNode }) {
+  return (
+    <div className="bg-bg-layer-default mx-auto h-full max-w-120 overflow-y-auto">
+      {children}
+    </div>
+  );
+}

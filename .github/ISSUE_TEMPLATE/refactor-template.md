@@ -1,7 +1,7 @@
 ---
 name: Refactor Template
 about: 리팩토링을 이슈에 등록한다.
-title: "[Refactor] "
+title: "refactor: "
 labels: refactor
 ---
 

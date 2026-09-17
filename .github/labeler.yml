@@ -3,24 +3,39 @@ settings:
 
 rules:
   issue:
-    - label: bug
-      matches:
-        - operator: any
-          conditions:
-            - title: /\[Bug\]/i
     - label: feature
       matches:
         - operator: any
           conditions:
-            - title: /\[Feature\]/i
+            - title: /feat/i
+    - label: fix
+      matches:
+        - operator: any
+          conditions:
+            - title: /fix/i
     - label: refactor
       matches:
         - operator: any
           conditions:
-            - title: /\[Refactor\]/i
+            - title: /refactor/i
+    - label: chore
+      matches:
+        - operator: any
+          conditions:
+            - title: /chore/i
+    - label: docs
+      matches:
+        - operator: any
+          conditions:
+            - title: /docs/i
+    - label: style
+      matches:
+        - operator: any
+          conditions:
+            - title: /style/i
 
   pr:
-    - label: feat
+    - label: feature
       matches:
         - operator: any
           conditions:
