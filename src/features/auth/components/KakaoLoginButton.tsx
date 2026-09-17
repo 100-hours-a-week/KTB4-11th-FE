@@ -1,5 +1,5 @@
 import KakaoIcon from "@/assets/icons/social/kakao.svg";
-import { getKakaoAuthUrl } from "@/features/login/lib/getKakaoAuthUrl";
+import { getKakaoAuthUrl } from "@/features/auth/utils/getKakaoAuthUrl";
 
 export function KakaoLoginButton() {
   return (
