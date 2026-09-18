@@ -22,7 +22,7 @@ export function QuickAmountChips({
           key={label}
           type="button"
           onClick={() => onAdd(value)}
-          className="bg-bg-layer-default border-border-neutral-muted text-text-neutral-secondary body-2-medium rounded-full border px-2 py-1.5 whitespace-nowrap transition-colors active:bg-gray-50"
+          className="bg-bg-layer-default border-border-neutral-muted text-text-neutral-secondary body-2-medium rounded-full border px-2 py-2 whitespace-nowrap transition-colors active:bg-gray-50"
         >
           {label}
         </button>
@@ -30,9 +30,9 @@ export function QuickAmountChips({
       <button
         type="button"
         onClick={onManualInput}
-        className="bg-bg-layer-default border-border-neutral-muted text-text-neutral-secondary body-2-medium rounded-full border px-2 py-1.5 whitespace-nowrap transition-colors active:bg-gray-50"
+        className="bg-bg-layer-default border-border-neutral-muted text-text-neutral-secondary body-2-medium rounded-full border px-2 py-2 whitespace-nowrap transition-colors active:bg-gray-50"
       >
-        직접 입력
+        다시 입력
       </button>
     </div>
   );
