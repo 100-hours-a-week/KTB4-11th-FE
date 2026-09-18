@@ -31,8 +31,7 @@ export function InitialAmountField({
         <input
           type="text"
           inputMode="numeric"
-          placeholder="1,000,000"
-          className="title-1 text-text-neutral-primary placeholder:text-text-neutral-tertiary w-full bg-transparent outline-none"
+          className="title-1 text-text-neutral-primary w-full bg-transparent outline-none"
           onChange={(event) => onChange?.(event.target.value)}
           {...props}
         />
