@@ -11,7 +11,7 @@ import { QuickAmountChips } from "@/features/account/components/QuickAmountChips
 const MIN_AMOUNT = 1_000_000;
 const MAX_AMOUNT = 100_000_000;
 
-export function AccountCreationForm() {
+export function AccountCreationContainer() {
   const [isAiDelegated, setIsAiDelegated] = useState(true);
   const [amount, setAmount] = useState(10_000_000);
 

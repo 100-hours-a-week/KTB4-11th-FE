@@ -1,5 +1,5 @@
-import { AccountCreationForm } from "@/features/account/components/AccountCreationForm";
+import { AccountCreationContainer } from "@/features/account/components/AccountCreationContainer";
 
 export default function OnboardingPage() {
-  return <AccountCreationForm />;
+  return <AccountCreationContainer />;
 }
