@@ -153,7 +153,7 @@
 }
 
 body {
-  background: var(--color-bg-layer-basement);
+  background: var(--color-base-50);
   color: var(--color-text-neutral-primary);
   font-family: var(--font-sans);
 }
