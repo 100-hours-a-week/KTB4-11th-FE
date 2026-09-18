@@ -48,6 +48,9 @@ export function AccountCreationForm() {
             minLabel="100만"
             maxLabel="1억"
           />
+          <p className="caption-1-regular text-text-neutral-tertiary">
+            한 번 설정한 시작 금액은 나중에 바꿀 수 없어요
+          </p>
         </div>
 
         <Button className="mt-auto mb-8">계좌 개설하기</Button>
