@@ -17,6 +17,7 @@ import { AiDelegationSwitch } from "@/features/account/components/AiDelegationSw
 import { InitialAmountField } from "@/features/account/components/InitialAmountField";
 import { InitialAmountSlider } from "@/features/account/components/InitialAmountSlider";
 import { QuickAmountChips } from "@/features/account/components/QuickAmountChips";
+import { useCreateAccountMutation } from "@/features/account/hooks/useCreateAccountMutation";
 import {
   MAX_AMOUNT,
   MIN_AMOUNT,
@@ -30,12 +31,19 @@ export function AccountCreationContainer() {
   const {
     watch,
     setValue,
+    handleSubmit,
     formState: { errors },
   } = useForm<OnboardingFormValues>({
     resolver: zodResolver(onboardingFormSchema),
     defaultValues: { amount: 10_000_000 },
   });
   const amount = watch("amount");
+
+  const { mutate, isPending } = useCreateAccountMutation();
+
+  const onSubmit = handleSubmit(({ amount: initial_capital }) => {
+    mutate({ initial_capital });
+  });
 
   return (
     <div className="flex h-full flex-col">
@@ -90,7 +98,13 @@ export function AccountCreationContainer() {
           </p>
         </div>
 
-        <Button className="mt-auto mb-8">계좌 개설하기</Button>
+        <Button
+          className="mt-auto mb-8"
+          onClick={onSubmit}
+          disabled={isPending}
+        >
+          계좌 개설하기
+        </Button>
       </div>
 
       <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
