@@ -1,6 +1,8 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "@/shared/components/Button";
 import { Header } from "@/shared/components/Header";
 import { AiDelegationSwitch } from "@/features/account/components/AiDelegationSwitch";
@@ -10,11 +12,21 @@ import { QuickAmountChips } from "@/features/account/components/QuickAmountChips
 import {
   MAX_AMOUNT,
   MIN_AMOUNT,
+  onboardingFormSchema,
+  type OnboardingFormValues,
 } from "@/features/account/schemas/onboardingFormSchema";
 
 export function AccountCreationContainer() {
   const [isAiDelegated, setIsAiDelegated] = useState(true);
-  const [amount, setAmount] = useState(10_000_000);
+  const {
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<OnboardingFormValues>({
+    resolver: zodResolver(onboardingFormSchema),
+    defaultValues: { amount: 10_000_000 },
+  });
+  const amount = watch("amount");
 
   return (
     <div className="flex h-full flex-col">
@@ -34,16 +46,25 @@ export function AccountCreationContainer() {
           <InitialAmountField
             value={amount.toLocaleString()}
             onChange={(value) =>
-              setAmount(Number(value.replace(/,/g, "")) || 0)
+              setValue("amount", Number(value.replace(/,/g, "")) || 0, {
+                shouldValidate: true,
+              })
             }
+            error={errors.amount?.message}
           />
           <QuickAmountChips
-            onAdd={(value) => setAmount((prev) => prev + value)}
-            onManualInput={() => setAmount(0)}
+            onAdd={(value) =>
+              setValue("amount", amount + value, { shouldValidate: true })
+            }
+            onManualInput={() =>
+              setValue("amount", 0, { shouldValidate: true })
+            }
           />
           <InitialAmountSlider
             value={amount}
-            onValueChange={setAmount}
+            onValueChange={(value) =>
+              setValue("amount", value, { shouldValidate: true })
+            }
             min={MIN_AMOUNT}
             max={MAX_AMOUNT}
             minLabel="100만"
