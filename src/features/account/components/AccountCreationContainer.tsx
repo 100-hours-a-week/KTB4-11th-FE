@@ -1,19 +1,52 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "@/shared/components/Button";
 import { Header } from "@/shared/components/Header";
+import {
+  Modal,
+  ModalClose,
+  ModalContent,
+  ModalDescription,
+  ModalPortal,
+  ModalTitle,
+} from "@/shared/components/Modal";
 import { AiDelegationSwitch } from "@/features/account/components/AiDelegationSwitch";
 import { InitialAmountField } from "@/features/account/components/InitialAmountField";
 import { InitialAmountSlider } from "@/features/account/components/InitialAmountSlider";
 import { QuickAmountChips } from "@/features/account/components/QuickAmountChips";
-
-const MIN_AMOUNT = 1_000_000;
-const MAX_AMOUNT = 100_000_000;
+import { useCreateAccountMutation } from "@/features/account/hooks/useCreateAccountMutation";
+import {
+  MAX_AMOUNT,
+  MIN_AMOUNT,
+  onboardingFormSchema,
+  type OnboardingFormValues,
+} from "@/features/account/schemas/onboardingFormSchema";
 
 export function AccountCreationContainer() {
   const [isAiDelegated, setIsAiDelegated] = useState(true);
-  const [amount, setAmount] = useState(10_000_000);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const {
+    watch,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<OnboardingFormValues>({
+    resolver: zodResolver(onboardingFormSchema),
+    defaultValues: { amount: 10_000_000 },
+  });
+  const amount = watch("amount");
+
+  const updateAmount = (value: number) =>
+    setValue("amount", value, { shouldValidate: true });
+
+  const { mutate, isPending } = useCreateAccountMutation();
+
+  const onSubmit = handleSubmit(({ amount: initial_capital }) => {
+    mutate({ initial_capital });
+  });
 
   return (
     <div className="flex h-full flex-col">
@@ -24,7 +57,13 @@ export function AccountCreationContainer() {
           <span className="body-1-bold">AI 위임 설정</span>
           <AiDelegationSwitch
             checked={isAiDelegated}
-            onCheckedChange={setIsAiDelegated}
+            onCheckedChange={(checked) => {
+              if (checked) {
+                setIsAiDelegated(true);
+              } else {
+                setIsModalOpen(true);
+              }
+            }}
           />
         </div>
 
@@ -33,16 +72,17 @@ export function AccountCreationContainer() {
           <InitialAmountField
             value={amount.toLocaleString()}
             onChange={(value) =>
-              setAmount(Number(value.replace(/,/g, "")) || 0)
+              updateAmount(Number(value.replace(/,/g, "")) || 0)
             }
+            error={errors.amount?.message}
           />
           <QuickAmountChips
-            onAdd={(value) => setAmount((prev) => prev + value)}
-            onManualInput={() => setAmount(0)}
+            onAdd={(value) => updateAmount(amount + value)}
+            onManualInput={() => updateAmount(0)}
           />
           <InitialAmountSlider
             value={amount}
-            onValueChange={setAmount}
+            onValueChange={updateAmount}
             min={MIN_AMOUNT}
             max={MAX_AMOUNT}
             minLabel="100만"
@@ -53,8 +93,30 @@ export function AccountCreationContainer() {
           </p>
         </div>
 
-        <Button className="mt-auto mb-8">계좌 개설하기</Button>
+        <Button
+          className="mt-auto mb-8"
+          onClick={onSubmit}
+          disabled={isPending}
+        >
+          계좌 개설하기
+        </Button>
       </div>
+
+      <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <ModalPortal>
+          <ModalContent>
+            <ModalTitle>지금은 AI 위임 투자만 가능해요</ModalTitle>
+            <ModalDescription>
+              직접 투자는 v2에서 이용할 수 있어요.
+              <br />
+              조금만 기다려 주세요!
+            </ModalDescription>
+            <ModalClose asChild>
+              <Button className="mt-6">확인</Button>
+            </ModalClose>
+          </ModalContent>
+        </ModalPortal>
+      </Modal>
     </div>
   );
 }

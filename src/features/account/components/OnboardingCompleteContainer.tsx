@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { Button } from "@/shared/components/Button";
 import WalletHappyIcon from "@/assets/icons/stockspoon/wallet-happy.svg";
 
@@ -10,6 +13,8 @@ export function OnboardingCompleteContainer({
   amount,
   isAiDelegated,
 }: OnboardingCompleteContainerProps) {
+  const router = useRouter();
+
   return (
     <div className="bg-bg-layer-basement flex h-full items-center justify-center px-6">
       <div className="bg-bg-layer-default flex w-full flex-col items-center rounded-3xl p-8">
@@ -21,7 +26,9 @@ export function OnboardingCompleteContainer({
             {isAiDelegated ? "ON" : "OFF"}
           </span>
         </div>
-        <Button>스톡스푼 시작하기</Button>
+        <Button onClick={() => router.replace("/home")}>
+          스톡스푼 시작하기
+        </Button>
       </div>
     </div>
   );
