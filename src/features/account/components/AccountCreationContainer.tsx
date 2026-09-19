@@ -5,6 +5,14 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/shared/components/Button";
 import { Header } from "@/shared/components/Header";
+import {
+  Modal,
+  ModalClose,
+  ModalContent,
+  ModalDescription,
+  ModalPortal,
+  ModalTitle,
+} from "@/shared/components/Modal";
 import { AiDelegationSwitch } from "@/features/account/components/AiDelegationSwitch";
 import { InitialAmountField } from "@/features/account/components/InitialAmountField";
 import { InitialAmountSlider } from "@/features/account/components/InitialAmountSlider";
@@ -18,6 +26,7 @@ import {
 
 export function AccountCreationContainer() {
   const [isAiDelegated, setIsAiDelegated] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     watch,
     setValue,
@@ -37,7 +46,13 @@ export function AccountCreationContainer() {
           <span className="body-1-bold">AI 위임 설정</span>
           <AiDelegationSwitch
             checked={isAiDelegated}
-            onCheckedChange={setIsAiDelegated}
+            onCheckedChange={(checked) => {
+              if (checked) {
+                setIsAiDelegated(true);
+              } else {
+                setIsModalOpen(true);
+              }
+            }}
           />
         </div>
 
@@ -77,6 +92,22 @@ export function AccountCreationContainer() {
 
         <Button className="mt-auto mb-8">계좌 개설하기</Button>
       </div>
+
+      <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <ModalPortal>
+          <ModalContent>
+            <ModalTitle>지금은 AI 위임 투자만 가능해요</ModalTitle>
+            <ModalDescription>
+              직접 투자는 v2에서 이용할 수 있어요.
+              <br />
+              조금만 기다려 주세요!
+            </ModalDescription>
+            <ModalClose asChild>
+              <Button className="mt-6">확인</Button>
+            </ModalClose>
+          </ModalContent>
+        </ModalPortal>
+      </Modal>
     </div>
   );
 }
