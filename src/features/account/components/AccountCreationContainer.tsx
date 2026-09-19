@@ -39,6 +39,9 @@ export function AccountCreationContainer() {
   });
   const amount = watch("amount");
 
+  const updateAmount = (value: number) =>
+    setValue("amount", value, { shouldValidate: true });
+
   const { mutate, isPending } = useCreateAccountMutation();
 
   const onSubmit = handleSubmit(({ amount: initial_capital }) => {
@@ -69,25 +72,17 @@ export function AccountCreationContainer() {
           <InitialAmountField
             value={amount.toLocaleString()}
             onChange={(value) =>
-              setValue("amount", Number(value.replace(/,/g, "")) || 0, {
-                shouldValidate: true,
-              })
+              updateAmount(Number(value.replace(/,/g, "")) || 0)
             }
             error={errors.amount?.message}
           />
           <QuickAmountChips
-            onAdd={(value) =>
-              setValue("amount", amount + value, { shouldValidate: true })
-            }
-            onManualInput={() =>
-              setValue("amount", 0, { shouldValidate: true })
-            }
+            onAdd={(value) => updateAmount(amount + value)}
+            onManualInput={() => updateAmount(0)}
           />
           <InitialAmountSlider
             value={amount}
-            onValueChange={(value) =>
-              setValue("amount", value, { shouldValidate: true })
-            }
+            onValueChange={updateAmount}
             min={MIN_AMOUNT}
             max={MAX_AMOUNT}
             minLabel="100만"
