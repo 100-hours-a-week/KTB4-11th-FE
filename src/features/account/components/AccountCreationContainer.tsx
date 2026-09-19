@@ -7,9 +7,10 @@ import { AiDelegationSwitch } from "@/features/account/components/AiDelegationSw
 import { InitialAmountField } from "@/features/account/components/InitialAmountField";
 import { InitialAmountSlider } from "@/features/account/components/InitialAmountSlider";
 import { QuickAmountChips } from "@/features/account/components/QuickAmountChips";
-
-const MIN_AMOUNT = 1_000_000;
-const MAX_AMOUNT = 100_000_000;
+import {
+  MAX_AMOUNT,
+  MIN_AMOUNT,
+} from "@/features/account/schemas/onboardingFormSchema";
 
 export function AccountCreationContainer() {
   const [isAiDelegated, setIsAiDelegated] = useState(true);
