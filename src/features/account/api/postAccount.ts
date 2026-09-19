@@ -1,0 +1,16 @@
+import { apiClient } from "@/shared/lib/axios";
+import type {
+  CreateAccountRequest,
+  CreateAccountResponse,
+} from "@/features/account/types/account";
+
+export async function postAccount(
+  payload: Omit<CreateAccountRequest, "account_name">,
+) {
+  const { data } = await apiClient.post<CreateAccountResponse>(
+    "/api/v1/users/me/accounts",
+    { account_name: "기본계좌", ...payload },
+  );
+
+  return data;
+}
