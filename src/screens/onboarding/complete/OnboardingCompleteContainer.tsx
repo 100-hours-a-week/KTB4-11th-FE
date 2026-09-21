@@ -16,7 +16,7 @@ export function OnboardingCompleteContainer({
   const router = useRouter();
 
   return (
-    <div className="bg-bg-layer-basement flex h-full items-center justify-center px-6">
+    <div className="bg-bg-layer-basement flex h-full items-center justify-center px-5">
       <div className="bg-bg-layer-default flex w-full flex-col items-center rounded-3xl p-8">
         <WalletHappyIcon width={61} height={60} className="mb-3" />
         <div className="mb-5 flex flex-col items-center gap-1">
