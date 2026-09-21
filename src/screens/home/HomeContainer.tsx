@@ -1,5 +1,6 @@
 import { Header } from "@/shared/components/Header";
 import { StockTickerBar } from "@/shared/components/StockTickerBar";
+import { AccountSelector } from "@/screens/home/AccountSelector";
 import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
 
@@ -23,6 +24,7 @@ export function HomeContainer() {
         }
       />
       <StockTickerBar title="스톡스푼" />
+      <AccountSelector />
     </div>
   );
 }
