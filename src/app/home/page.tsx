@@ -1,4 +1,4 @@
-import { HomeContainer } from "@/features/home/components/HomeContainer";
+import { HomeContainer } from "@/screens/home/HomeContainer";
 
 export default function HomePage() {
   return <HomeContainer />;

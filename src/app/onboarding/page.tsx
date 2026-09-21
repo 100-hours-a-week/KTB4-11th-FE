@@ -1,4 +1,4 @@
-import { AccountCreationContainer } from "@/features/account/components/AccountCreationContainer";
+import { AccountCreationContainer } from "@/screens/onboarding/AccountCreationContainer";
 
 export default function OnboardingPage() {
   return <AccountCreationContainer />;
