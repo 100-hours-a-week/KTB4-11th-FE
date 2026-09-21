@@ -8,7 +8,7 @@ import ProfileIcon from "@/assets/icons/fill/profile.svg";
 
 export function HomeContainer() {
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-[linear-gradient(180deg,var(--color-base-50)_-1.43%,var(--color-gray-50)_100%)]">
       <Header
         right={
           <>
