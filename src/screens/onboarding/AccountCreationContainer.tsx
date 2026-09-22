@@ -52,7 +52,7 @@ export function AccountCreationContainer() {
     <div className="flex h-full flex-col">
       <Header title="시작 계좌 만들기" />
 
-      <div className="flex flex-1 flex-col gap-7 px-6 pt-6">
+      <div className="flex flex-1 flex-col gap-7 px-5 pt-6">
         <div className="flex flex-col gap-3">
           <span className="body-1-bold">AI 위임 설정</span>
           <AiDelegationSwitch

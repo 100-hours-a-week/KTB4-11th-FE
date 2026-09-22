@@ -1,4 +1,4 @@
-import { OnboardingCompleteContainer } from "@/features/account/components/OnboardingCompleteContainer";
+import { OnboardingCompleteContainer } from "@/screens/onboarding/complete/OnboardingCompleteContainer";
 
 interface OnboardingCompletePageProps {
   searchParams: Promise<{ amount?: string }>;
