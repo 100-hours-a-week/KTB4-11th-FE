@@ -12,6 +12,7 @@ export function HomeContainer() {
   return (
     <div className="bg-page-gradient flex h-full flex-col">
       <Header
+        className="py-0"
         right={
           <>
             <SearchIcon
