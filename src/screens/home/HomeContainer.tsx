@@ -2,9 +2,9 @@ import { Header } from "@/shared/components/Header";
 import { MenuRow } from "@/shared/components/MenuRow";
 import { StockTickerBar } from "@/shared/components/StockTickerBar";
 import { AccountBalanceCard } from "@/features/account/components/AccountBalanceCard";
+import { AccountSelector } from "@/features/account/components/AccountSelector";
 import { HoldingStockList } from "@/features/account/components/HoldingStockList";
 import { RecentAiTradeSection } from "@/features/ai/components/RecentAiTradeSection";
-import { AccountSelector } from "@/screens/home/AccountSelector";
 import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
 
