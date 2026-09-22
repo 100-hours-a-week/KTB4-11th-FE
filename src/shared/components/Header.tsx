@@ -12,7 +12,7 @@ interface HeaderProps {
 
 export function Header({ title, left, right }: HeaderProps) {
   return (
-    <header className="bg-bg-layer-default flex w-full shrink-0 items-center justify-between px-5 py-3">
+    <header className="flex w-full shrink-0 items-center justify-between px-5 py-3">
       <div className="flex items-center gap-2">
         {left}
         {title && <span className="heading-1-bold">{title}</span>}
