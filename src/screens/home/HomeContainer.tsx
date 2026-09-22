@@ -16,12 +16,12 @@ export function HomeContainer() {
             <SearchIcon
               width={24}
               height={24}
-              className="text-icon-neutral-secondary"
+              className="text-icon-neutral-primary"
             />
             <ProfileIcon
               width={24}
               height={24}
-              className="text-icon-neutral-secondary"
+              className="text-icon-neutral-primary"
             />
           </>
         }
