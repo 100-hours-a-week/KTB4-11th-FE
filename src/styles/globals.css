@@ -151,6 +151,9 @@
   --radius-r3: 12px;
   --radius-r4: 24px;
   --radius-full: 9999px;
+
+  /** Spacing Tokens */
+  --spacing-safe-top: max(env(safe-area-inset-top), 47px);
 }
 
 body {
