@@ -12,7 +12,6 @@
   /** Atomic Color Tokens */
   --color-base-50: #ffffff;
 
-  --color-gray-25: #fafafb;
   --color-gray-50: #f4f4f6;
   --color-gray-75: #e9e9ed;
   --color-gray-100: #dcdee2;
@@ -158,4 +157,12 @@ body {
   background: var(--color-base-50);
   color: var(--color-text-neutral-primary);
   font-family: var(--font-sans);
+}
+
+@utility bg-page-gradient {
+  background-image: linear-gradient(
+    180deg,
+    var(--color-base-50) 0%,
+    var(--color-gray-50) 100%
+  );
 }

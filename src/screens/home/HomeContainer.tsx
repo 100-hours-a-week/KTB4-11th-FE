@@ -10,7 +10,7 @@ import ProfileIcon from "@/assets/icons/fill/profile.svg";
 
 export function HomeContainer() {
   return (
-    <div className="flex h-full flex-col bg-[linear-gradient(180deg,var(--color-gray-25)_0%,var(--color-gray-50)_100%)]">
+    <div className="bg-page-gradient flex h-full flex-col">
       <Header
         right={
           <>
