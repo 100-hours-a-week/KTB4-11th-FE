@@ -1,3 +1,4 @@
+import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { Header } from "@/shared/components/Header";
 import { MenuRow } from "@/shared/components/MenuRow";
 import { StockTickerBar } from "@/shared/components/StockTickerBar";
@@ -29,7 +30,7 @@ export function HomeContainer() {
         }
       />
       <StockTickerBar title="스톡스푼" />
-      <div className="flex flex-col gap-1 px-5">
+      <div className="flex flex-col gap-1 px-5 pb-24">
         <AccountSelector />
         <div className="flex flex-col gap-2">
           <AccountBalanceCard cashBalance={1_240_000} valuation={12_480_000} />
@@ -108,6 +109,7 @@ export function HomeContainer() {
           />
         </div>
       </div>
+      <BottomTabBar />
     </div>
   );
 }
