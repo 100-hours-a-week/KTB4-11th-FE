@@ -9,7 +9,7 @@ export const ModalClose = Dialog.Close;
 
 function ModalOverlay() {
   return (
-    <Dialog.Overlay className="bg-bg-layer-overlay data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 fixed inset-0" />
+    <Dialog.Overlay className="bg-bg-layer-overlay data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 fixed inset-0 backdrop-blur-[2px] duration-500 ease-out" />
   );
 }
 
