@@ -1,13 +1,7 @@
+import type { HoldingStock } from "@/features/account/types/holdingStock";
 import { cn } from "@/shared/utils/cn";
 
-interface HoldingStockItemProps {
-  name: string;
-  category: string;
-  quantity: number;
-  avgPrice: number;
-  value: number;
-  changeRate: number;
-}
+type HoldingStockItemProps = Omit<HoldingStock, "id">;
 
 export function HoldingStockItem({
   name,

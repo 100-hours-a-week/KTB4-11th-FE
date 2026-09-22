@@ -1,14 +1,5 @@
 import { HoldingStockItem } from "@/features/account/components/HoldingStockItem";
-
-interface HoldingStock {
-  id: string;
-  name: string;
-  category: string;
-  quantity: number;
-  avgPrice: number;
-  value: number;
-  changeRate: number;
-}
+import type { HoldingStock } from "@/features/account/types/holdingStock";
 
 interface HoldingStockListProps {
   stocks: HoldingStock[];
