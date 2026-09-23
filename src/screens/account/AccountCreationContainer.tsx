@@ -108,7 +108,7 @@ export function AccountCreationContainer({
     <div className="pt-safe-top flex h-full flex-col">
       <Header
         title={headerTitle}
-        className="bg-bg-layer-default px-5 py-3"
+        className="px-5 py-3"
         left={
           showAccountNameField && (
             <HeaderBackButton onClick={() => router.replace("/home")} />
