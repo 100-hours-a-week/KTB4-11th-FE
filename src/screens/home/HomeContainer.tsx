@@ -31,7 +31,7 @@ export function HomeContainer() {
   const holdings = holdingsData?.holdings ?? [];
 
   return (
-    <div className="bg-page-gradient flex h-full flex-col">
+    <div className="bg-page-gradient pt-safe-top flex h-full flex-col">
       <Header
         className="px-5"
         right={

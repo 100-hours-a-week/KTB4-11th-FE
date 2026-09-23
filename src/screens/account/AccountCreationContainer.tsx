@@ -105,7 +105,7 @@ export function AccountCreationContainer({
   });
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="pt-safe-top flex h-full flex-col">
       <Header
         title={headerTitle}
         className="bg-bg-layer-default px-5 py-3"
