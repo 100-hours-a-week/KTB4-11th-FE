@@ -7,7 +7,7 @@ import { StockTickerBar } from "@/shared/components/StockTickerBar";
 import { AccountBalanceCard } from "@/features/account/components/AccountBalanceCard";
 import { AccountSelector } from "@/features/account/components/AccountSelector";
 import { HoldingStockList } from "@/features/account/components/HoldingStockList";
-import { useAccountQuery } from "@/features/account/hooks/useAccountQuery";
+import { useAccountDetailQuery } from "@/features/account/hooks/useAccountDetailQuery";
 import { useHoldingsQuery } from "@/features/account/hooks/useHoldingsQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { toHoldingStock } from "@/features/account/utils/toHoldingStock";
@@ -18,7 +18,7 @@ import ProfileIcon from "@/assets/icons/fill/profile.svg";
 export function HomeContainer() {
   const accountId = useSelectedAccountId();
 
-  const { data: account } = useAccountQuery(accountId);
+  const { data: account } = useAccountDetailQuery(accountId);
   const {
     data: holdingsData,
     isError: isHoldingsError,

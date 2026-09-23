@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAccountsQuery } from "@/features/account/hooks/useAccountsQuery";
+import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
 import { useAccountStore } from "@/store/accountStore";
 
 export function useSelectedAccountId() {
-  const { data } = useAccountsQuery();
+  const { data } = useAccountListQuery();
   const selectedAccountId = useAccountStore((state) => state.selectedAccountId);
   const setSelectedAccountId = useAccountStore(
     (state) => state.setSelectedAccountId,

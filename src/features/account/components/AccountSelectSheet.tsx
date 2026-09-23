@@ -1,6 +1,6 @@
 "use client";
 
-import { useAccountsQuery } from "@/features/account/hooks/useAccountsQuery";
+import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { useAccountStore } from "@/store/accountStore";
 import CheckCircleIcon from "@/assets/icons/fill/check-circle.svg";
@@ -20,7 +20,7 @@ interface AccountSelectSheetProps {
 }
 
 export function AccountSelectSheet({ trigger }: AccountSelectSheetProps) {
-  const { data } = useAccountsQuery();
+  const { data } = useAccountListQuery();
   const accounts = data?.accounts ?? [];
   const selectedAccountId = useSelectedAccountId();
   const setSelectedAccountId = useAccountStore(
