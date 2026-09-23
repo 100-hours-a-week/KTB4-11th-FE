@@ -28,6 +28,7 @@ export function Input({
 }: InputProps) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
+  const helperTextId = `${inputId}-helper`;
 
   return (
     <div className="flex flex-col gap-2">
@@ -55,6 +56,7 @@ export function Input({
         <input
           id={inputId}
           disabled={disabled}
+          aria-describedby={helperText ? helperTextId : undefined}
           className={cn(
             "body-1-medium text-text-neutral-secondary focus:text-text-neutral-primary disabled:text-text-neutral-tertiary w-full overflow-hidden bg-transparent text-ellipsis whitespace-nowrap outline-none",
             className,
@@ -66,8 +68,9 @@ export function Input({
       </div>
       {helperText && (
         <p
+          id={helperTextId}
           className={cn(
-            "caption-1-regular",
+            "body-2-regular",
             error ? "text-text-error" : "text-text-neutral-secondary",
           )}
         >
