@@ -8,16 +8,15 @@ import { AccountBalanceCard } from "@/features/account/components/AccountBalance
 import { AccountSelector } from "@/features/account/components/AccountSelector";
 import { HoldingStockList } from "@/features/account/components/HoldingStockList";
 import { useAccountQuery } from "@/features/account/hooks/useAccountQuery";
-import { useAccountsQuery } from "@/features/account/hooks/useAccountsQuery";
 import { useHoldingsQuery } from "@/features/account/hooks/useHoldingsQuery";
+import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { toHoldingStock } from "@/features/account/utils/toHoldingStock";
 import { RecentAiTradeSection } from "@/features/ai/components/RecentAiTradeSection";
 import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
 
 export function HomeContainer() {
-  const { data: accountsData } = useAccountsQuery();
-  const accountId = accountsData?.accounts[0]?.account_id;
+  const accountId = useSelectedAccountId();
 
   const { data: account } = useAccountQuery(accountId);
   const {
