@@ -5,7 +5,8 @@ import type {
 } from "@/features/account/types/account";
 
 export async function postAccount(
-  payload: Omit<CreateAccountRequest, "account_name">,
+  payload: Partial<Pick<CreateAccountRequest, "account_name">> &
+    Omit<CreateAccountRequest, "account_name">,
 ) {
   const { data } = await apiClient.post<CreateAccountResponse>(
     "/api/v1/users/me/accounts",
