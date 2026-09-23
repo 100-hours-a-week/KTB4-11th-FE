@@ -9,7 +9,7 @@ export const ModalClose = Dialog.Close;
 
 function ModalOverlay() {
   return (
-    <Dialog.Overlay className="bg-bg-layer-overlay data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 fixed inset-0 backdrop-blur-[2px] duration-500 ease-out" />
+    <Dialog.Overlay className="bg-bg-layer-overlay data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 backdrop-blur-overlay fixed inset-0 duration-500 ease-out" />
   );
 }
 
@@ -32,7 +32,7 @@ export function ModalContent({
   return (
     <Dialog.Content
       className={cn(
-        "rounded-r4 bg-bg-layer-floating fixed top-1/2 left-1/2 w-[calc(100%-70px)] max-w-[410px] -translate-x-1/2 -translate-y-1/2 p-6",
+        "rounded-r4 bg-bg-layer-floating data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 w-[calc(100%-70px)] max-w-[410px] -translate-x-1/2 -translate-y-1/2 p-6 duration-300 ease-out",
         className,
       )}
       {...props}

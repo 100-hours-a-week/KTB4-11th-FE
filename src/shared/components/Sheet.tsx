@@ -10,7 +10,7 @@ export const SheetClose = Dialog.Close;
 
 function SheetOverlay() {
   return (
-    <Dialog.Overlay className="bg-bg-layer-overlay data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 fixed inset-0 backdrop-blur-[2px] duration-500 ease-out" />
+    <Dialog.Overlay className="bg-bg-layer-overlay data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 backdrop-blur-overlay fixed inset-0 ease-out data-[state=closed]:duration-300 data-[state=open]:duration-500" />
   );
 }
 
@@ -38,11 +38,11 @@ export function SheetContent({
   return (
     <Dialog.Content
       className={cn(
-        "bg-bg-layer-floating data-[state=closed]:animate-out data-[state=open]:animate-in fixed inset-x-0 max-h-[90%] w-full duration-500 ease-out",
+        "bg-bg-layer-floating data-[state=closed]:animate-out data-[state=open]:animate-in fixed inset-x-0 max-h-[90%] w-full ease-out data-[state=closed]:duration-100 data-[state=open]:duration-500",
         side === "bottom" &&
           "rounded-t-r4 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom bottom-0",
         side === "top" &&
-          "rounded-b-r4 data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top top-0",
+          "rounded-b-r4 data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top pt-safe-top top-0",
         className,
       )}
       {...props}
@@ -56,7 +56,7 @@ export function SheetTitle({
 }: ComponentProps<typeof Dialog.Title>) {
   return (
     <Dialog.Title
-      className={cn("heading-1-bold text-text-neutral-primary", className)}
+      className={cn("heading-1-semibold text-text-neutral-primary", className)}
       {...props}
     />
   );
