@@ -35,8 +35,8 @@ export function Input({
         <label
           htmlFor={inputId}
           className={cn(
-            "body-2-semibold text-text-neutral-primary",
-            labelClassName,
+            labelClassName ?? "body-2-semibold",
+            "text-text-neutral-primary",
           )}
         >
           {label}
