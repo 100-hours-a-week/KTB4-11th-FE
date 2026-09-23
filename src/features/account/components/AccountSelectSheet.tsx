@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useAccountsQuery } from "@/features/account/hooks/useAccountsQuery";
+import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
+import { useAccountStore } from "@/store/accountStore";
 import CheckCircleIcon from "@/assets/icons/fill/check-circle.svg";
 import CloseIcon from "@/assets/icons/fill/close.svg";
 import PlusIcon from "@/assets/icons/fill/plus.svg";
@@ -21,9 +22,10 @@ interface AccountSelectSheetProps {
 export function AccountSelectSheet({ trigger }: AccountSelectSheetProps) {
   const { data } = useAccountsQuery();
   const accounts = data?.accounts ?? [];
-  const [selectedAccountId, setSelectedAccountId] = useState<
-    number | undefined
-  >(accounts[0]?.account_id);
+  const selectedAccountId = useSelectedAccountId();
+  const setSelectedAccountId = useAccountStore(
+    (state) => state.setSelectedAccountId,
+  );
 
   return (
     <Sheet>
