@@ -106,7 +106,7 @@ export function AccountCreationContainer({
 
   return (
     <div className="flex h-full flex-col">
-      <Header title={headerTitle} />
+      <Header title={headerTitle} className="bg-bg-layer-default" />
 
       <div className="flex flex-1 flex-col gap-7 px-5 pt-6">
         {showAccountNameField && (
