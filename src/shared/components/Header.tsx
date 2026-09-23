@@ -39,12 +39,8 @@ export function HeaderBackButton({ onClick }: HeaderBackButtonProps) {
   const router = useRouter();
 
   return (
-    <button
-      type="button"
-      onClick={onClick ?? (() => router.back())}
-      className="text-text-neutral-primary flex h-7 w-7 items-center justify-center"
-    >
-      <ChevronBackwardIcon width={24} height={24} />
+    <button type="button" onClick={onClick ?? (() => router.back())}>
+      <ChevronBackwardIcon className="text-icon-neutral-secondary size-7.5" />
     </button>
   );
 }
