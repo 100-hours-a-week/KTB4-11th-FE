@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Button } from "@/shared/components/Button";
 import { Header } from "@/shared/components/Header";
 import {
@@ -74,6 +75,7 @@ export function AccountCreationContainer({
           onSuccess: (data) => {
             setSelectedAccountId(data.account_id);
             router.replace("/home");
+            toast.success("새 계좌가 만들어졌어요");
           },
           onError: (error) => {
             if (isAccountNameAlreadyExistsError(error)) {
