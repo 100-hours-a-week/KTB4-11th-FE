@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { useAccountStore } from "@/store/accountStore";
@@ -73,7 +74,7 @@ export function AccountSelectSheet({ trigger }: AccountSelectSheetProps) {
               ))}
             </div>
             <hr className="border-border-neutral-muted my-4" />
-            <button type="button" className="flex items-center gap-3">
+            <Link href="/account/create" className="flex items-center gap-3">
               <span className="bg-bg-layer-basement flex size-10 items-center justify-center rounded-full">
                 <PlusIcon
                   width={24}
@@ -84,7 +85,7 @@ export function AccountSelectSheet({ trigger }: AccountSelectSheetProps) {
               <span className="body-1-medium text-text-neutral-secondary">
                 새 계좌 만들기
               </span>
-            </button>
+            </Link>
             <div className="bg-bg-neutral-tertiary mx-auto mt-4 h-1 w-9 rounded-full" />
           </div>
         </SheetContent>

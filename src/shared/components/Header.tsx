@@ -16,14 +16,16 @@ export function Header({ title, left, right, className }: HeaderProps) {
   return (
     <header
       className={cn(
-        "flex w-full shrink-0 items-center justify-between px-5 py-3",
+        "relative flex w-full shrink-0 items-center justify-between",
         className,
       )}
     >
-      <div className="flex items-center gap-2">
-        {left}
-        {title && <span className="heading-1-bold">{title}</span>}
-      </div>
+      <div className="flex items-center">{left}</div>
+      {title && (
+        <span className="heading-1-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          {title}
+        </span>
+      )}
       <div className="flex items-center gap-3">{right}</div>
     </header>
   );
@@ -37,12 +39,8 @@ export function HeaderBackButton({ onClick }: HeaderBackButtonProps) {
   const router = useRouter();
 
   return (
-    <button
-      type="button"
-      onClick={onClick ?? (() => router.back())}
-      className="text-text-neutral-primary flex h-7 w-7 items-center justify-center"
-    >
-      <ChevronBackwardIcon width={24} height={24} />
+    <button type="button" onClick={onClick ?? (() => router.back())}>
+      <ChevronBackwardIcon className="text-icon-neutral-secondary size-7.5" />
     </button>
   );
 }
