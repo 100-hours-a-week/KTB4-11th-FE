@@ -1,4 +1,5 @@
 import { AccountSelectSheet } from "@/features/account/components/AccountSelectSheet";
+import { AccountSettingsSheet } from "@/features/account/components/AccountSettingsSheet";
 import ThreeDotHorizontalIcon from "@/assets/icons/fill/three-dot-horizontal.svg";
 import UnfoldIcon from "@/assets/icons/fill/unfold.svg";
 
@@ -18,13 +19,17 @@ export function AccountSelector() {
           </button>
         }
       />
-      <button type="button">
-        <ThreeDotHorizontalIcon
-          width={24}
-          height={24}
-          className="text-icon-neutral-secondary"
-        />
-      </button>
+      <AccountSettingsSheet
+        trigger={
+          <button type="button">
+            <ThreeDotHorizontalIcon
+              width={24}
+              height={24}
+              className="text-icon-neutral-secondary"
+            />
+          </button>
+        }
+      />
     </div>
   );
 }
