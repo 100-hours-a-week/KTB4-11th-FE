@@ -1,0 +1,123 @@
+name: Frontend CD
+
+on:
+  workflow_run:
+    workflows: ["Frontend Main CI"]
+    types: [completed]
+    branches: [main]
+
+concurrency:
+  group: fe-cd
+  cancel-in-progress: false
+
+env:
+  ECR_REGION: ${{ vars.ECR_REGION }}
+  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+
+jobs:
+  guard:
+    runs-on: ubuntu-26.04
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      deploy: ${{ steps.check.outputs.deploy }}
+      tag: ${{ steps.check.outputs.tag }}
+    steps:
+      - name: Check whether the main CI built an image
+        id: check
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+
+            if (
+              run.conclusion !== 'success' ||
+              run.event !== 'push' ||
+              run.head_branch !== 'main'
+            ) {
+              core.info('Not a successful main push; skip deployment.');
+              core.setOutput('deploy', 'false');
+              return;
+            }
+
+            const { data } = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: run.id,
+            });
+            const buildJob = data.jobs.find((job) => job.name === 'test-build');
+
+            if (buildJob?.conclusion !== 'success') {
+              core.info('The test-build job did not succeed; skip deployment.');
+              core.setOutput('deploy', 'false');
+              return;
+            }
+
+            core.setOutput('tag', run.head_sha);
+            core.setOutput('deploy', 'true');
+
+  verify-image:
+    needs: guard
+    if: needs.guard.outputs.deploy == 'true'
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.ECR_REGION }}
+
+      - name: Verify the frontend image in Public ECR
+        env:
+          IMAGE_TAG: ${{ needs.guard.outputs.tag }}
+        run: |
+          set -Eeuo pipefail
+          : "${ECR_REGION:?Set the ECR_REGION repository variable}"
+          : "${ECR_REPOSITORY:?Set the ECR_REPOSITORY repository variable}"
+
+          aws ecr-public describe-images \
+            --region "$ECR_REGION" \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-ids "imageTag=$IMAGE_TAG" \
+            >/dev/null
+
+          echo "Verified frontend image tag: $IMAGE_TAG"
+
+  deploy:
+    needs: [guard, verify-image]
+    if: needs.guard.outputs.deploy == 'true'
+    runs-on: ubuntu-26.04
+    environment: production
+    permissions:
+      contents: read
+    env:
+      IMAGE_TAG: ${{ needs.guard.outputs.tag }}
+      SERVICE: frontend
+    steps:
+      - name: Deploy through the Cloud repository script
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 15m
+          envs: SERVICE,IMAGE_TAG
+          script: |
+            set -Eeuo pipefail
+            cd /opt/cloud
+            git pull --ff-only origin main
+            ./scripts/deploy.sh image "$SERVICE" "$IMAGE_TAG"
+
+      - name: Add deployment summary
+        if: always()
+        run: |
+          {
+            echo "### Frontend deployment"
+            echo "- Service: $SERVICE"
+            echo "- Image tag: `$IMAGE_TAG`"
+            echo "- Result: ${{ job.status }}"
+          } >> "$GITHUB_STEP_SUMMARY"
