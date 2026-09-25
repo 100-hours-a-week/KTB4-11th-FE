@@ -19,11 +19,6 @@ export interface Account {
   return_percent: number;
 }
 
-export interface AccountListResponse {
-  message: string;
-  accounts: Account[];
-}
-
 export interface AccountDetail {
   message: string;
   account_id: number;

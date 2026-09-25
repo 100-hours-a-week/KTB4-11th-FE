@@ -12,4 +12,11 @@ export const authHandlers: HttpHandler[] = [
       onboarding_required: true,
     });
   }),
+
+  http.post("*/api/v1/auth/logout", async () => {
+    return HttpResponse.json({
+      code: "LOGOUT_SUCCESS",
+      message: "로그아웃되었습니다.",
+    });
+  }),
 ];
