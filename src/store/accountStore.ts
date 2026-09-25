@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 
 interface AccountStore {
   selectedAccountId: number | undefined;
-  setSelectedAccountId: (accountId: number) => void;
+  setSelectedAccountId: (accountId: number | undefined) => void;
 }
 
 export const useAccountStore = create<AccountStore>()(

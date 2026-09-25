@@ -7,6 +7,7 @@ interface InputProps extends Omit<ComponentProps<"input">, "onChange"> {
   label?: string;
   helperText?: string;
   error?: boolean;
+  bordered?: boolean;
   left?: ReactNode;
   right?: ReactNode;
   labelClassName?: string;
@@ -17,6 +18,7 @@ export function Input({
   label,
   helperText,
   error,
+  bordered = false,
   left,
   right,
   id,
@@ -49,7 +51,9 @@ export function Input({
           "focus-within:border-border-accent",
           error && "border-border-error",
           disabled && "bg-bg-layer-basement border-border-neutral-muted",
-          !error && !disabled && "border-transparent",
+          !error &&
+            !disabled &&
+            (bordered ? "border-gray-100" : "border-transparent"),
         )}
       >
         {left && <span className="text-icon-neutral-secondary">{left}</span>}

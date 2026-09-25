@@ -69,3 +69,11 @@ export function ModalDescription({
     />
   );
 }
+
+export function ModalBody({ className, ...props }: ComponentProps<"div">) {
+  return <div className={cn("mt-5", className)} {...props} />;
+}
+
+export function ModalFooter({ className, ...props }: ComponentProps<"div">) {
+  return <div className={cn("mt-5 flex gap-2.5", className)} {...props} />;
+}
