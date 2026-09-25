@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { AccountBalanceCard } from "@/features/account/components/AccountBalanceCard";
 import { AccountPerformanceCard } from "@/features/account/components/AccountPerformanceCard";
 import { AccountSelector } from "@/features/account/components/AccountSelector";
 import { useAccountDetailQuery } from "@/features/account/hooks/useAccountDetailQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
+import { LogoutConfirmModal } from "@/features/user/components/LogoutConfirmModal";
 import { ProfileCard } from "@/features/user/components/ProfileCard";
 import { useUserQuery } from "@/features/user/hooks/useUserQuery";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
@@ -14,6 +16,7 @@ export function MyPageContainer() {
   const accountId = useSelectedAccountId();
   const { data: account } = useAccountDetailQuery(accountId);
   const { data: user } = useUserQuery();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   return (
     <div className="pt-safe-top flex h-full flex-col">
@@ -49,11 +52,19 @@ export function MyPageContainer() {
             계정
           </span>
           <div className="flex flex-col gap-2">
-            <MenuRow label="로그아웃" />
+            <MenuRow
+              label="로그아웃"
+              onClick={() => setIsLogoutModalOpen(true)}
+            />
             <MenuRow label="회원 탈퇴" />
           </div>
         </div>
       </div>
+
+      <LogoutConfirmModal
+        open={isLogoutModalOpen}
+        onOpenChange={setIsLogoutModalOpen}
+      />
     </div>
   );
 }
