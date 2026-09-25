@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { Header } from "@/shared/components/Header";
 import { MenuRow } from "@/shared/components/MenuRow";
@@ -41,11 +42,13 @@ export function HomeContainer() {
               height={24}
               className="text-icon-neutral-primary"
             />
-            <ProfileIcon
-              width={24}
-              height={24}
-              className="text-icon-neutral-primary"
-            />
+            <Link href="/mypage">
+              <ProfileIcon
+                width={24}
+                height={24}
+                className="text-icon-neutral-primary"
+              />
+            </Link>
           </>
         }
       />
