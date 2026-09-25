@@ -47,3 +47,7 @@ export interface UpdateAccountNameResponse {
   account_id: number;
   account_name: string;
 }
+
+export interface DeleteAccountResponse {
+  message: string;
+}
