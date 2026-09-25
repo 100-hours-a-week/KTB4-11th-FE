@@ -57,9 +57,7 @@ export function HomeContainer() {
             cashBalance={account?.cash_balance ?? 0}
             valuation={account?.holdings_market_value ?? 0}
           />
-          <div className="bg-bg-layer-default rounded-2xl px-4">
-            <MenuRow label="주문내역" />
-          </div>
+          <MenuRow label="주문내역" />
         </div>
         <div className="mt-4">
           <HoldingStockList
