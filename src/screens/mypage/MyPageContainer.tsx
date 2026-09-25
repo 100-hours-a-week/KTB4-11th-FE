@@ -8,6 +8,7 @@ import { useAccountDetailQuery } from "@/features/account/hooks/useAccountDetail
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { LogoutConfirmModal } from "@/features/user/components/LogoutConfirmModal";
 import { ProfileCard } from "@/features/user/components/ProfileCard";
+import { WithdrawConfirmModal } from "@/features/user/components/WithdrawConfirmModal";
 import { useUserQuery } from "@/features/user/hooks/useUserQuery";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { MenuRow } from "@/shared/components/MenuRow";
@@ -17,6 +18,7 @@ export function MyPageContainer() {
   const { data: account } = useAccountDetailQuery(accountId);
   const { data: user } = useUserQuery();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
   return (
     <div className="pt-safe-top flex h-full flex-col">
@@ -56,7 +58,10 @@ export function MyPageContainer() {
               label="로그아웃"
               onClick={() => setIsLogoutModalOpen(true)}
             />
-            <MenuRow label="회원 탈퇴" />
+            <MenuRow
+              label="회원 탈퇴"
+              onClick={() => setIsWithdrawModalOpen(true)}
+            />
           </div>
         </div>
       </div>
@@ -64,6 +69,10 @@ export function MyPageContainer() {
       <LogoutConfirmModal
         open={isLogoutModalOpen}
         onOpenChange={setIsLogoutModalOpen}
+      />
+      <WithdrawConfirmModal
+        open={isWithdrawModalOpen}
+        onOpenChange={setIsWithdrawModalOpen}
       />
     </div>
   );
