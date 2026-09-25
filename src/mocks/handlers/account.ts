@@ -1,7 +1,7 @@
 import { http, HttpResponse, type HttpHandler } from "msw";
 import type {
+  Account,
   AccountDetail,
-  AccountListResponse,
   CreateAccountResponse,
   DeleteAccountResponse,
   UpdateAccountNameResponse,
@@ -26,19 +26,24 @@ export const accountHandlers: HttpHandler[] = [
   }),
 
   http.get("*/api/v1/users/me/accounts", async () => {
-    return HttpResponse.json<AccountListResponse>({
-      message: "success",
-      accounts: [
-        {
-          account_id: 1,
-          account_name: "기본계좌",
-          is_duel_account: false,
-          cash_balance: 1_240_000,
-          total_assets: 13_720_000,
-          return_percent: 8.3,
-        },
-      ],
-    });
+    return HttpResponse.json<Account[]>([
+      {
+        account_id: 1,
+        account_name: "기본계좌",
+        is_duel_account: false,
+        cash_balance: 1_240_000,
+        total_assets: 13_720_000,
+        return_percent: 8.3,
+      },
+      {
+        account_id: 2,
+        account_name: "투자계좌",
+        is_duel_account: false,
+        cash_balance: 500_000,
+        total_assets: 650_000,
+        return_percent: 8.3,
+      },
+    ]);
   }),
 
   http.put(

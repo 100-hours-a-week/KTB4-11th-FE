@@ -22,7 +22,7 @@ interface AccountSelectSheetProps {
 
 export function AccountSelectSheet({ trigger }: AccountSelectSheetProps) {
   const { data } = useAccountListQuery();
-  const accounts = data?.accounts ?? [];
+  const accounts = data ?? [];
   const selectedAccountId = useSelectedAccountId();
   const setSelectedAccountId = useAccountStore(
     (state) => state.setSelectedAccountId,
