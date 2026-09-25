@@ -1,9 +1,15 @@
+"use client";
+
+import { useState } from "react";
+import { AccountNameEditModal } from "@/features/account/components/AccountNameEditModal";
 import { AccountSelectSheet } from "@/features/account/components/AccountSelectSheet";
 import { AccountSettingsSheet } from "@/features/account/components/AccountSettingsSheet";
 import ThreeDotHorizontalIcon from "@/assets/icons/fill/three-dot-horizontal.svg";
 import UnfoldIcon from "@/assets/icons/fill/unfold.svg";
 
 export function AccountSelector() {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   return (
     <div className="flex items-center justify-between py-3">
       <AccountSelectSheet
@@ -29,6 +35,13 @@ export function AccountSelector() {
             />
           </button>
         }
+        onEditClick={() => setIsEditModalOpen(true)}
+      />
+      <AccountNameEditModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        defaultValue="기본계좌"
+        onSave={() => setIsEditModalOpen(false)}
       />
     </div>
   );
