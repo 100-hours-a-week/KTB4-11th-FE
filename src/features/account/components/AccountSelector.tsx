@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AccountDeleteConfirmModal } from "@/features/account/components/AccountDeleteConfirmModal";
 import { AccountNameEditModal } from "@/features/account/components/AccountNameEditModal";
 import { AccountSelectSheet } from "@/features/account/components/AccountSelectSheet";
 import { AccountSettingsSheet } from "@/features/account/components/AccountSettingsSheet";
@@ -13,6 +14,10 @@ export function AccountSelector() {
   const accountId = useSelectedAccountId();
   const { data: account } = useAccountDetailQuery(accountId);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingAccountId, setDeletingAccountId] = useState<number | null>(
+    null,
+  );
 
   return (
     <div className="flex items-center justify-between py-3">
@@ -42,6 +47,11 @@ export function AccountSelector() {
           </button>
         }
         onEditClick={() => setIsEditModalOpen(true)}
+        onDeleteClick={() => {
+          if (accountId === undefined) return;
+          setDeletingAccountId(accountId);
+          setIsDeleteModalOpen(true);
+        }}
       />
       {accountId !== undefined && account && (
         <AccountNameEditModal
@@ -49,6 +59,13 @@ export function AccountSelector() {
           open={isEditModalOpen}
           onOpenChange={setIsEditModalOpen}
           defaultValue={account.account_name}
+        />
+      )}
+      {deletingAccountId !== null && (
+        <AccountDeleteConfirmModal
+          accountId={deletingAccountId}
+          open={isDeleteModalOpen}
+          onOpenChange={setIsDeleteModalOpen}
         />
       )}
     </div>
