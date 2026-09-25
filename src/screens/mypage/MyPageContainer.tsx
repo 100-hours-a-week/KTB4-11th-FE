@@ -6,19 +6,24 @@ import { AccountSelector } from "@/features/account/components/AccountSelector";
 import { useAccountDetailQuery } from "@/features/account/hooks/useAccountDetailQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { ProfileCard } from "@/features/user/components/ProfileCard";
+import { useUserQuery } from "@/features/user/hooks/useUserQuery";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { MenuRow } from "@/shared/components/MenuRow";
 
 export function MyPageContainer() {
   const accountId = useSelectedAccountId();
   const { data: account } = useAccountDetailQuery(accountId);
+  const { data: user } = useUserQuery();
 
   return (
     <div className="pt-safe-top flex h-full flex-col">
       <Header title="마이" className="px-5 py-3" left={<HeaderBackButton />} />
 
       <div className="flex flex-1 flex-col gap-2 px-5 pt-4">
-        <ProfileCard nickname="스푼러버" />
+        <ProfileCard
+          nickname={user?.nickname ?? ""}
+          profileImage={user?.profile_image ?? null}
+        />
 
         <div className="px-1">
           <AccountSelector />
