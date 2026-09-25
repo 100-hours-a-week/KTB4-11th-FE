@@ -1,3 +1,4 @@
+import Link from "next/link";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
 import type { AiTrade } from "@/features/ai/types/aiTrade";
 import { cn } from "@/shared/utils/cn";
@@ -62,8 +63,8 @@ export function AiTradeCard({
         </span>
       </div>
       <hr className="border-border-neutral-muted my-2" />
-      <button
-        type="button"
+      <Link
+        href={isBuy ? "/ai/trades/buy" : "/ai/trades/sell"}
         className="text-text-neutral-primary body-2-semibold flex w-full items-center justify-between"
       >
         판단 근거 보기
@@ -72,7 +73,7 @@ export function AiTradeCard({
           height={16}
           className="text-icon-neutral-secondary"
         />
-      </button>
+      </Link>
     </div>
   );
 }
