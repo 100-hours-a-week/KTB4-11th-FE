@@ -37,3 +37,13 @@ export interface AccountDetail {
   return_percent: number;
   executed_trade_count: number;
 }
+
+export interface UpdateAccountNameRequest {
+  account_name: string;
+}
+
+export interface UpdateAccountNameResponse {
+  message: string;
+  account_id: number;
+  account_name: string;
+}
