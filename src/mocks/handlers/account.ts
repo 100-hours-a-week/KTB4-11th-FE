@@ -3,6 +3,7 @@ import type {
   AccountDetail,
   AccountListResponse,
   CreateAccountResponse,
+  DeleteAccountResponse,
   UpdateAccountNameResponse,
 } from "@/features/account/types/account";
 
@@ -63,6 +64,12 @@ export const accountHandlers: HttpHandler[] = [
       });
     },
   ),
+
+  http.delete("*/api/v1/users/me/accounts/:accountId", async () => {
+    return HttpResponse.json<DeleteAccountResponse>({
+      message: "delete_success",
+    });
+  }),
 
   http.get("*/api/v1/users/me/accounts/:accountId", async () => {
     return HttpResponse.json<AccountDetail>({
