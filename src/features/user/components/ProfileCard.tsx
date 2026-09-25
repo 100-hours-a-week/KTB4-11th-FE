@@ -1,3 +1,6 @@
+"use client";
+
+import { toast } from "sonner";
 import EditIcon from "@/assets/icons/fill/edit.svg";
 import ProfileDefaultIcon from "@/assets/icons/stockspoon/profile-default.svg";
 
@@ -21,7 +24,10 @@ export function ProfileCard({ nickname, profileImage }: ProfileCardProps) {
         )}
         <span className="body-1-bold">{nickname}</span>
       </div>
-      <button type="button">
+      <button
+        type="button"
+        onClick={() => toast.info("프로필 수정은 v2에서 이용할 수 있어요")}
+      >
         <EditIcon
           width={24}
           height={24}
