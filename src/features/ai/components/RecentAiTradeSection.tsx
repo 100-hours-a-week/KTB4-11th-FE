@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AiTradeCard } from "@/features/ai/components/AiTradeCard";
 import type { AiTrade } from "@/features/ai/types/aiTrade";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
@@ -27,13 +28,13 @@ export function RecentAiTradeSection({ trades }: RecentAiTradeSectionProps) {
         </div>
       </div>
       {firstTrade && <AiTradeCard {...firstTrade} />}
-      <button
-        type="button"
+      <Link
+        href="/ai/trades"
         className="text-text-neutral-secondary caption-1-regular flex items-center justify-center gap-0.5 py-1"
       >
         AI 매매 내역 보기
         <ChevronForwardIcon width={12} height={12} />
-      </button>
+      </Link>
     </div>
   );
 }
