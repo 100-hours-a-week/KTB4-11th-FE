@@ -8,10 +8,11 @@ export async function putAccountName(
   accountId: number,
   payload: UpdateAccountNameRequest,
 ) {
-  const { data } = await apiClient.put<UpdateAccountNameResponse>(
-    `/api/v1/users/me/accounts/${accountId}`,
-    payload,
-  );
+  const { data: updateAccountNameResponse } =
+    await apiClient.put<UpdateAccountNameResponse>(
+      `/api/v1/users/me/accounts/${accountId}`,
+      payload,
+    );
 
-  return data;
+  return updateAccountNameResponse;
 }

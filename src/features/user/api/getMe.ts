@@ -2,7 +2,8 @@ import { apiClient } from "@/shared/lib/axios";
 import type { UserProfile } from "@/features/user/types/user";
 
 export async function getMe() {
-  const { data } = await apiClient.get<UserProfile>("/api/v1/users/me");
+  const { data: userProfile } =
+    await apiClient.get<UserProfile>("/api/v1/users/me");
 
-  return data;
+  return userProfile;
 }
