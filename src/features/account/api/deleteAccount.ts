@@ -2,9 +2,10 @@ import { apiClient } from "@/shared/lib/axios";
 import type { DeleteAccountResponse } from "@/features/account/types/account";
 
 export async function deleteAccount(accountId: number) {
-  const { data } = await apiClient.delete<DeleteAccountResponse>(
-    `/api/v1/users/me/accounts/${accountId}`,
-  );
+  const { data: deleteAccountResponse } =
+    await apiClient.delete<DeleteAccountResponse>(
+      `/api/v1/users/me/accounts/${accountId}`,
+    );
 
-  return data;
+  return deleteAccountResponse;
 }
