@@ -50,11 +50,13 @@ export function HoldingsContainer() {
       />
 
       <div className="flex flex-1 flex-col gap-3 px-5 pt-2 pb-8">
-        <HoldingCategoryChips
-          categories={categories}
-          value={category}
-          onChange={setCategory}
-        />
+        {!isError && categories.length > 0 && (
+          <HoldingCategoryChips
+            categories={categories}
+            value={category}
+            onChange={setCategory}
+          />
+        )}
 
         {!isError && filteredStocks.length > 0 && (
           <div className="flex justify-end">
