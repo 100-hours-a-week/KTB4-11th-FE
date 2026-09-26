@@ -65,7 +65,7 @@ export function HoldingsContainer() {
         )}
 
         {isError ? (
-          <div className="bg-bg-layer-default rounded-2xl">
+          <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
             <ErrorState onRetry={() => refetch()} />
           </div>
         ) : filteredStocks.length === 0 ? (
