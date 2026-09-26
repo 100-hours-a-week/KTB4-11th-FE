@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { HoldingStockItem } from "@/features/account/components/HoldingStockItem";
 import type { HoldingStock } from "@/features/account/types/holdingStock";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
@@ -38,13 +39,13 @@ export function HoldingStockList({
               <HoldingStockItem key={stock.id} {...stock} />
             ))}
           </div>
-          <button
-            type="button"
+          <Link
+            href="/account/holdings"
             className="text-text-neutral-secondary caption-1-regular flex items-center justify-center gap-0.5 py-1"
           >
             보유 주식 전체 보기
             <ChevronForwardIcon width={12} height={12} />
-          </button>
+          </Link>
         </>
       )}
     </div>
