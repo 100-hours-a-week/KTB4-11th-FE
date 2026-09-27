@@ -13,12 +13,14 @@ import { useHoldingsQuery } from "@/features/account/hooks/useHoldingsQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { toHoldingStock } from "@/features/account/utils/toHoldingStock";
 import { RecentAiTradeSection } from "@/features/ai/components/RecentAiTradeSection";
+import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
 import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
 
 export function HomeContainer() {
   const accountId = useSelectedAccountId();
 
+  const { data: kospi } = useKospiIndexQuery();
   const { data: account } = useAccountDetailQuery(accountId);
   const {
     data: holdingsData,
@@ -52,7 +54,10 @@ export function HomeContainer() {
           </>
         }
       />
-      <StockTickerBar title="스톡스푼" />
+      <StockTickerBar
+        title="스톡스푼"
+        kospi={kospi && { value: kospi.value, changeRate: kospi.changeRate }}
+      />
       <div className="flex flex-col gap-1 px-5 pb-24">
         <AccountSelector />
         <div className="flex flex-col gap-2">
