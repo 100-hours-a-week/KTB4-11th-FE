@@ -1,4 +1,5 @@
 export interface AiTrade {
+  orderId: number;
   stockName: string;
   tradeType: "매도" | "매수";
   tradeDate: string;

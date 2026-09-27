@@ -6,6 +6,7 @@ import { cn } from "@/shared/utils/cn";
 type AiTradeCardProps = AiTrade;
 
 export function AiTradeCard({
+  orderId,
   stockName,
   tradeType,
   tradeDate,
@@ -64,7 +65,7 @@ export function AiTradeCard({
       </div>
       <hr className="border-border-neutral-muted my-2" />
       <Link
-        href={isBuy ? "/ai/trades/buy" : "/ai/trades/sell"}
+        href={`/ai/trades/${orderId}`}
         className="text-text-neutral-primary body-2-semibold flex w-full items-center justify-between"
       >
         판단 근거 보기

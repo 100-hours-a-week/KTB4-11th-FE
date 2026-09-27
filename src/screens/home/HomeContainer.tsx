@@ -78,6 +78,7 @@ export function HomeContainer() {
           <RecentAiTradeSection
             trades={[
               {
+                orderId: 101,
                 stockName: "SK하이닉스",
                 tradeType: "매도",
                 tradeDate: "2026.09.03 14:20",
@@ -89,6 +90,7 @@ export function HomeContainer() {
                 profitRate: 4.9,
               },
               {
+                orderId: 102,
                 stockName: "삼성전자",
                 tradeType: "매수",
                 tradeDate: "2026.08.27 10:14",
@@ -99,6 +101,7 @@ export function HomeContainer() {
                 profitRate: 0,
               },
               {
+                orderId: 103,
                 stockName: "카카오",
                 tradeType: "매수",
                 tradeDate: "2026.08.26 09:38",

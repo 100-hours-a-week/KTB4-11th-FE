@@ -13,6 +13,7 @@ import { Header, HeaderBackButton } from "@/shared/components/Header";
 
 const MOCK_TRADES: AiTrade[] = [
   {
+    orderId: 101,
     stockName: "SK하이닉스",
     tradeType: "매도",
     tradeDate: "2026.09.03 14:20",
@@ -23,6 +24,7 @@ const MOCK_TRADES: AiTrade[] = [
     profitRate: 4.9,
   },
   {
+    orderId: 102,
     stockName: "삼성전자",
     tradeType: "매수",
     tradeDate: "2026.08.27 10:14",
@@ -33,6 +35,7 @@ const MOCK_TRADES: AiTrade[] = [
     profitRate: 0,
   },
   {
+    orderId: 103,
     stockName: "카카오",
     tradeType: "매수",
     tradeDate: "2026.08.26 09:38",
@@ -43,6 +46,7 @@ const MOCK_TRADES: AiTrade[] = [
     profitRate: 0,
   },
   {
+    orderId: 104,
     stockName: "NAVER",
     tradeType: "매도",
     tradeDate: "2026.08.20 11:05",
@@ -53,6 +57,7 @@ const MOCK_TRADES: AiTrade[] = [
     profitRate: -0.8,
   },
   {
+    orderId: 105,
     stockName: "LG에너지솔루션",
     tradeType: "매수",
     tradeDate: "2026.08.14 13:42",
@@ -63,6 +68,7 @@ const MOCK_TRADES: AiTrade[] = [
     profitRate: 0,
   },
   {
+    orderId: 106,
     stockName: "카카오",
     tradeType: "매도",
     tradeDate: "2026.08.05 15:10",
@@ -107,7 +113,7 @@ export function AiTradeHistoryContainer() {
         ) : (
           <div className="flex flex-col gap-2">
             {filteredTrades.map((trade) => (
-              <AiTradeCard key={trade.stockName + trade.tradeDate} {...trade} />
+              <AiTradeCard key={trade.orderId} {...trade} />
             ))}
           </div>
         )}
