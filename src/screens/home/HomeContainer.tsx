@@ -14,6 +14,8 @@ import { useHoldingsQuery } from "@/features/account/hooks/useHoldingsQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { toHoldingStock } from "@/features/account/utils/toHoldingStock";
 import { RecentAiTradeSection } from "@/features/ai/components/RecentAiTradeSection";
+import { useOrdersQuery } from "@/features/ai/hooks/useOrdersQuery";
+import { toAiTrade } from "@/features/ai/utils/toAiTrade";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
 import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
@@ -34,6 +36,9 @@ export function HomeContainer() {
     limit: 3,
   });
   const holdings = holdingsData?.holdings ?? [];
+
+  const { data: ordersResponse } = useOrdersQuery(accountId);
+  const trades = (ordersResponse?.orders ?? []).map(toAiTrade);
 
   return (
     <div className="bg-page-gradient pt-safe-top flex h-full flex-col">
@@ -77,44 +82,7 @@ export function HomeContainer() {
           />
         </div>
         <div className="mt-4">
-          <RecentAiTradeSection
-            trades={[
-              {
-                orderId: 101,
-                stockName: "SK하이닉스",
-                tradeType: "매도",
-                tradeDate: "2026.09.03 14:20",
-                quantity: 2,
-                price: 196_000,
-                reasoning:
-                  "목표 수익률에 도달하고 상승 흐름이 약해져 매도했어요.",
-                realizedProfit: 18_400,
-                profitRate: 4.9,
-              },
-              {
-                orderId: 102,
-                stockName: "삼성전자",
-                tradeType: "매수",
-                tradeDate: "2026.08.27 10:14",
-                quantity: 3,
-                price: 72_400,
-                reasoning: "추세 상승과 거래량 증가를 확인해 매수했어요.",
-                realizedProfit: 0,
-                profitRate: 0,
-              },
-              {
-                orderId: 103,
-                stockName: "카카오",
-                tradeType: "매수",
-                tradeDate: "2026.08.26 09:38",
-                quantity: 15,
-                price: 43_000,
-                reasoning: "업종 비중을 나누기 위해 플랫폼 종목을 담았어요.",
-                realizedProfit: 0,
-                profitRate: 0,
-              },
-            ]}
-          />
+          <RecentAiTradeSection trades={trades} />
         </div>
       </div>
       <BottomTabBar />
