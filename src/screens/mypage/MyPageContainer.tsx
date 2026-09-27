@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AccountBalanceCard } from "@/features/account/components/AccountBalanceCard";
 import { AccountPerformanceCard } from "@/features/account/components/AccountPerformanceCard";
@@ -14,6 +15,7 @@ import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { MenuRow } from "@/shared/components/MenuRow";
 
 export function MyPageContainer() {
+  const router = useRouter();
   const accountId = useSelectedAccountId();
   const { data: account } = useAccountDetailQuery(accountId);
   const { data: user } = useUserQuery();
@@ -47,6 +49,19 @@ export function MyPageContainer() {
 
         <div>
           <MenuRow label="주문 내역" />
+        </div>
+
+        <div className="mt-4 flex flex-col gap-2">
+          <span className="body-2-semibold text-text-neutral-secondary">
+            약관 및 정책
+          </span>
+          <div className="flex flex-col gap-2">
+            <MenuRow label="이용약관" onClick={() => router.push("/terms")} />
+            <MenuRow
+              label="개인정보 처리방침"
+              onClick={() => router.push("/privacy")}
+            />
+          </div>
         </div>
 
         <div className="mt-4 flex flex-col gap-2">
