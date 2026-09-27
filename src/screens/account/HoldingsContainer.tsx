@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { HoldingCategoryChips } from "@/features/account/components/HoldingCategoryChips";
 import { HoldingStockItem } from "@/features/account/components/HoldingStockItem";
 import { HoldingsSortDropdown } from "@/features/account/components/HoldingsSortDropdown";
@@ -26,15 +26,8 @@ export function HoldingsContainer() {
     refetch,
   } = useHoldingsQuery(accountId, { sort, order: "desc" });
 
-  const stocks = useMemo(
-    () => (holdingsData?.holdings ?? []).map(toHoldingStock),
-    [holdingsData],
-  );
-
-  const categories = useMemo(
-    () => Array.from(new Set(stocks.map((stock) => stock.category))),
-    [stocks],
-  );
+  const stocks = (holdingsData?.holdings ?? []).map(toHoldingStock);
+  const categories = Array.from(new Set(stocks.map((stock) => stock.category)));
 
   const filteredStocks =
     category === ALL_CATEGORY
