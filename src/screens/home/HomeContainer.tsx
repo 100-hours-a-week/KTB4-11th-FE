@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { Header } from "@/shared/components/Header";
 import { MenuRow } from "@/shared/components/MenuRow";
@@ -18,6 +19,7 @@ import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
 
 export function HomeContainer() {
+  const router = useRouter();
   const accountId = useSelectedAccountId();
 
   const { data: kospi } = useKospiIndexQuery();
@@ -65,7 +67,7 @@ export function HomeContainer() {
             cashBalance={account?.cash_balance ?? 0}
             valuation={account?.holdings_market_value ?? 0}
           />
-          <MenuRow label="주문내역" />
+          <MenuRow label="주문내역" onClick={() => router.push("/ai/trades")} />
         </div>
         <div className="mt-4">
           <HoldingStockList
