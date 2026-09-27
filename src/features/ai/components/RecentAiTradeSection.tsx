@@ -25,7 +25,7 @@ export function RecentAiTradeSection({ trades }: RecentAiTradeSectionProps) {
           <div className="flex items-center gap-1">
             {displayedTrades.map((trade, index) => (
               <button
-                key={trade.stockName + trade.tradeDate}
+                key={trade.orderId}
                 type="button"
                 aria-label={`${index + 1}번째 매매로 이동`}
                 onClick={() => scrollTo(index)}
@@ -43,10 +43,7 @@ export function RecentAiTradeSection({ trades }: RecentAiTradeSectionProps) {
       <div className="-ml-3 overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {displayedTrades.map((trade) => (
-            <div
-              key={trade.stockName + trade.tradeDate}
-              className="min-w-0 flex-[0_0_100%] pl-3"
-            >
+            <div key={trade.orderId} className="min-w-0 flex-[0_0_100%] pl-3">
               <AiTradeCard {...trade} />
             </div>
           ))}
