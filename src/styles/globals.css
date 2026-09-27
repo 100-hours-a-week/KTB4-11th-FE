@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "pretendard/dist/web/variable/pretendardvariable.css";
 @import "./typography.css";
+@plugin "tailwindcss-animate";
 
 /** 디자인 토큰 정의 (v1 범위) */
 @theme {
@@ -94,7 +95,7 @@
   --color-bg-layer-default: var(--color-base-50);
   --color-bg-layer-floating: var(--color-base-50);
   --color-bg-layer-basement: var(--color-gray-50);
-  --color-bg-layer-overlay: #00000066;
+  --color-bg-layer-overlay: #00000033;
 
   --color-bg-neutral-primary: var(--color-gray-900);
   --color-bg-neutral-secondary: var(--color-gray-800);
@@ -128,6 +129,7 @@
   --color-icon-success: var(--color-green-600);
   --color-icon-informative: var(--color-blue-600);
 
+  --color-icon-neutral-strong: var(--color-gray-900);
   --color-icon-neutral-primary: var(--color-gray-600);
   --color-icon-neutral-secondary: var(--color-gray-300);
   --color-icon-neutral-inverse: var(--color-base-50);
@@ -147,11 +149,47 @@
 
   /** Radius Tokens */
   --radius-r3: 12px;
+  --radius-r4: 24px;
   --radius-full: 9999px;
+
+  /** Spacing Tokens */
+  --spacing-safe-top: max(env(safe-area-inset-top), 47px);
+
+  /** Blur Tokens */
+  --blur-overlay: 3px;
 }
 
 body {
-  background: var(--color-bg-layer-basement);
+  background: var(--color-base-50);
   color: var(--color-text-neutral-primary);
   font-family: var(--font-sans);
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility bg-page-gradient {
+  background-image: linear-gradient(
+    180deg,
+    var(--color-sky-blue-50) 0%,
+    var(--color-gray-50) 100%
+  );
+}
+
+@utility bg-login-gradient {
+  background-image: linear-gradient(
+    180deg,
+    var(--color-sky-blue-50) 0%,
+    var(--color-base-50) 100%
+  );
 }

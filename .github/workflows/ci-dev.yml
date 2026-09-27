@@ -7,6 +7,12 @@ on:
     paths-ignore: # 문서 변경 시에는 CI를 진행하지 않는다
       - "**/*.md"
       - "docs/**"
+  pull_request:
+    branches:
+      - dev
+    paths-ignore: # 문서 변경 시에는 CI를 진행하지 않는다
+      - "**/*.md"
+      - "docs/**"
 
 permissions:
   contents: read
