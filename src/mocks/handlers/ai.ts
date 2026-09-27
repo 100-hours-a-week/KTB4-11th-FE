@@ -1,4 +1,5 @@
 import { http, HttpResponse, type HttpHandler } from "msw";
+import type { Order, OrdersResponse } from "@/features/ai/types/aiTrade";
 import type { AiReportResponse } from "@/features/ai/types/aiTradeReasoning";
 
 const BUY_DECISION_STEPS = [
@@ -224,7 +225,46 @@ const AI_REPORTS: Record<number, AiReportResponse> = {
   },
 };
 
+const ORDERS: Order[] = Object.values(AI_REPORTS)
+  .map((report) => ({
+    order_id: report.order_id,
+    stock_code: report.stock_code,
+    stock_name: report.stock_name,
+    order_side: report.order_side,
+    order_type: "market" as const,
+    order_status: "executed" as const,
+    quantity: report.execution.execution_quantity,
+    limit_price: null,
+    reserved_cash: 0,
+    created_at: report.decided_at,
+    canceled_at: null,
+    executions: [
+      {
+        execution_id: report.report_id,
+        execution_price: report.execution.execution_price,
+        execution_quantity: report.execution.execution_quantity,
+        created_at: report.execution.executed_at,
+      },
+    ],
+    can_cancel: false,
+    summary: report.summary,
+    realized_pnl: report.sell_analysis?.trade_result.realized_pnl ?? null,
+    realized_return_percent:
+      report.sell_analysis?.trade_result.realized_return_percent ?? null,
+  }))
+  .sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  );
+
 export const aiHandlers: HttpHandler[] = [
+  http.get("*/api/v1/accounts/:accountId/orders", async () => {
+    return HttpResponse.json<OrdersResponse>({
+      message: "success",
+      account_id: 1,
+      orders: ORDERS,
+    });
+  }),
   http.get(
     "*/api/v1/accounts/:accountId/orders/:orderId/ai-report",
     async ({ params }) => {
