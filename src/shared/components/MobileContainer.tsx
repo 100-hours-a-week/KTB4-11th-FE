@@ -14,7 +14,7 @@ export function MobileContainer({ children }: { children: ReactNode }) {
       ref={(node) => {
         mobileContainerElement = node;
       }}
-      className="bg-bg-layer-basement hide-scrollbar relative mx-auto h-full max-w-120 overflow-y-auto"
+      className="bg-bg-layer-basement relative mx-auto h-full max-w-120 overflow-y-auto"
     >
       {children}
     </div>

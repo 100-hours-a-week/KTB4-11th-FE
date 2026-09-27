@@ -169,12 +169,13 @@ button:not(:disabled) {
   cursor: pointer;
 }
 
-@utility hide-scrollbar {
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
   &::-webkit-scrollbar {
     display: none;
   }
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
 
 @utility bg-page-gradient {
