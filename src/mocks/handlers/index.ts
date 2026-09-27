@@ -2,6 +2,7 @@ import type { HttpHandler } from "msw";
 import { accountHandlers } from "@/mocks/handlers/account";
 import { authHandlers } from "@/mocks/handlers/auth";
 import { holdingsHandlers } from "@/mocks/handlers/holdings";
+import { stockHandlers } from "@/mocks/handlers/stock";
 import { userHandlers } from "@/mocks/handlers/user";
 
 export const handlers: HttpHandler[] = [
@@ -9,4 +10,5 @@ export const handlers: HttpHandler[] = [
   ...accountHandlers,
   ...holdingsHandlers,
   ...userHandlers,
+  ...stockHandlers,
 ];
