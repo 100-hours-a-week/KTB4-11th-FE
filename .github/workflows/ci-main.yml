@@ -121,6 +121,8 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
 
       # 12. 실제 배포할 Docker Image를 Build하고 ECR에 저장한다
       - name: Docker Image Build and Push to ECR
