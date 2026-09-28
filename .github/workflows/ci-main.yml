@@ -130,7 +130,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/stocks-frontend:${{ github.sha }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/g8x9p1p0/stockspoon-v1-frontend:${{ github.sha }}
 
       # main의 이전 Docker Layer Cache를 GitHub Actions Cache에서 불러온다
           cache-from: type=gha,scope=stocks-frontend-main
