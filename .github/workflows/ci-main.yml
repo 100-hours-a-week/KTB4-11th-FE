@@ -130,8 +130,8 @@ jobs:
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/stocks-frontend:${{ github.sha }}
 
-          # main의 이전 Docker Layer Cache를 GitHub Actions Cache에서 불러온다
+      # main의 이전 Docker Layer Cache를 GitHub Actions Cache에서 불러온다
           cache-from: type=gha,scope=stocks-frontend-main
 
-          # 이번 Docker Build Layer를 다음 main Build에서 재사용할 수 있도록 저장한다
+      # 이번 Docker Build Layer를 다음 main Build에서 재사용할 수 있도록 저장한다
           cache-to: type=gha,mode=max,scope=stocks-frontend-main

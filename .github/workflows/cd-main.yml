@@ -46,10 +46,10 @@ jobs:
               repo: context.repo.repo,
               run_id: run.id,
             });
-            const buildJob = data.jobs.find((job) => job.name === 'build-and-publish');
+            const buildJob = data.jobs.find((job) => job.name === 'test-build');
 
             if (buildJob?.conclusion !== 'success') {
-              core.info('The build-and-publish job did not succeed; skip deployment.');
+              core.info('The test-build job did not succeed; skip deployment.');
               core.setOutput('deploy', 'false');
               return;
             }
