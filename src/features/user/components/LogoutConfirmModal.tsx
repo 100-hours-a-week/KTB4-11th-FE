@@ -11,6 +11,7 @@ import {
   ModalTitle,
 } from "@/shared/components/Modal";
 import { useLogoutMutation } from "@/features/auth/hooks/useLogoutMutation";
+import { trackEvent } from "@/shared/utils/analytics";
 import LogoutIcon from "@/assets/icons/fill/logout.svg";
 
 interface LogoutConfirmModalProps {
@@ -26,6 +27,9 @@ export function LogoutConfirmModal({
 
   const handleLogout = () => {
     mutate(undefined, {
+      onSuccess: () => {
+        trackEvent("logout");
+      },
       onError: () => {
         toast.error("로그아웃하지 못했어요. 다시 시도해 주세요.");
       },
