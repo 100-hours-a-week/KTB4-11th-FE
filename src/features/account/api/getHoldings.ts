@@ -8,10 +8,10 @@ export async function getHoldings(
   accountId: number,
   params?: HoldingsQueryParams,
 ) {
-  const { data } = await apiClient.get<HoldingsResponse>(
+  const { data: holdingsResponse } = await apiClient.get<HoldingsResponse>(
     `/api/v1/users/me/accounts/${accountId}/holdings`,
     { params },
   );
 
-  return data;
+  return holdingsResponse;
 }

@@ -1,10 +1,10 @@
 import { apiClient } from "@/shared/lib/axios";
-import type { AccountListResponse } from "@/features/account/types/account";
+import type { Account } from "@/features/account/types/account";
 
 export async function getAccountList() {
-  const { data } = await apiClient.get<AccountListResponse>(
+  const { data: accounts } = await apiClient.get<Account[]>(
     "/api/v1/users/me/accounts",
   );
 
-  return data;
+  return accounts;
 }

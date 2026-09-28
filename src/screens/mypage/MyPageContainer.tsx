@@ -1,0 +1,97 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { AccountBalanceCard } from "@/features/account/components/AccountBalanceCard";
+import { AccountPerformanceCard } from "@/features/account/components/AccountPerformanceCard";
+import { AccountSelector } from "@/features/account/components/AccountSelector";
+import { useAccountDetailQuery } from "@/features/account/hooks/useAccountDetailQuery";
+import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
+import { LogoutConfirmModal } from "@/features/user/components/LogoutConfirmModal";
+import { ProfileCard } from "@/features/user/components/ProfileCard";
+import { WithdrawConfirmModal } from "@/features/user/components/WithdrawConfirmModal";
+import { useUserQuery } from "@/features/user/hooks/useUserQuery";
+import { Header, HeaderBackButton } from "@/shared/components/Header";
+import { MenuRow } from "@/shared/components/MenuRow";
+
+export function MyPageContainer() {
+  const router = useRouter();
+  const accountId = useSelectedAccountId();
+  const { data: account } = useAccountDetailQuery(accountId);
+  const { data: user } = useUserQuery();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+
+  return (
+    <div className="pt-safe-top flex h-full flex-col">
+      <Header title="마이" className="px-5 py-3" left={<HeaderBackButton />} />
+
+      <div className="flex flex-1 flex-col gap-2 px-5 pt-4">
+        <ProfileCard
+          nickname={user?.nickname ?? ""}
+          profileImage={user?.profile_image ?? null}
+        />
+
+        <div className="px-1">
+          <AccountSelector />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <AccountBalanceCard
+            cashBalance={account?.cash_balance ?? 0}
+            valuation={account?.holdings_market_value ?? 0}
+          />
+          <AccountPerformanceCard
+            returnPercent={account?.return_percent ?? 0}
+            tradeCount={account?.executed_trade_count ?? 0}
+          />
+        </div>
+
+        <div>
+          <MenuRow
+            label="주문 내역"
+            onClick={() => router.push("/ai/trades")}
+          />
+        </div>
+
+        <div className="mt-4 flex flex-col gap-2">
+          <span className="body-2-semibold text-text-neutral-secondary">
+            약관 및 정책
+          </span>
+          <div className="flex flex-col gap-2">
+            <MenuRow label="이용약관" onClick={() => router.push("/terms")} />
+            <MenuRow
+              label="개인정보 처리방침"
+              onClick={() => router.push("/privacy")}
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-2">
+          <span className="body-2-semibold text-text-neutral-secondary">
+            계정
+          </span>
+          <div className="flex flex-col gap-2">
+            <MenuRow
+              label="로그아웃"
+              onClick={() => setIsLogoutModalOpen(true)}
+            />
+            <MenuRow
+              label="회원 탈퇴"
+              onClick={() => setIsWithdrawModalOpen(true)}
+            />
+          </div>
+        </div>
+      </div>
+
+      <LogoutConfirmModal
+        open={isLogoutModalOpen}
+        onOpenChange={setIsLogoutModalOpen}
+      />
+      <WithdrawConfirmModal
+        open={isWithdrawModalOpen}
+        onOpenChange={setIsWithdrawModalOpen}
+      />
+    </div>
+  );
+}

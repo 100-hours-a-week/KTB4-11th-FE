@@ -1,39 +1,61 @@
+"use client";
+
+import Link from "next/link";
 import { AiTradeCard } from "@/features/ai/components/AiTradeCard";
 import type { AiTrade } from "@/features/ai/types/aiTrade";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
+import { useCarousel } from "@/shared/hooks/useCarousel";
+import { cn } from "@/shared/utils/cn";
+
+const MAX_TRADES = 3;
 
 interface RecentAiTradeSectionProps {
   trades: AiTrade[];
 }
 
 export function RecentAiTradeSection({ trades }: RecentAiTradeSectionProps) {
-  const [firstTrade] = trades;
+  const displayedTrades = trades.slice(0, MAX_TRADES);
+  const { emblaRef, selectedIndex, scrollTo } = useCarousel();
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <span className="body-1-bold">최근 AI 매매</span>
-        <div className="flex items-center gap-1">
-          {trades.map((trade, index) => (
-            <span
-              key={trade.stockName + trade.tradeDate}
-              className={
-                index === 0
-                  ? "bg-bg-accent size-1.5 rounded-full"
-                  : "bg-bg-neutral-tertiary size-1.5 rounded-full"
-              }
-            />
+        {displayedTrades.length > 1 && (
+          <div className="flex items-center gap-1">
+            {displayedTrades.map((trade, index) => (
+              <button
+                key={trade.orderId}
+                type="button"
+                aria-label={`${index + 1}번째 매매로 이동`}
+                onClick={() => scrollTo(index)}
+                className={cn(
+                  "size-1.5 rounded-full transition-colors",
+                  index === selectedIndex
+                    ? "bg-bg-accent"
+                    : "bg-bg-neutral-tertiary",
+                )}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="-ml-3 overflow-hidden" ref={emblaRef}>
+        <div className="flex">
+          {displayedTrades.map((trade) => (
+            <div key={trade.orderId} className="min-w-0 flex-[0_0_100%] pl-3">
+              <AiTradeCard {...trade} />
+            </div>
           ))}
         </div>
       </div>
-      {firstTrade && <AiTradeCard {...firstTrade} />}
-      <button
-        type="button"
+      <Link
+        href="/ai/trades"
         className="text-text-neutral-secondary caption-1-regular flex items-center justify-center gap-0.5 py-1"
       >
         AI 매매 내역 보기
         <ChevronForwardIcon width={12} height={12} />
-      </button>
+      </Link>
     </div>
   );
 }

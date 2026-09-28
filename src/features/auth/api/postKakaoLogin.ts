@@ -7,10 +7,10 @@ import type {
 export async function postKakaoLogin(
   payload: Omit<KakaoLoginRequest, "provider">,
 ) {
-  const { data } = await apiClient.post<KakaoLoginResponse>(
+  const { data: kakaoLoginResponse } = await apiClient.post<KakaoLoginResponse>(
     "/api/v1/auth/login",
     { provider: "kakao", ...payload },
   );
 
-  return data;
+  return kakaoLoginResponse;
 }

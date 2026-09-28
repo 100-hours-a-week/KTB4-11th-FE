@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { Header } from "@/shared/components/Header";
 import { MenuRow } from "@/shared/components/MenuRow";
@@ -12,12 +14,17 @@ import { useHoldingsQuery } from "@/features/account/hooks/useHoldingsQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { toHoldingStock } from "@/features/account/utils/toHoldingStock";
 import { RecentAiTradeSection } from "@/features/ai/components/RecentAiTradeSection";
+import { useOrdersQuery } from "@/features/ai/hooks/useOrdersQuery";
+import { toAiTrade } from "@/features/ai/utils/toAiTrade";
+import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
 import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
 
 export function HomeContainer() {
+  const router = useRouter();
   const accountId = useSelectedAccountId();
 
+  const { data: kospi } = useKospiIndexQuery();
   const { data: account } = useAccountDetailQuery(accountId);
   const {
     data: holdingsData,
@@ -30,6 +37,9 @@ export function HomeContainer() {
   });
   const holdings = holdingsData?.holdings ?? [];
 
+  const { data: ordersResponse } = useOrdersQuery(accountId);
+  const trades = (ordersResponse?.orders ?? []).map(toAiTrade);
+
   return (
     <div className="bg-page-gradient pt-safe-top flex h-full flex-col">
       <Header
@@ -41,15 +51,20 @@ export function HomeContainer() {
               height={24}
               className="text-icon-neutral-primary"
             />
-            <ProfileIcon
-              width={24}
-              height={24}
-              className="text-icon-neutral-primary"
-            />
+            <Link href="/mypage">
+              <ProfileIcon
+                width={24}
+                height={24}
+                className="text-icon-neutral-primary"
+              />
+            </Link>
           </>
         }
       />
-      <StockTickerBar title="스톡스푼" />
+      <StockTickerBar
+        title="스톡스푼"
+        kospi={kospi && { value: kospi.value, changeRate: kospi.changeRate }}
+      />
       <div className="flex flex-col gap-1 px-5 pb-24">
         <AccountSelector />
         <div className="flex flex-col gap-2">
@@ -57,9 +72,7 @@ export function HomeContainer() {
             cashBalance={account?.cash_balance ?? 0}
             valuation={account?.holdings_market_value ?? 0}
           />
-          <div className="bg-bg-layer-default rounded-2xl px-4">
-            <MenuRow label="주문내역" />
-          </div>
+          <MenuRow label="주문내역" onClick={() => router.push("/ai/trades")} />
         </div>
         <div className="mt-4">
           <HoldingStockList
@@ -69,41 +82,7 @@ export function HomeContainer() {
           />
         </div>
         <div className="mt-4">
-          <RecentAiTradeSection
-            trades={[
-              {
-                stockName: "SK하이닉스",
-                tradeType: "매도",
-                tradeDate: "2026.09.03 14:20",
-                quantity: 2,
-                price: 196_000,
-                reasoning:
-                  "목표 수익률에 도달하고 상승 흐름이 약해져 매도했어요.",
-                realizedProfit: 18_400,
-                profitRate: 4.9,
-              },
-              {
-                stockName: "삼성전자",
-                tradeType: "매수",
-                tradeDate: "2026.08.27 10:14",
-                quantity: 3,
-                price: 72_400,
-                reasoning: "추세 상승과 거래량 증가를 확인해 매수했어요.",
-                realizedProfit: 0,
-                profitRate: 0,
-              },
-              {
-                stockName: "카카오",
-                tradeType: "매수",
-                tradeDate: "2026.08.26 09:38",
-                quantity: 15,
-                price: 43_000,
-                reasoning: "업종 비중을 나누기 위해 플랫폼 종목을 담았어요.",
-                realizedProfit: 0,
-                profitRate: 0,
-              },
-            ]}
-          />
+          <RecentAiTradeSection trades={trades} />
         </div>
       </div>
       <BottomTabBar />

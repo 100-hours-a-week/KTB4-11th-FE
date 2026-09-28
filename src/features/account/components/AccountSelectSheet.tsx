@@ -22,7 +22,7 @@ interface AccountSelectSheetProps {
 
 export function AccountSelectSheet({ trigger }: AccountSelectSheetProps) {
   const { data } = useAccountListQuery();
-  const accounts = data?.accounts ?? [];
+  const accounts = data ?? [];
   const selectedAccountId = useSelectedAccountId();
   const setSelectedAccountId = useAccountStore(
     (state) => state.setSelectedAccountId,
@@ -44,7 +44,7 @@ export function AccountSelectSheet({ trigger }: AccountSelectSheetProps) {
               </SheetClose>
             </div>
             <SheetTitle className="mt-2">계좌 선택</SheetTitle>
-            <div className="mt-6 flex flex-col">
+            <div className="mt-6 flex flex-col gap-4">
               {accounts.map((account) => (
                 <button
                   key={account.account_id}

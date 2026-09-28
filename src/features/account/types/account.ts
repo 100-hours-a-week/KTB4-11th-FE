@@ -19,11 +19,6 @@ export interface Account {
   return_percent: number;
 }
 
-export interface AccountListResponse {
-  message: string;
-  accounts: Account[];
-}
-
 export interface AccountDetail {
   message: string;
   account_id: number;
@@ -36,4 +31,18 @@ export interface AccountDetail {
   total_assets: number;
   return_percent: number;
   executed_trade_count: number;
+}
+
+export interface UpdateAccountNameRequest {
+  account_name: string;
+}
+
+export interface UpdateAccountNameResponse {
+  message: string;
+  account_id: number;
+  account_name: string;
+}
+
+export interface DeleteAccountResponse {
+  message: string;
 }

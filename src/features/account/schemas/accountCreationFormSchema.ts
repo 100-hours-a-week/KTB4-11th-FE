@@ -6,11 +6,13 @@ export const MAX_AMOUNT = 100_000_000;
 export const ACCOUNT_NAME_MAX_LENGTH = 20;
 const ACCOUNT_NAME_HELPER_TEXT = "계좌명은 1자 이상, 20자 이하입니다";
 
+export const accountNameSchema = z
+  .string()
+  .min(1, ACCOUNT_NAME_HELPER_TEXT)
+  .max(ACCOUNT_NAME_MAX_LENGTH, ACCOUNT_NAME_HELPER_TEXT);
+
 export const accountCreationFormSchema = z.object({
-  accountName: z
-    .string()
-    .min(1, ACCOUNT_NAME_HELPER_TEXT)
-    .max(ACCOUNT_NAME_MAX_LENGTH, ACCOUNT_NAME_HELPER_TEXT),
+  accountName: accountNameSchema,
   amount: z
     .number()
     .min(MIN_AMOUNT, "100만원 이상 입력해 주세요")

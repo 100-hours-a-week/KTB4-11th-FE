@@ -10,7 +10,7 @@ export function MenuRow({ label, onClick }: MenuRowProps) {
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center justify-between py-3"
+      className="bg-bg-layer-default flex w-full items-center justify-between rounded-2xl px-4 py-3"
     >
       <span className="body-1-semibold">{label}</span>
       <ChevronForwardIcon

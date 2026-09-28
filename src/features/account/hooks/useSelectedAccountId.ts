@@ -12,8 +12,8 @@ export function useSelectedAccountId() {
   );
 
   useEffect(() => {
-    if (selectedAccountId === undefined && data?.accounts[0]) {
-      setSelectedAccountId(data.accounts[0].account_id);
+    if (selectedAccountId === undefined && data?.[0]) {
+      setSelectedAccountId(data[0].account_id);
     }
   }, [selectedAccountId, data, setSelectedAccountId]);
 
