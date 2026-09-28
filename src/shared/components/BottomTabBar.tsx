@@ -10,6 +10,7 @@ import DiscoverOutlineIcon from "@/assets/icons/nav/outline/discover.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
 import HomeOutlineIcon from "@/assets/icons/nav/outline/home.svg";
 import TrophyOutlineIcon from "@/assets/icons/nav/outline/trophy.svg";
+import { trackEvent } from "@/shared/utils/analytics";
 
 const TABS = [
   {
@@ -17,24 +18,28 @@ const TABS = [
     href: "/home",
     outlineIcon: HomeOutlineIcon,
     filledIcon: HomeFilledIcon,
+    featureName: null,
   },
   {
     label: "관심",
     href: "/favorites",
     outlineIcon: HeartOutlineIcon,
     filledIcon: HeartFilledIcon,
+    featureName: "favorites",
   },
   {
     label: "대결",
     href: "/competition",
     outlineIcon: TrophyOutlineIcon,
     filledIcon: TrophyFilledIcon,
+    featureName: "competition",
   },
   {
     label: "발견",
     href: "/discover",
     outlineIcon: DiscoverOutlineIcon,
     filledIcon: DiscoverFilledIcon,
+    featureName: "discover",
   },
 ] as const;
 
@@ -50,6 +55,7 @@ export function BottomTabBar() {
             href,
             outlineIcon: OutlineIcon,
             filledIcon: FilledIcon,
+            featureName,
           }) => {
             const isActive =
               pathname === href || pathname.startsWith(`${href}/`);
@@ -59,6 +65,13 @@ export function BottomTabBar() {
               <Link
                 key={href}
                 href={href}
+                onClick={() => {
+                  if (featureName) {
+                    trackEvent("unsupported_feature_click", {
+                      feature_name: featureName,
+                    });
+                  }
+                }}
                 className="flex h-full w-15 flex-col items-center justify-center gap-0.5 rounded-full"
               >
                 <Icon
