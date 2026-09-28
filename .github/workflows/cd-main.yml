@@ -49,7 +49,7 @@ jobs:
             const buildJob = data.jobs.find((job) => job.name === 'build-and-publish');
 
             if (buildJob?.conclusion !== 'success') {
-              core.info('The test-build job did not succeed; skip deployment.');
+              core.info('The build-and-publish job did not succeed; skip deployment.');
               core.setOutput('deploy', 'false');
               return;
             }
