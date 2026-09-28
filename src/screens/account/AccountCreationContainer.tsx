@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/Button";
@@ -31,6 +31,7 @@ import {
   type AccountCreationFormValues,
 } from "@/features/account/schemas/accountCreationFormSchema";
 import { Input } from "@/shared/components/Input";
+import { trackEvent } from "@/shared/utils/analytics";
 import { useAccountStore } from "@/store/accountStore";
 
 interface AccountCreationContainerProps {
@@ -50,6 +51,12 @@ export function AccountCreationContainer({
   );
   const [isAiDelegated, setIsAiDelegated] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!showAccountNameField) {
+      trackEvent("onboarding_start");
+    }
+  }, [showAccountNameField]);
   const {
     watch,
     setValue,
@@ -89,6 +96,7 @@ export function AccountCreationContainer({
         }
       : {
           onSuccess: (data) => {
+            trackEvent("onboarding_complete");
             router.replace(
               `/onboarding/complete?amount=${data.initial_capital}`,
             );
