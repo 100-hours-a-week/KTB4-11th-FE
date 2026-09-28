@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
+import { trackEvent } from "@/shared/utils/analytics";
 import { useAccountStore } from "@/store/accountStore";
 import CheckCircleIcon from "@/assets/icons/fill/check-circle.svg";
 import CloseIcon from "@/assets/icons/fill/close.svg";
@@ -49,7 +50,14 @@ export function AccountSelectSheet({ trigger }: AccountSelectSheetProps) {
                 <button
                   key={account.account_id}
                   type="button"
-                  onClick={() => setSelectedAccountId(account.account_id)}
+                  onClick={() => {
+                    if (account.account_id !== selectedAccountId) {
+                      trackEvent("account_switch", {
+                        account_count: accounts.length,
+                      });
+                    }
+                    setSelectedAccountId(account.account_id);
+                  }}
                   className="flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">

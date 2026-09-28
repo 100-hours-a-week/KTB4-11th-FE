@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { Header } from "@/shared/components/Header";
 import { MenuRow } from "@/shared/components/MenuRow";
@@ -19,6 +20,7 @@ import { toAiTrade } from "@/features/ai/utils/toAiTrade";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
 import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
+import { trackEvent } from "@/shared/utils/analytics";
 
 export function HomeContainer() {
   const router = useRouter();
@@ -39,6 +41,24 @@ export function HomeContainer() {
 
   const { data: ordersResponse } = useOrdersQuery(accountId);
   const trades = (ordersResponse?.orders ?? []).map(toAiTrade);
+
+  useEffect(() => {
+    if (isHoldingsError) {
+      trackEvent("error_view", {
+        screen: "home_holdings",
+        api_name: "holdings",
+      });
+    }
+  }, [isHoldingsError]);
+
+  useEffect(() => {
+    if (!isHoldingsError && holdingsData && holdings.length === 0) {
+      trackEvent("empty_state_view", {
+        screen: "home_holdings",
+        empty_type: "no_holdings",
+      });
+    }
+  }, [isHoldingsError, holdingsData, holdings.length]);
 
   return (
     <div className="bg-page-gradient pt-safe-top flex h-full flex-col">
@@ -78,7 +98,13 @@ export function HomeContainer() {
           <HoldingStockList
             stocks={holdings.map(toHoldingStock)}
             isError={isHoldingsError}
-            onRetry={() => refetchHoldings()}
+            onRetry={() => {
+              trackEvent("retry_click", {
+                screen: "home_holdings",
+                api_name: "holdings",
+              });
+              refetchHoldings();
+            }}
           />
         </div>
         <div className="mt-4">
