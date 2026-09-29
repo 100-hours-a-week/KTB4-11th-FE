@@ -1,8 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/Button";
@@ -31,7 +32,9 @@ import {
   type AccountCreationFormValues,
 } from "@/features/account/schemas/accountCreationFormSchema";
 import { Input } from "@/shared/components/Input";
+import { trackEvent } from "@/shared/utils/analytics";
 import { useAccountStore } from "@/store/accountStore";
+import type { Account } from "@/features/account/types/account";
 
 interface AccountCreationContainerProps {
   headerTitle: string;
@@ -45,11 +48,18 @@ export function AccountCreationContainer({
   showAccountNameField = false,
 }: AccountCreationContainerProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const setSelectedAccountId = useAccountStore(
     (state) => state.setSelectedAccountId,
   );
   const [isAiDelegated, setIsAiDelegated] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!showAccountNameField) {
+      trackEvent("onboarding_start");
+    }
+  }, [showAccountNameField]);
   const {
     watch,
     setValue,
@@ -73,6 +83,10 @@ export function AccountCreationContainer({
     showAccountNameField
       ? {
           onSuccess: (data) => {
+            const accounts = queryClient.getQueryData<Account[]>(["accounts"]);
+            trackEvent("account_create", {
+              account_count_after: (accounts?.length ?? 0) + 1,
+            });
             setSelectedAccountId(data.account_id);
             router.replace("/home");
             toast.success("새 계좌가 만들어졌어요");
@@ -89,6 +103,7 @@ export function AccountCreationContainer({
         }
       : {
           onSuccess: (data) => {
+            trackEvent("onboarding_complete");
             router.replace(
               `/onboarding/complete?amount=${data.initial_capital}`,
             );
@@ -140,6 +155,9 @@ export function AccountCreationContainer({
               if (checked) {
                 setIsAiDelegated(true);
               } else {
+                trackEvent("unsupported_feature_click", {
+                  feature_name: "manual_investment",
+                });
                 setIsModalOpen(true);
               }
             }}

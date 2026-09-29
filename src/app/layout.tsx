@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { MSWProvider } from "@/mocks/MSWProvider";
@@ -5,6 +6,8 @@ import { MobileContainer } from "@/shared/components/MobileContainer";
 import { Toaster } from "@/shared/components/Toaster";
 import { Providers } from "./providers";
 import "@/styles/globals.css";
+
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 export const metadata: Metadata = {
   title: "StockSpoon - AI와 함께하는 모의투자",
@@ -30,6 +33,9 @@ export default function RootLayout({
         </MobileContainer>
         <Toaster />
       </body>
+      {process.env.NODE_ENV === "production" && GA_ID && (
+        <GoogleAnalytics gaId={GA_ID} />
+      )}
     </html>
   );
 }

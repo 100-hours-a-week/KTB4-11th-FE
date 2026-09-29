@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HoldingCategoryChips } from "@/features/account/components/HoldingCategoryChips";
 import { HoldingStockItem } from "@/features/account/components/HoldingStockItem";
 import { HoldingsSortDropdown } from "@/features/account/components/HoldingsSortDropdown";
@@ -12,6 +12,7 @@ import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg"
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
+import { trackEvent } from "@/shared/utils/analytics";
 
 const ALL_CATEGORY = "전체";
 
@@ -33,6 +34,25 @@ export function HoldingsContainer() {
     category === ALL_CATEGORY
       ? stocks
       : stocks.filter((stock) => stock.category === category);
+
+  useEffect(() => {
+    if (isError) {
+      trackEvent("error_view", {
+        screen: "holdings_list",
+        api_name: "holdings",
+      });
+    }
+  }, [isError]);
+
+  useEffect(() => {
+    if (!isError && holdingsData && filteredStocks.length === 0) {
+      trackEvent("empty_state_view", {
+        screen: "holdings_list",
+        empty_type:
+          category === ALL_CATEGORY ? "no_holdings" : "no_holdings_category",
+      });
+    }
+  }, [isError, holdingsData, filteredStocks.length, category]);
 
   return (
     <div className="pt-safe-top flex h-full flex-col">
@@ -59,7 +79,15 @@ export function HoldingsContainer() {
 
         {isError ? (
           <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
-            <ErrorState onRetry={() => refetch()} />
+            <ErrorState
+              onRetry={() => {
+                trackEvent("retry_click", {
+                  screen: "holdings_list",
+                  api_name: "holdings",
+                });
+                refetch();
+              }}
+            />
           </div>
         ) : filteredStocks.length === 0 ? (
           <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">

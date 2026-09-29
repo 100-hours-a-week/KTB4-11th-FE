@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { AiExecutionResult } from "@/features/ai/components/AiExecutionResult";
 import { AiOneLineJudgmentCard } from "@/features/ai/components/AiOneLineJudgmentCard";
 import { AiReasoningTitle } from "@/features/ai/components/AiReasoningTitle";
@@ -17,6 +18,7 @@ import {
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
+import { getElapsedBucket, trackEvent } from "@/shared/utils/analytics";
 
 interface AiReasoningContainerProps {
   orderId: number;
@@ -33,6 +35,27 @@ export function AiReasoningContainer({ orderId }: AiReasoningContainerProps) {
   const isBuy = report?.order_side === "buy";
   const headerTitle = isBuy ? "매수 판단 근거" : "매도 판단 근거";
 
+  const hasTrackedView = useRef(false);
+  useEffect(() => {
+    if (report && !hasTrackedView.current) {
+      hasTrackedView.current = true;
+      trackEvent("ai_reason_view", {
+        stock_code: report.stock_code,
+        trade_type: report.order_side,
+        elapsed_bucket: getElapsedBucket(report.execution.executed_at),
+      });
+    }
+  }, [report]);
+
+  useEffect(() => {
+    if (isError) {
+      trackEvent("error_view", {
+        screen: "ai_reasoning",
+        api_name: "ai_report",
+      });
+    }
+  }, [isError]);
+
   return (
     <div className="pt-safe-top flex h-full flex-col">
       <Header
@@ -42,7 +65,15 @@ export function AiReasoningContainer({ orderId }: AiReasoningContainerProps) {
       />
 
       {isError ? (
-        <ErrorState onRetry={() => refetch()} />
+        <ErrorState
+          onRetry={() => {
+            trackEvent("retry_click", {
+              screen: "ai_reasoning",
+              api_name: "ai_report",
+            });
+            refetch();
+          }}
+        />
       ) : (
         report && (
           <div className="flex flex-1 flex-col gap-6 px-5 pt-4 pb-8">

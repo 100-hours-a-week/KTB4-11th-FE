@@ -1,17 +1,32 @@
 "use client";
 
 import { Accordion } from "radix-ui";
+import { useRef } from "react";
 import type { AiJudgmentStep } from "@/features/ai/types/aiTradeReasoning";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
+import { trackEvent, type ReasonSection } from "@/shared/utils/analytics";
 
 interface JudgmentFlowAccordionProps {
   steps: AiJudgmentStep[];
 }
 
 export function JudgmentFlowAccordion({ steps }: JudgmentFlowAccordionProps) {
+  const openValuesRef = useRef<string[]>([]);
+
   return (
     <Accordion.Root
       type="multiple"
+      onValueChange={(values) => {
+        const newlyOpened = values.filter(
+          (value) => !openValuesRef.current.includes(value),
+        );
+        newlyOpened.forEach((value) => {
+          trackEvent("ai_reason_expand", {
+            reason_section: value as ReasonSection,
+          });
+        });
+        openValuesRef.current = values;
+      }}
       className="bg-bg-layer-default flex flex-col rounded-2xl px-4"
     >
       {steps.map((step, index) => (
