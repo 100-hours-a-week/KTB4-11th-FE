@@ -41,7 +41,9 @@ export function WithdrawConfirmModal({
             </ModalClose>
             <Button
               className="flex-1"
-              onClick={() => toast.info("이 기능은 v2에서 이용할 수 있어요")}
+              onClick={() =>
+                toast.info("회원 탈퇴 기능은 v2에서 이용할 수 있어요")
+              }
             >
               탈퇴하기
             </Button>
