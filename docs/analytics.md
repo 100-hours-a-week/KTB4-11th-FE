@@ -44,10 +44,14 @@ Next.js App Router의 클라이언트 라우팅에 따른 페이지 이동은
 type TradeType = "buy" | "sell";
 
 type UnsupportedFeature =
-  "manual_investment" | "favorites" | "competition" | "discover";
+  "manual_investment" | "favorites" | "competition" | "discover" | "search";
 
 type AnalyticsScreen =
-  "home_holdings" | "holdings_list" | "ai_trade_history" | "ai_reasoning";
+  | "home_holdings"
+  | "home_ai_trades"
+  | "holdings_list"
+  | "ai_trade_history"
+  | "ai_reasoning";
 
 // 백엔드 decision_steps 배열의 순번(`step-${step.step}`)을 그대로 쓴다.
 // 스텝별 의미(시장분석/판단/리스크 등)가 고정돼 있지 않아 의미 기반 이름을 붙일 수 없다.
@@ -125,6 +129,7 @@ account_create
     - `favorites`
     - `competition`
     - `discover`
+    - `search`
 
 V1에서 제공하지 않는 기능에 대한 실제 클릭 데이터를 기반으로
 이후 버전 기능 우선순위 판단에 활용한다.
@@ -143,6 +148,7 @@ V1에서 제공하지 않는 기능에 대한 실제 클릭 데이터를 기반�
 | `AccountSelectSheet.tsx`                                                                                   | `account_switch`            | 사용자가 다른 계좌 선택을 완료한 시점                       |
 | `AccountCreationContainer.tsx` (`AiDelegationSwitch` 호출부)                                               | `unsupported_feature_click` | 직접 투자(AI 위임 OFF) 시도 시                              |
 | `BottomTabBar.tsx`                                                                                         | `unsupported_feature_click` | `/favorites`, `/competition`, `/discover` 미구현 탭 클릭 시 |
+| `HomeContainer.tsx` (검색 아이콘 클릭부)                                                                   | `unsupported_feature_click` | 미구현 검색 아이콘 클릭 시                                  |
 | `AiTradeHistoryContainer.tsx`                                                                              | `ai_trade_list_view`        | AI 매매 내역이 정상적으로 화면에 노출된 시점                |
 | `AiReasoningContainer.tsx`                                                                                 | `ai_reason_view`            | 판단 근거 조회 성공 후 화면에 노출된 시점                   |
 | `JudgmentFlowAccordion.tsx`                                                                                | `ai_reason_expand`          | 닫혀 있던 판단 근거 섹션을 사용자가 펼친 시점               |
