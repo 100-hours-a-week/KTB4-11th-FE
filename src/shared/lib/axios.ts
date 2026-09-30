@@ -1,4 +1,5 @@
 import axios from "axios";
+import { captureError } from "@/shared/utils/captureError";
 
 export const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -58,6 +59,15 @@ apiClient.interceptors.response.use(
 
       return apiClient({ ...error.config, __isCsrfRetry: true });
     }
+
+    captureError(error, {
+      tags: { source: "api-client" },
+      extra: {
+        url: error.config?.url,
+        method: error.config?.method,
+        status: error.response?.status,
+      },
+    });
 
     return Promise.reject(error);
   },
