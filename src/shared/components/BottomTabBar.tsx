@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { toast } from "sonner";
 import DiscoverFilledIcon from "@/assets/icons/nav/filled/discover.svg";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HomeFilledIcon from "@/assets/icons/nav/filled/home.svg";
@@ -60,20 +61,8 @@ export function BottomTabBar() {
             const isActive =
               pathname === href || pathname.startsWith(`${href}/`);
             const Icon = isActive ? FilledIcon : OutlineIcon;
-
-            return (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => {
-                  if (featureName) {
-                    trackEvent("unsupported_feature_click", {
-                      feature_name: featureName,
-                    });
-                  }
-                }}
-                className="flex h-full w-15 flex-col items-center justify-center gap-0.5 rounded-full"
-              >
+            const content = (
+              <>
                 <Icon
                   width={22}
                   height={22}
@@ -82,6 +71,34 @@ export function BottomTabBar() {
                 <span className="text-[10px] leading-[18px] font-medium tracking-[-0.4px] text-gray-800">
                   {label}
                 </span>
+              </>
+            );
+
+            if (featureName) {
+              return (
+                <button
+                  key={href}
+                  type="button"
+                  onClick={() => {
+                    trackEvent("unsupported_feature_click", {
+                      feature_name: featureName,
+                    });
+                    toast.info(`${label} 페이지는 v2에서 이용할 수 있어요`);
+                  }}
+                  className="flex h-full w-15 flex-col items-center justify-center gap-0.5 rounded-full"
+                >
+                  {content}
+                </button>
+              );
+            }
+
+            return (
+              <Link
+                key={href}
+                href={href}
+                className="flex h-full w-15 flex-col items-center justify-center gap-0.5 rounded-full"
+              >
+                {content}
               </Link>
             );
           },

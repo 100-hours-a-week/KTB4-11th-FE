@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { Header } from "@/shared/components/Header";
 import { MenuRow } from "@/shared/components/MenuRow";
@@ -88,11 +89,21 @@ export function HomeContainer() {
         className="px-5"
         right={
           <>
-            <SearchIcon
-              width={24}
-              height={24}
-              className="text-icon-neutral-primary"
-            />
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("unsupported_feature_click", {
+                  feature_name: "search",
+                });
+                toast.info("검색 기능은 v2에서 이용할 수 있어요");
+              }}
+            >
+              <SearchIcon
+                width={24}
+                height={24}
+                className="text-icon-neutral-primary"
+              />
+            </button>
             <Link href="/mypage">
               <ProfileIcon
                 width={24}
