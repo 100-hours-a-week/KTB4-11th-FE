@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { trackEvent } from "@/shared/utils/analytics";
@@ -28,9 +29,10 @@ export function AccountSelectSheet({ trigger }: AccountSelectSheetProps) {
   const setSelectedAccountId = useAccountStore(
     (state) => state.setSelectedAccountId,
   );
+  const [open, setOpen] = useState(false);
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>{trigger}</SheetTrigger>
       <SheetPortal>
         <SheetContent side="top">
@@ -57,6 +59,7 @@ export function AccountSelectSheet({ trigger }: AccountSelectSheetProps) {
                       });
                     }
                     setSelectedAccountId(account.account_id);
+                    setOpen(false);
                   }}
                   className="flex items-center justify-between"
                 >
