@@ -24,6 +24,7 @@ import {
   isAccountNameAlreadyExistsError,
   useCreateAccountMutation,
 } from "@/features/account/hooks/useCreateAccountMutation";
+import { useOnboardingMutation } from "@/features/account/hooks/useOnboardingMutation";
 import {
   ACCOUNT_NAME_MAX_LENGTH,
   accountCreationFormSchema,
@@ -79,44 +80,47 @@ export function AccountCreationContainer({
   const updateAmount = (value: number) =>
     setValue("amount", value, { shouldValidate: true });
 
-  const { mutate, isPending } = useCreateAccountMutation(
-    showAccountNameField
-      ? {
-          onSuccess: (data) => {
-            const accounts = queryClient.getQueryData<Account[]>(["accounts"]);
-            trackEvent("account_create", {
-              account_count_after: (accounts?.length ?? 0) + 1,
-            });
-            setSelectedAccountId(data.account_id);
-            router.replace("/home");
-            toast.success("새 계좌가 만들어졌어요");
-          },
-          onError: (error) => {
-            if (isAccountNameAlreadyExistsError(error)) {
-              setError("accountName", {
-                message: "이미 존재하는 계좌명이에요",
-              });
-              return true;
-            }
-            return false;
-          },
-        }
-      : {
-          onSuccess: (data) => {
-            trackEvent("onboarding_complete");
-            router.replace(
-              `/onboarding/complete?amount=${data.initial_capital}`,
-            );
-          },
-        },
-  );
+  const createAccountMutation = useCreateAccountMutation({
+    onSuccess: (data) => {
+      const accounts = queryClient.getQueryData<Account[]>(["accounts"]);
+      trackEvent("account_create", {
+        account_count_after: (accounts?.length ?? 0) + 1,
+      });
+      setSelectedAccountId(data.account_id);
+      router.replace("/home");
+      toast.success("새 계좌가 만들어졌어요");
+    },
+    onError: (error) => {
+      if (isAccountNameAlreadyExistsError(error)) {
+        setError("accountName", {
+          message: "이미 존재하는 계좌명이에요",
+        });
+        return true;
+      }
+      return false;
+    },
+  });
+
+  const onboardingMutation = useOnboardingMutation({
+    onSuccess: (data) => {
+      trackEvent("onboarding_complete");
+      router.replace(`/onboarding/complete?amount=${data.initial_capital}`);
+    },
+  });
+
+  const { isPending } = showAccountNameField
+    ? createAccountMutation
+    : onboardingMutation;
 
   const onSubmit = handleSubmit(({ amount: initial_capital, accountName }) => {
-    mutate(
-      showAccountNameField
-        ? { initial_capital, account_name: accountName }
-        : { initial_capital },
-    );
+    if (showAccountNameField) {
+      createAccountMutation.mutate({
+        initial_capital,
+        account_name: accountName,
+      });
+    } else {
+      onboardingMutation.mutate({ initial_capital });
+    }
   });
 
   return (
