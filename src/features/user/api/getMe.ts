@@ -5,5 +5,9 @@ export async function getMe() {
   const { data: userProfile } =
     await apiClient.get<UserProfile>("/api/v1/users/me");
 
-  return userProfile;
+  return {
+    ...userProfile,
+    profile_image_url:
+      userProfile.profile_image_url?.replace(/^http:/, "https:") ?? null,
+  };
 }
