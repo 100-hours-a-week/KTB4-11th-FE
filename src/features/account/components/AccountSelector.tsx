@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { AccountDeleteConfirmModal } from "@/features/account/components/AccountDeleteConfirmModal";
+import { AccountMinimumGuardModal } from "@/features/account/components/AccountMinimumGuardModal";
 import { AccountNameEditModal } from "@/features/account/components/AccountNameEditModal";
 import { AccountSelectSheet } from "@/features/account/components/AccountSelectSheet";
 import { AccountSettingsSheet } from "@/features/account/components/AccountSettingsSheet";
 import { useAccountDetailQuery } from "@/features/account/hooks/useAccountDetailQuery";
+import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import ThreeDotHorizontalIcon from "@/assets/icons/fill/three-dot-horizontal.svg";
 import UnfoldIcon from "@/assets/icons/fill/unfold.svg";
@@ -13,8 +15,10 @@ import UnfoldIcon from "@/assets/icons/fill/unfold.svg";
 export function AccountSelector() {
   const accountId = useSelectedAccountId();
   const { data: account } = useAccountDetailQuery(accountId);
+  const { data: accounts } = useAccountListQuery();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isMinimumGuardModalOpen, setIsMinimumGuardModalOpen] = useState(false);
   const [deletingAccountId, setDeletingAccountId] = useState<number | null>(
     null,
   );
@@ -49,6 +53,10 @@ export function AccountSelector() {
         onEditClick={() => setIsEditModalOpen(true)}
         onDeleteClick={() => {
           if (accountId === undefined) return;
+          if ((accounts?.length ?? 0) <= 1) {
+            setIsMinimumGuardModalOpen(true);
+            return;
+          }
           setDeletingAccountId(accountId);
           setIsDeleteModalOpen(true);
         }}
@@ -68,6 +76,10 @@ export function AccountSelector() {
           onOpenChange={setIsDeleteModalOpen}
         />
       )}
+      <AccountMinimumGuardModal
+        open={isMinimumGuardModalOpen}
+        onOpenChange={setIsMinimumGuardModalOpen}
+      />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { Header } from "@/shared/components/Header";
 import { MenuRow } from "@/shared/components/MenuRow";
@@ -39,7 +40,11 @@ export function HomeContainer() {
   });
   const holdings = holdingsData?.holdings ?? [];
 
-  const { data: ordersResponse } = useOrdersQuery(accountId);
+  const {
+    data: ordersResponse,
+    isError: isOrdersError,
+    refetch: refetchOrders,
+  } = useOrdersQuery(accountId);
   const trades = (ordersResponse?.orders ?? []).map(toAiTrade);
 
   useEffect(() => {
@@ -60,17 +65,45 @@ export function HomeContainer() {
     }
   }, [isHoldingsError, holdingsData, holdings.length]);
 
+  useEffect(() => {
+    if (isOrdersError) {
+      trackEvent("error_view", {
+        screen: "home_ai_trades",
+        api_name: "orders",
+      });
+    }
+  }, [isOrdersError]);
+
+  useEffect(() => {
+    if (!isOrdersError && ordersResponse && trades.length === 0) {
+      trackEvent("empty_state_view", {
+        screen: "home_ai_trades",
+        empty_type: "no_trades",
+      });
+    }
+  }, [isOrdersError, ordersResponse, trades.length]);
+
   return (
     <div className="bg-page-gradient pt-safe-top flex h-full flex-col">
       <Header
         className="px-5"
         right={
           <>
-            <SearchIcon
-              width={24}
-              height={24}
-              className="text-icon-neutral-primary"
-            />
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("unsupported_feature_click", {
+                  feature_name: "search",
+                });
+                toast.info("검색 기능은 v2에서 이용할 수 있어요");
+              }}
+            >
+              <SearchIcon
+                width={24}
+                height={24}
+                className="text-icon-neutral-primary"
+              />
+            </button>
             <Link href="/mypage">
               <ProfileIcon
                 width={24}
@@ -108,7 +141,17 @@ export function HomeContainer() {
           />
         </div>
         <div className="mt-4">
-          <RecentAiTradeSection trades={trades} />
+          <RecentAiTradeSection
+            trades={trades}
+            isError={isOrdersError}
+            onRetry={() => {
+              trackEvent("retry_click", {
+                screen: "home_ai_trades",
+                api_name: "orders",
+              });
+              refetchOrders();
+            }}
+          />
         </div>
       </div>
       <BottomTabBar />

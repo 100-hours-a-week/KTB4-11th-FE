@@ -46,7 +46,7 @@ export const accountHandlers: HttpHandler[] = [
     ]);
   }),
 
-  http.put(
+  http.patch(
     "*/api/v1/users/me/accounts/:accountId",
     async ({ request, params }) => {
       const body = (await request.json()) as { account_name: string };

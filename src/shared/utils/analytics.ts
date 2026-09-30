@@ -1,7 +1,7 @@
 export type TradeType = "buy" | "sell";
 
 export type UnsupportedFeature =
-  "manual_investment" | "favorites" | "competition" | "discover";
+  "manual_investment" | "favorites" | "competition" | "discover" | "search";
 
 export type ReasonSection =
   "step-1" | "step-2" | "step-3" | "step-4" | "step-5";
@@ -9,7 +9,11 @@ export type ReasonSection =
 export type ElapsedBucket = "within_1h" | "1h_6h" | "6h_24h" | "over_24h";
 
 export type AnalyticsScreen =
-  "home_holdings" | "holdings_list" | "ai_trade_history" | "ai_reasoning";
+  | "home_holdings"
+  | "home_ai_trades"
+  | "holdings_list"
+  | "ai_trade_history"
+  | "ai_reasoning";
 
 export type EmptyType = "no_holdings" | "no_holdings_category" | "no_trades";
 
