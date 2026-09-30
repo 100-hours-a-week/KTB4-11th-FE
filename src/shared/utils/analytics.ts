@@ -9,7 +9,11 @@ export type ReasonSection =
 export type ElapsedBucket = "within_1h" | "1h_6h" | "6h_24h" | "over_24h";
 
 export type AnalyticsScreen =
-  "home_holdings" | "holdings_list" | "ai_trade_history" | "ai_reasoning";
+  | "home_holdings"
+  | "home_ai_trades"
+  | "holdings_list"
+  | "ai_trade_history"
+  | "ai_reasoning";
 
 export type EmptyType = "no_holdings" | "no_holdings_category" | "no_trades";
 
