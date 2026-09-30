@@ -5,10 +5,7 @@ export interface KakaoLoginRequest {
 }
 
 export interface KakaoLoginResponse {
+  code: string;
   message: string;
-  user_id: number;
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  onboarding_required: boolean;
+  user_id?: number;
 }
