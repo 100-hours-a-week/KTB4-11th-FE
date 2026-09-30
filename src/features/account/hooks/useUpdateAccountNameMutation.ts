@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { putAccountName } from "@/features/account/api/putAccountName";
+import { patchAccountName } from "@/features/account/api/patchAccountName";
 import { trackEvent } from "@/shared/utils/analytics";
 
 export function useUpdateAccountNameMutation(accountId: number) {
@@ -9,7 +9,7 @@ export function useUpdateAccountNameMutation(accountId: number) {
 
   return useMutation({
     mutationFn: (accountName: string) =>
-      putAccountName(accountId, { account_name: accountName }),
+      patchAccountName(accountId, { account_name: accountName }),
     onSuccess: () => {
       trackEvent("account_rename");
       queryClient.invalidateQueries({ queryKey: ["accounts"] });

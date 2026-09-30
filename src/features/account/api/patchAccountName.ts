@@ -4,12 +4,12 @@ import type {
   UpdateAccountNameResponse,
 } from "@/features/account/types/account";
 
-export async function putAccountName(
+export async function patchAccountName(
   accountId: number,
   payload: UpdateAccountNameRequest,
 ) {
   const { data: updateAccountNameResponse } =
-    await apiClient.put<UpdateAccountNameResponse>(
+    await apiClient.patch<UpdateAccountNameResponse>(
       `/api/v1/users/me/accounts/${accountId}`,
       payload,
     );
