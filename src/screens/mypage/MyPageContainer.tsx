@@ -29,7 +29,7 @@ export function MyPageContainer() {
       <div className="flex flex-1 flex-col gap-2 px-5 pt-4">
         <ProfileCard
           nickname={user?.nickname ?? ""}
-          profileImage={user?.profile_image ?? null}
+          profileImage={user?.profile_image_url ?? null}
         />
 
         <div className="px-1">
