@@ -38,6 +38,6 @@ export function isAccountNameAlreadyExistsError(
   return (
     isAxiosError<ApiErrorResponse>(error) &&
     error.response?.status === 409 &&
-    error.response?.data?.code === "ACCOUNT_NAME_ALREADY_EXISTS"
+    error.response?.data?.code === "DUPLICATE_ACCOUNT_NAME"
   );
 }
