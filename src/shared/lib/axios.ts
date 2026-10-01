@@ -74,24 +74,27 @@ apiClient.interceptors.response.use(
     const isUnauthorized = error.response?.status === 401;
 
     if (isUnauthorized) {
+      const skipAuthRedirect = error.config?.skipAuthRedirect;
       const isReissueRequest = error.config?.url?.includes("/auth/reissue");
       const alreadyRetriedAuth = error.config?.__isAuthRetry;
 
       if (!isReissueRequest && !alreadyRetriedAuth) {
         try {
-          reissuePromise ??= postReissue().finally(() => {
+          reissuePromise ??= postReissue(
+            skipAuthRedirect ? { skipAuthRedirect: true } : undefined,
+          ).finally(() => {
             reissuePromise = null;
           });
           await reissuePromise;
 
           return apiClient({ ...error.config, __isAuthRetry: true });
         } catch {
-          expireSession();
+          if (!skipAuthRedirect) expireSession();
           return Promise.reject(error);
         }
       }
 
-      expireSession();
+      if (!skipAuthRedirect) expireSession();
     }
 
     captureError(error, {
