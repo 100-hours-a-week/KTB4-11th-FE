@@ -8,6 +8,7 @@ const ACCOUNT_NAME_HELPER_TEXT = "계좌명은 1자 이상, 20자 이하입니�
 
 export const accountNameSchema = z
   .string()
+  .trim()
   .min(1, ACCOUNT_NAME_HELPER_TEXT)
   .max(ACCOUNT_NAME_MAX_LENGTH, ACCOUNT_NAME_HELPER_TEXT);
 
@@ -15,6 +16,7 @@ export const accountCreationFormSchema = z.object({
   accountName: accountNameSchema,
   amount: z
     .number()
+    .int("원 단위 정수로 입력해 주세요")
     .min(MIN_AMOUNT, "100만원 이상 입력해 주세요")
     .max(MAX_AMOUNT, "1억원 이하로 입력해 주세요"),
 });
