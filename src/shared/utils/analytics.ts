@@ -3,8 +3,7 @@ export type TradeType = "buy" | "sell";
 export type UnsupportedFeature =
   "manual_investment" | "favorites" | "competition" | "discover" | "search";
 
-export type ReasonSection =
-  "step-1" | "step-2" | "step-3" | "step-4" | "step-5";
+export type ReasonSection = `step-${number}`;
 
 export type ElapsedBucket = "within_1h" | "1h_6h" | "6h_24h" | "over_24h";
 
