@@ -53,9 +53,9 @@ type AnalyticsScreen =
   | "ai_trade_history"
   | "ai_reasoning";
 
-// 백엔드 decision_steps 배열의 순번(`step-${step.step}`)을 그대로 쓴다.
-// 스텝별 의미(시장분석/판단/리스크 등)가 고정돼 있지 않아 의미 기반 이름을 붙일 수 없다.
-type ReasonSection = "step-1" | "step-2" | "step-3" | "step-4" | "step-5";
+// reasoning 배열의 인덱스 순번(`step-${index + 1}`)을 그대로 쓴다.
+// 항목 개수와 각 항목의 의미가 고정돼 있지 않아 의미 기반 이름을 붙일 수 없다.
+type ReasonSection = `step-${number}`;
 ```
 
 동일한 의미의 값이 서로 다른 문자열로 수집되는 것을 방지한다.

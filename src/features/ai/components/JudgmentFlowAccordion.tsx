@@ -2,15 +2,15 @@
 
 import { Accordion } from "radix-ui";
 import { useRef } from "react";
-import type { AiJudgmentStep } from "@/features/ai/types/aiTradeReasoning";
+import type { AiReasoningItem } from "@/features/ai/types/aiTradeReasoning";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
 import { trackEvent, type ReasonSection } from "@/shared/utils/analytics";
 
 interface JudgmentFlowAccordionProps {
-  steps: AiJudgmentStep[];
+  items: AiReasoningItem[];
 }
 
-export function JudgmentFlowAccordion({ steps }: JudgmentFlowAccordionProps) {
+export function JudgmentFlowAccordion({ items }: JudgmentFlowAccordionProps) {
   const openValuesRef = useRef<string[]>([]);
 
   return (
@@ -29,10 +29,10 @@ export function JudgmentFlowAccordion({ steps }: JudgmentFlowAccordionProps) {
       }}
       className="bg-bg-layer-default flex flex-col rounded-2xl px-4"
     >
-      {steps.map((step, index) => (
+      {items.map((item, index) => (
         <Accordion.Item
-          key={step.id}
-          value={step.id}
+          key={`${item.label}-${index}`}
+          value={`step-${index + 1}`}
           className="border-border-neutral-muted border-b last:border-none"
         >
           <Accordion.Header>
@@ -41,7 +41,7 @@ export function JudgmentFlowAccordion({ steps }: JudgmentFlowAccordionProps) {
                 {index + 1}
               </span>
               <span className="body-2-semibold flex-1 text-left">
-                {step.title}
+                {item.label}
               </span>
               <ChevronForwardIcon
                 width={16}
@@ -50,18 +50,11 @@ export function JudgmentFlowAccordion({ steps }: JudgmentFlowAccordionProps) {
               />
             </Accordion.Trigger>
           </Accordion.Header>
-          {step.details && (
-            <Accordion.Content className="flex flex-col gap-1 pb-4 pl-8">
-              {step.details.map((detail) => (
-                <span
-                  key={detail.label}
-                  className="body-2-regular text-text-neutral-secondary"
-                >
-                  {detail.label} · {detail.value}
-                </span>
-              ))}
-            </Accordion.Content>
-          )}
+          <Accordion.Content className="pb-4 pl-8">
+            <span className="body-2-regular text-text-neutral-secondary">
+              {item.body}
+            </span>
+          </Accordion.Content>
         </Accordion.Item>
       ))}
     </Accordion.Root>
