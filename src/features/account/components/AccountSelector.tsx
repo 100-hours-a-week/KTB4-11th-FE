@@ -24,12 +24,12 @@ export function AccountSelector() {
   );
 
   return (
-    <div className="flex items-center justify-between py-3">
+    <div className="flex items-center justify-between py-2">
       <AccountSelectSheet
         trigger={
           <button type="button" className="flex items-center">
             <span className="border-border-neutral-tertiary mr-2 size-6 rounded-lg border border-dashed" />
-            <span className="heading-1-semibold mr-1">
+            <span className="heading-2-semibold mr-1">
               {account?.account_name ?? "기본계좌"}
             </span>
             <UnfoldIcon
