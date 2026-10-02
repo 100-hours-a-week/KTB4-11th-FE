@@ -10,13 +10,11 @@ function withSign(value: number) {
 
 export function toReasoningTitle(report: AiReportResponse) {
   const isBuy = report.order_side === "buy";
-  const dateText = formatDateTime(report.execution.executed_at);
 
   return {
     title: `${report.stock_name}를 ${isBuy ? "매수" : "매도"}한 이유`,
-    meta: isBuy
-      ? dateText
-      : `${dateText} · 보유 ${report.trade_result?.holding_days}일`,
+    date: formatDateTime(report.execution.executed_at),
+    holdingDays: isBuy ? undefined : report.trade_result?.holding_days,
   };
 }
 
