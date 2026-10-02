@@ -124,7 +124,7 @@ export function AccountCreationContainer({
   });
 
   return (
-    <div className="pt-safe-top flex h-full flex-col">
+    <div className="pt-screen-top flex h-full flex-col">
       <Header
         title={headerTitle}
         className="px-5 py-3"

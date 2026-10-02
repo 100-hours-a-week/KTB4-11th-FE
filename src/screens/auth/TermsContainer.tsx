@@ -4,7 +4,7 @@ import { Header, HeaderBackButton } from "@/shared/components/Header";
 
 export function TermsContainer() {
   return (
-    <div className="pt-safe-top flex h-full flex-col">
+    <div className="pt-screen-top flex h-full flex-col">
       <Header
         title={TERMS_TITLE}
         className="px-5 py-3"

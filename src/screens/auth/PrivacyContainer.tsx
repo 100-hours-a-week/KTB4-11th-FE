@@ -8,7 +8,7 @@ import { Header, HeaderBackButton } from "@/shared/components/Header";
 
 export function PrivacyContainer() {
   return (
-    <div className="pt-safe-top flex h-full flex-col">
+    <div className="pt-screen-top flex h-full flex-col">
       <Header
         title={PRIVACY_TITLE}
         className="px-5 py-3"

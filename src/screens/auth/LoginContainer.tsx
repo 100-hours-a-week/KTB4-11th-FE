@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
-import stockSpoonLogo from "@/assets/images/stockspoon-logo.png";
+import stockSpoonLogo from "@/assets/images/stockspoon-logo-full.png";
 import { KakaoLoginButton } from "@/features/auth/components/KakaoLoginButton";
 import { TermsAgreementNotice } from "@/features/auth/components/TermsAgreementNotice";
 import { Splash } from "@/shared/components/Splash";

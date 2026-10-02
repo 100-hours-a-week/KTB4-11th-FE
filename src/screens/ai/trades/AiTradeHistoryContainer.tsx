@@ -64,7 +64,7 @@ export function AiTradeHistoryContainer() {
   }, [isError, ordersResponse, filter, trades.length]);
 
   return (
-    <div className="pt-safe-top flex h-full flex-col">
+    <div className="pt-screen-top flex h-full flex-col">
       <Header
         title="AI 매매 내역"
         className="px-5 py-3"
