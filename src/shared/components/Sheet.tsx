@@ -43,7 +43,7 @@ export function SheetContent({
         side === "bottom" &&
           "rounded-t-r4 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom bottom-0",
         side === "top" &&
-          "rounded-b-r4 data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top pt-safe-top top-0",
+          "rounded-b-r4 data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top pt-screen-top top-0",
         className,
       )}
       {...props}

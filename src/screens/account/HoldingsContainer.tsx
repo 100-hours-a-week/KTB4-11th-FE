@@ -55,7 +55,7 @@ export function HoldingsContainer() {
   }, [isError, holdingsData, filteredStocks.length, category]);
 
   return (
-    <div className="pt-safe-top flex h-full flex-col">
+    <div className="pt-screen-top flex h-full flex-col">
       <Header
         title="보유 주식"
         className="px-5 py-3"

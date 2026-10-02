@@ -84,7 +84,7 @@ export function HomeContainer() {
   }, [isOrdersError, ordersResponse, trades.length]);
 
   return (
-    <div className="bg-page-gradient pt-safe-top flex h-full flex-col">
+    <div className="bg-page-gradient pt-screen-top flex h-full flex-col">
       <Header
         className="px-5"
         right={

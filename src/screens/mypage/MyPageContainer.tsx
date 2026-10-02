@@ -23,7 +23,7 @@ export function MyPageContainer() {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
   return (
-    <div className="pt-safe-top flex h-full flex-col">
+    <div className="pt-screen-top flex h-full flex-col">
       <Header title="마이" className="px-5 py-3" left={<HeaderBackButton />} />
 
       <div className="flex flex-1 flex-col gap-2 px-5 pt-4">
