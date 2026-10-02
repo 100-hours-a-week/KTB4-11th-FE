@@ -1,5 +1,5 @@
 import Image from "next/image";
-import stockSpoonLogo from "@/assets/images/stockspoon-logo.png";
+import stockSpoonLogo from "@/assets/images/stockspoon-logo-full.png";
 
 export function Splash() {
   return (
