@@ -1,3 +1,5 @@
+import Image from "next/image";
+import stockSpoonLogo from "@/assets/images/stockspoon-logo.png";
 import { cn } from "@/shared/utils/cn";
 
 interface StockTickerBarProps {
@@ -13,8 +15,9 @@ export function StockTickerBar({ title, kospi }: StockTickerBarProps) {
   const isFall = kospi !== undefined && kospi.changeRate < 0;
 
   return (
-    <div className="flex items-center gap-3 px-5 py-3">
-      <span className="title-1">{title}</span>
+    <div className="flex items-center gap-2 px-5 py-3">
+      <Image src={stockSpoonLogo} alt={title} className="h-9 w-auto" />
+      <span className="sr-only">{title}</span>
       {kospi && (
         <span className="flex items-center gap-1">
           <span className="body-2-medium text-text-neutral-secondary">
