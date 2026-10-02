@@ -4,16 +4,11 @@ import { useEffect, useRef } from "react";
 import { AiExecutionResult } from "@/features/ai/components/AiExecutionResult";
 import { AiOneLineJudgmentCard } from "@/features/ai/components/AiOneLineJudgmentCard";
 import { AiReasoningTitle } from "@/features/ai/components/AiReasoningTitle";
-import { FromBuyToSell } from "@/features/ai/components/FromBuyToSell";
 import { JudgmentFlowAccordion } from "@/features/ai/components/JudgmentFlowAccordion";
 import { useAiReportQuery } from "@/features/ai/hooks/useAiReportQuery";
 import {
-  toBuyExecutionResult,
-  toBuyReasoningTitle,
-  toFromBuyToSell,
-  toJudgmentFlow,
-  toSellExecutionResult,
-  toSellReasoningTitle,
+  toExecutionResult,
+  toReasoningTitle,
 } from "@/features/ai/utils/toAiReasoningView";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { ErrorState } from "@/shared/components/ErrorState";
@@ -34,6 +29,7 @@ export function AiReasoningContainer({ orderId }: AiReasoningContainerProps) {
 
   const isBuy = report?.order_side === "buy";
   const headerTitle = isBuy ? "매수 판단 근거" : "매도 판단 근거";
+  const flowTitle = isBuy ? "판단 흐름" : "매수부터 매도까지";
 
   const hasTrackedView = useRef(false);
   useEffect(() => {
@@ -77,37 +73,20 @@ export function AiReasoningContainer({ orderId }: AiReasoningContainerProps) {
       ) : (
         report && (
           <div className="flex flex-1 flex-col gap-6 px-5 pt-4 pb-8">
-            <div className="flex flex-col gap-4">
-              <AiReasoningTitle
-                {...(isBuy
-                  ? toBuyReasoningTitle(report)
-                  : toSellReasoningTitle(report))}
-              />
-              <AiOneLineJudgmentCard oneLineJudgment={report.summary} />
+            <div className="flex flex-col gap-3">
+              <AiReasoningTitle {...toReasoningTitle(report)} />
+              <AiOneLineJudgmentCard oneLineJudgment={report.reason} />
             </div>
 
             <div className="flex flex-col gap-2">
               <span className="body-1-bold">실행 결과</span>
-              <AiExecutionResult
-                items={
-                  isBuy
-                    ? toBuyExecutionResult(report)
-                    : toSellExecutionResult(report)
-                }
-              />
+              <AiExecutionResult items={toExecutionResult(report)} />
             </div>
 
-            {isBuy ? (
-              <div className="flex flex-col gap-2">
-                <span className="body-1-bold">판단 흐름</span>
-                <JudgmentFlowAccordion steps={toJudgmentFlow(report)} />
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <span className="body-1-bold">매수부터 매도까지</span>
-                <FromBuyToSell items={toFromBuyToSell(report)} />
-              </div>
-            )}
+            <div className="flex flex-col gap-2">
+              <span className="body-1-bold">{flowTitle}</span>
+              <JudgmentFlowAccordion items={report.reasoning} />
+            </div>
           </div>
         )
       )}
