@@ -14,7 +14,7 @@ export function toReasoningTitle(report: AiReportResponse) {
   return {
     title: `${report.stock_name}를 ${isBuy ? "매수" : "매도"}한 이유`,
     date: formatDateTime(report.execution.executed_at),
-    holdingDays: isBuy ? undefined : report.trade_result?.holding_days,
+    holdingDays: isBuy ? undefined : report.sell_result?.holding_days,
   };
 }
 
@@ -41,25 +41,25 @@ export function toExecutionResult(
     ];
   }
 
-  const tradeResult = report.trade_result;
-  if (!tradeResult) return [];
+  const sellResult = report.sell_result;
+  if (!sellResult) return [];
 
   return [
     {
       label: "매수가 → 매도가",
-      value: `${tradeResult.average_buy_price.toLocaleString()} → ${execution.execution_price.toLocaleString()}원`,
+      value: `${sellResult.average_buy_price.toLocaleString()} → ${execution.execution_price.toLocaleString()}원`,
     },
     {
       label: "실현손익",
-      value: `${tradeResult.realized_pnl >= 0 ? "+" : ""}${tradeResult.realized_pnl.toLocaleString()}원 · ${withSign(tradeResult.realized_return_percent)}%`,
+      value: `${sellResult.realized_pnl >= 0 ? "+" : ""}${sellResult.realized_pnl.toLocaleString()}원 · ${withSign(sellResult.realized_return_percent)}%`,
     },
     {
       label: "목표 수익률 도달",
-      value: `${tradeResult.target_reached ? "도달" : "미도달"} (+${tradeResult.target_return_percent}% 기준)`,
+      value: `${sellResult.target_reached ? "도달" : "미도달"} (+${sellResult.target_return_percent}% 기준)`,
     },
     {
       label: "손실 제한",
-      value: tradeResult.stop_loss_triggered ? "발동함" : "발동하지 않음",
+      value: sellResult.stop_loss_triggered ? "발동함" : "발동하지 않음",
     },
   ];
 }

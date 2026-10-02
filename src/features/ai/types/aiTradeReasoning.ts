@@ -18,7 +18,7 @@ export interface AiReportExecution {
   trade_amount: number;
 }
 
-export interface AiTradeResult {
+export interface AiSellResult {
   holding_days: number;
   average_buy_price: number;
   realized_pnl: number;
@@ -38,5 +38,5 @@ export interface AiReportResponse {
   reasoning: AiReasoningItem[];
   holding_weight_after_trade_percent?: number;
   holding_weight_limit_percent?: number;
-  trade_result?: AiTradeResult;
+  sell_result?: AiSellResult | null;
 }

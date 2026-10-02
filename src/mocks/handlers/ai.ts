@@ -22,7 +22,7 @@ const AI_REPORTS: Record<number, AiReportResponse> = {
         body: "상승 흐름이 약해져 보유분을 정리하기로 했어요.",
       },
     ],
-    trade_result: {
+    sell_result: {
       holding_days: 14,
       average_buy_price: 186_600,
       realized_pnl: 18_400,
@@ -58,6 +58,7 @@ const AI_REPORTS: Record<number, AiReportResponse> = {
     ],
     holding_weight_after_trade_percent: 28,
     holding_weight_limit_percent: 30,
+    sell_result: null,
   },
   103: {
     order_id: 103,
@@ -76,6 +77,7 @@ const AI_REPORTS: Record<number, AiReportResponse> = {
     ],
     holding_weight_after_trade_percent: 22,
     holding_weight_limit_percent: 30,
+    sell_result: null,
   },
   104: {
     order_id: 104,
@@ -93,7 +95,7 @@ const AI_REPORTS: Record<number, AiReportResponse> = {
       { label: "손실 제한 기준 확인", body: "손실 제한 기준에 도달했어요." },
       { label: "흐름 검토", body: "실적 우려로 하락 흐름이 이어졌어요." },
     ],
-    trade_result: {
+    sell_result: {
       holding_days: 9,
       average_buy_price: 223_000,
       realized_pnl: -6_000,
@@ -120,6 +122,7 @@ const AI_REPORTS: Record<number, AiReportResponse> = {
     ],
     holding_weight_after_trade_percent: 12,
     holding_weight_limit_percent: 30,
+    sell_result: null,
   },
   106: {
     order_id: 106,
@@ -140,7 +143,7 @@ const AI_REPORTS: Record<number, AiReportResponse> = {
         body: "업종 비중을 나누기 위해 일부 물량을 정리했어요.",
       },
     ],
-    trade_result: {
+    sell_result: {
       holding_days: 6,
       average_buy_price: 43_500,
       realized_pnl: 17_000,
@@ -175,9 +178,9 @@ const ORDERS: Order[] = Object.values(AI_REPORTS)
     ],
     can_cancel: false,
     summary: report.reason,
-    realized_pnl: report.trade_result?.realized_pnl ?? null,
+    realized_pnl: report.sell_result?.realized_pnl ?? null,
     realized_return_percent:
-      report.trade_result?.realized_return_percent ?? null,
+      report.sell_result?.realized_return_percent ?? null,
   }))
   .sort(
     (a, b) =>
