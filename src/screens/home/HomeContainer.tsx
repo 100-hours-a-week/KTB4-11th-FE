@@ -32,6 +32,7 @@ export function HomeContainer() {
   const {
     data: holdingsData,
     isError: isHoldingsError,
+    isPending: isHoldingsPending,
     refetch: refetchHoldings,
   } = useHoldingsQuery(accountId, {
     sort: "latest_purchase",
@@ -43,6 +44,7 @@ export function HomeContainer() {
   const {
     data: ordersResponse,
     isError: isOrdersError,
+    isPending: isOrdersPending,
     refetch: refetchOrders,
   } = useOrdersQuery(accountId);
   const trades = (ordersResponse?.orders ?? []).map(toAiTrade);
@@ -130,6 +132,7 @@ export function HomeContainer() {
         <div className="mt-4">
           <HoldingStockList
             stocks={holdings.map(toHoldingStock)}
+            isPending={isHoldingsPending}
             isError={isHoldingsError}
             onRetry={() => {
               trackEvent("retry_click", {
@@ -143,6 +146,7 @@ export function HomeContainer() {
         <div className="mt-4">
           <RecentAiTradeSection
             trades={trades}
+            isPending={isOrdersPending}
             isError={isOrdersError}
             onRetry={() => {
               trackEvent("retry_click", {

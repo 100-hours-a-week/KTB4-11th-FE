@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HoldingStockItem } from "@/features/account/components/HoldingStockItem";
+import { HoldingStockItemSkeleton } from "@/features/account/components/HoldingStockItemSkeleton";
 import type { HoldingStock } from "@/features/account/types/holdingStock";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
@@ -8,12 +9,14 @@ import { ErrorState } from "@/shared/components/ErrorState";
 
 interface HoldingStockListProps {
   stocks: HoldingStock[];
+  isPending?: boolean;
   isError?: boolean;
   onRetry?: () => void;
 }
 
 export function HoldingStockList({
   stocks,
+  isPending,
   isError,
   onRetry,
 }: HoldingStockListProps) {
@@ -23,6 +26,12 @@ export function HoldingStockList({
       {isError ? (
         <div className="bg-bg-layer-default rounded-2xl">
           <ErrorState onRetry={onRetry} />
+        </div>
+      ) : isPending ? (
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: 3 }, (_, index) => (
+            <HoldingStockItemSkeleton key={index} />
+          ))}
         </div>
       ) : stocks.length === 0 ? (
         <div className="bg-bg-layer-default rounded-2xl">

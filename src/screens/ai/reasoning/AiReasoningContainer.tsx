@@ -1,5 +1,7 @@
 "use client";
 
+import { isAxiosError } from "axios";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { AiExecutionResult } from "@/features/ai/components/AiExecutionResult";
 import { AiOneLineJudgmentCard } from "@/features/ai/components/AiOneLineJudgmentCard";
@@ -20,15 +22,17 @@ interface AiReasoningContainerProps {
 }
 
 export function AiReasoningContainer({ orderId }: AiReasoningContainerProps) {
+  const router = useRouter();
   const accountId = useSelectedAccountId();
   const {
     data: report,
+    error,
     isError,
     refetch,
   } = useAiReportQuery(accountId, orderId);
 
+  const isNotFound = isAxiosError(error) && error.response?.status === 404;
   const isBuy = report?.order_side === "buy";
-  const headerTitle = isBuy ? "매수 판단 근거" : "매도 판단 근거";
   const flowTitle = isBuy ? "판단 흐름" : "매수부터 매도까지";
 
   const hasTrackedView = useRef(false);
@@ -54,22 +58,32 @@ export function AiReasoningContainer({ orderId }: AiReasoningContainerProps) {
 
   return (
     <div className="pt-screen-top flex h-full flex-col">
-      <Header
-        title={headerTitle}
-        className="px-5 py-3"
-        left={<HeaderBackButton />}
-      />
+      {report && (
+        <Header
+          title={isBuy ? "매수 판단 근거" : "매도 판단 근거"}
+          className="px-5 py-3"
+          left={<HeaderBackButton />}
+        />
+      )}
 
       {isError ? (
-        <ErrorState
-          onRetry={() => {
-            trackEvent("retry_click", {
-              screen: "ai_reasoning",
-              api_name: "ai_report",
-            });
-            refetch();
-          }}
-        />
+        <div className="flex flex-1 flex-col items-center pt-32">
+          <ErrorState
+            message={isNotFound ? "요청한 페이지를 찾을 수 없어요" : undefined}
+            actionLabel={isNotFound ? "홈으로 가기" : "다시 시도"}
+            onRetry={() => {
+              if (isNotFound) {
+                router.push("/home");
+                return;
+              }
+              trackEvent("retry_click", {
+                screen: "ai_reasoning",
+                api_name: "ai_report",
+              });
+              refetch();
+            }}
+          />
+        </div>
       ) : (
         report && (
           <div className="flex flex-1 flex-col gap-6 px-5 pt-4 pb-8">

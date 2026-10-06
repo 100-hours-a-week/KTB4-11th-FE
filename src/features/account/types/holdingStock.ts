@@ -5,6 +5,7 @@ export interface HoldingStock {
   quantity: number;
   avgPrice: number;
   value: number;
+  profitAmount: number;
   changeRate: number;
 }
 
@@ -19,7 +20,7 @@ export interface HoldingsQueryParams {
 export interface HoldingApiItem {
   stock_code: string;
   stock_name: string;
-  industry_name: string;
+  sector: string;
   quantity: number;
   total_cost_basis: number;
   average_purchase_price: number;

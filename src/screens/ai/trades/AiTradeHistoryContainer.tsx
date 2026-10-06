@@ -6,6 +6,7 @@ import {
   type AiTradeFilterValue,
 } from "@/features/ai/components/AiTradeFilterChips";
 import { AiTradeCard } from "@/features/ai/components/AiTradeCard";
+import { AiTradeCardSkeleton } from "@/features/ai/components/AiTradeCardSkeleton";
 import { useOrdersQuery } from "@/features/ai/hooks/useOrdersQuery";
 import { toAiTrade } from "@/features/ai/utils/toAiTrade";
 import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
@@ -20,7 +21,12 @@ export function AiTradeHistoryContainer() {
   const accountId = useSelectedAccountId();
   const [filter, setFilter] = useState<AiTradeFilterValue>("전체");
 
-  const { data: ordersResponse, isError, refetch } = useOrdersQuery(accountId);
+  const {
+    data: ordersResponse,
+    isError,
+    isPending,
+    refetch,
+  } = useOrdersQuery(accountId);
   const { data: accounts } = useAccountListQuery();
 
   const trades = (ordersResponse?.orders ?? []).map(toAiTrade);
@@ -85,6 +91,12 @@ export function AiTradeHistoryContainer() {
                 refetch();
               }}
             />
+          </div>
+        ) : isPending ? (
+          <div className="flex flex-col gap-2">
+            {Array.from({ length: 4 }, (_, index) => (
+              <AiTradeCardSkeleton key={index} />
+            ))}
           </div>
         ) : filteredTrades.length === 0 ? (
           <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
