@@ -19,7 +19,7 @@ export interface HoldingsQueryParams {
 export interface HoldingApiItem {
   stock_code: string;
   stock_name: string;
-  industry_name: string;
+  sector: string;
   quantity: number;
   total_cost_basis: number;
   average_purchase_price: number;
