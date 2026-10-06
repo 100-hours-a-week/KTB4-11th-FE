@@ -48,7 +48,7 @@ export function AccountSelectSheet({ trigger }: AccountSelectSheetProps) {
             </div>
             <div className="flex flex-col px-6 pb-6">
               <SheetTitle className="mt-2">계좌 선택</SheetTitle>
-              <div className="mt-6 flex flex-col gap-4">
+              <div className="mt-6 flex max-h-70 flex-col gap-4 overflow-y-auto">
                 {accounts.map((account) => (
                   <button
                     key={account.account_id}
