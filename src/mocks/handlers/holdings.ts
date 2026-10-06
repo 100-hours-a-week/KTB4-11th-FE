@@ -8,7 +8,7 @@ const HOLDINGS: HoldingApiItem[] = [
   {
     stock_code: "005930",
     stock_name: "삼성전자",
-    industry_name: "반도체",
+    sector: "반도체",
     quantity: 12,
     total_cost_basis: 854_400,
     average_purchase_price: 71_200,
@@ -20,7 +20,7 @@ const HOLDINGS: HoldingApiItem[] = [
   {
     stock_code: "035720",
     stock_name: "카카오",
-    industry_name: "플랫폼",
+    sector: "플랫폼",
     quantity: 30,
     total_cost_basis: 1_245_000,
     average_purchase_price: 41_500,
@@ -32,7 +32,7 @@ const HOLDINGS: HoldingApiItem[] = [
   {
     stock_code: "035420",
     stock_name: "NAVER",
-    industry_name: "플랫폼",
+    sector: "플랫폼",
     quantity: 4,
     total_cost_basis: 892_000,
     average_purchase_price: 223_000,
