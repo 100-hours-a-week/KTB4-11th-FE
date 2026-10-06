@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { AiTradeCard } from "@/features/ai/components/AiTradeCard";
+import { AiTradeCardSkeleton } from "@/features/ai/components/AiTradeCardSkeleton";
 import type { AiTrade } from "@/features/ai/types/aiTrade";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
 import RobotFlusteredIcon from "@/assets/icons/stockspoon/robot-flustered.svg";
@@ -14,12 +15,14 @@ const MAX_TRADES = 3;
 
 interface RecentAiTradeSectionProps {
   trades: AiTrade[];
+  isPending?: boolean;
   isError?: boolean;
   onRetry?: () => void;
 }
 
 export function RecentAiTradeSection({
   trades,
+  isPending,
   isError,
   onRetry,
 }: RecentAiTradeSectionProps) {
@@ -53,6 +56,8 @@ export function RecentAiTradeSection({
         <div className="bg-bg-layer-default rounded-2xl">
           <ErrorState onRetry={onRetry} />
         </div>
+      ) : isPending ? (
+        <AiTradeCardSkeleton />
       ) : displayedTrades.length === 0 ? (
         <div className="bg-bg-layer-default rounded-2xl">
           <EmptyState

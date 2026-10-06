@@ -44,6 +44,7 @@ export function HomeContainer() {
   const {
     data: ordersResponse,
     isError: isOrdersError,
+    isPending: isOrdersPending,
     refetch: refetchOrders,
   } = useOrdersQuery(accountId);
   const trades = (ordersResponse?.orders ?? []).map(toAiTrade);
@@ -145,6 +146,7 @@ export function HomeContainer() {
         <div className="mt-4">
           <RecentAiTradeSection
             trades={trades}
+            isPending={isOrdersPending}
             isError={isOrdersError}
             onRetry={() => {
               trackEvent("retry_click", {
