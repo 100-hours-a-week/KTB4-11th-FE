@@ -9,6 +9,7 @@ export function HoldingStockItem({
   quantity,
   avgPrice,
   value,
+  profitAmount,
   changeRate,
 }: HoldingStockItemProps) {
   const isRise = changeRate > 0;
@@ -41,7 +42,11 @@ export function HoldingStockItem({
           )}
         >
           {isRise ? "+" : ""}
-          {changeRate}%
+          {profitAmount.toLocaleString()}원{" "}
+          <span className="caption-1-regular">
+            ({isRise ? "+" : ""}
+            {changeRate}%)
+          </span>
         </span>
       </div>
     </div>
