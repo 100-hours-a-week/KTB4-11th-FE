@@ -11,6 +11,7 @@ export function toHoldingStock(holding: HoldingApiItem): HoldingStock {
     quantity: holding.quantity,
     avgPrice: holding.average_purchase_price,
     value: holding.total_value,
+    profitAmount: holding.unrealized_pnl,
     changeRate: holding.return_percent,
   };
 }

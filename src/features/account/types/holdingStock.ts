@@ -5,6 +5,7 @@ export interface HoldingStock {
   quantity: number;
   avgPrice: number;
   value: number;
+  profitAmount: number;
   changeRate: number;
 }
 
