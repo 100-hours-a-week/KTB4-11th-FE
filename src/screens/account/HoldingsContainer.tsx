@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { HoldingCategoryChips } from "@/features/account/components/HoldingCategoryChips";
 import { HoldingStockItem } from "@/features/account/components/HoldingStockItem";
+import { HoldingStockItemSkeleton } from "@/features/account/components/HoldingStockItemSkeleton";
 import { HoldingsSortDropdown } from "@/features/account/components/HoldingsSortDropdown";
 import { useHoldingsQuery } from "@/features/account/hooks/useHoldingsQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
@@ -24,6 +25,7 @@ export function HoldingsContainer() {
   const {
     data: holdingsData,
     isError,
+    isPending,
     refetch,
   } = useHoldingsQuery(accountId, { sort, order: "desc" });
 
@@ -88,6 +90,12 @@ export function HoldingsContainer() {
                 refetch();
               }}
             />
+          </div>
+        ) : isPending ? (
+          <div className="flex flex-col gap-2">
+            {Array.from({ length: 6 }, (_, index) => (
+              <HoldingStockItemSkeleton key={index} />
+            ))}
           </div>
         ) : filteredStocks.length === 0 ? (
           <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
