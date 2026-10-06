@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Button } from "@/shared/components/Button";
 import WalletHappyIcon from "@/assets/icons/stockspoon/wallet-happy.svg";
@@ -14,6 +15,7 @@ export function OnboardingCompleteContainer({
   isAiDelegated,
 }: OnboardingCompleteContainerProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   return (
     <div className="bg-bg-layer-basement pt-screen-top flex h-full items-center justify-center px-5">
@@ -26,7 +28,12 @@ export function OnboardingCompleteContainer({
             {isAiDelegated ? "ON" : "OFF"}
           </span>
         </div>
-        <Button onClick={() => router.replace("/home")}>
+        <Button
+          onClick={() => {
+            queryClient.invalidateQueries({ queryKey: ["accounts"] });
+            router.replace("/home");
+          }}
+        >
           스톡스푼 시작하기
         </Button>
       </div>
