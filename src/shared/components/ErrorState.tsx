@@ -6,12 +6,14 @@ import WarningIcon from "@/assets/icons/fill/warning.svg";
 interface ErrorStateProps {
   icon?: ComponentType<{ width?: number; height?: number; className?: string }>;
   message?: string;
+  actionLabel?: string;
   onRetry?: () => void;
 }
 
 export function ErrorState({
   icon: Icon = WarningIcon,
   message = "정보를 불러오지 못했어요",
+  actionLabel = "다시 시도",
   onRetry,
 }: ErrorStateProps) {
   return (
@@ -27,7 +29,7 @@ export function ErrorState({
             onClick={onRetry}
             className="text-text-accent caption-1-semibold"
           >
-            다시 시도
+            {actionLabel}
           </button>
         )}
       </div>
