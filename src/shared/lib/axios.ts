@@ -9,6 +9,8 @@ export const apiClient = axios.create({
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
+    // ngrok 무료 터널의 브라우저 경고 인터스티셜을 건너뛰기 위함 (ngrok 아닌 호스트에서는 무시됨)
+    "ngrok-skip-browser-warning": "true",
   },
 });
 
