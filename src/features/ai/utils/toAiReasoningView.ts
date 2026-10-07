@@ -36,7 +36,7 @@ export function toExecutionResult(
       },
       {
         label: "거래 후 비중",
-        value: `${report.holding_weight_after_trade_percent}% (상한 ${report.holding_weight_limit_percent}%)`,
+        value: `${report.holding_weight_after_trade_percent?.toFixed(1)}% (상한 ${report.holding_weight_limit_percent?.toFixed(1)}%)`,
       },
     ];
   }

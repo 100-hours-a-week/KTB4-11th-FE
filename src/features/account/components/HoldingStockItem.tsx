@@ -45,7 +45,7 @@ export function HoldingStockItem({
           {profitAmount.toLocaleString()}원{" "}
           <span className="caption-1-regular">
             ({isRise ? "+" : ""}
-            {changeRate}%)
+            {changeRate.toFixed(1)}%)
           </span>
         </span>
       </div>

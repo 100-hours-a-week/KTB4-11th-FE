@@ -18,13 +18,25 @@ export interface OrderExecution {
   execution_id: number;
   execution_price: number;
   execution_quantity: number;
+  realized_pnl: number | null;
+  realized_return_percent: number | null;
   created_at: string;
+}
+
+export interface OrderExecutionSummary {
+  quantity: number;
+  average_price: number;
+  total_amount: number;
+  executed_at: string;
+  realized_pnl: number | null;
+  realized_return_percent: number | null;
 }
 
 export interface Order {
   order_id: number;
   stock_code: string;
   stock_name: string;
+  order_source: "user" | "ai";
   order_side: OrderSide;
   order_type: OrderType;
   order_status: OrderStatus;
@@ -33,11 +45,10 @@ export interface Order {
   reserved_cash: number;
   created_at: string;
   canceled_at: string | null;
+  reason: { summary: string | null } | null;
   executions: OrderExecution[];
+  execution_summary: OrderExecutionSummary | null;
   can_cancel: boolean;
-  summary: string | null;
-  realized_pnl: number | null;
-  realized_return_percent: number | null;
 }
 
 export interface OrdersResponse {
