@@ -160,6 +160,7 @@ const ORDERS: Order[] = Object.values(AI_REPORTS)
     order_id: report.order_id,
     stock_code: report.stock_code,
     stock_name: report.stock_name,
+    order_source: "ai" as const,
     order_side: report.order_side,
     order_type: "market" as const,
     order_status: "executed" as const,
@@ -168,19 +169,28 @@ const ORDERS: Order[] = Object.values(AI_REPORTS)
     reserved_cash: 0,
     created_at: report.execution.executed_at,
     canceled_at: null,
+    reason: { summary: report.reason },
     executions: [
       {
         execution_id: report.order_id,
         execution_price: report.execution.execution_price,
         execution_quantity: report.execution.execution_quantity,
+        realized_pnl: report.sell_result?.realized_pnl ?? null,
+        realized_return_percent:
+          report.sell_result?.realized_return_percent ?? null,
         created_at: report.execution.executed_at,
       },
     ],
+    execution_summary: {
+      quantity: report.execution.execution_quantity,
+      average_price: report.execution.execution_price,
+      total_amount: report.execution.trade_amount,
+      executed_at: report.execution.executed_at,
+      realized_pnl: report.sell_result?.realized_pnl ?? null,
+      realized_return_percent:
+        report.sell_result?.realized_return_percent ?? null,
+    },
     can_cancel: false,
-    summary: report.reason,
-    realized_pnl: report.sell_result?.realized_pnl ?? null,
-    realized_return_percent:
-      report.sell_result?.realized_return_percent ?? null,
   }))
   .sort(
     (a, b) =>

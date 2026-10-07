@@ -11,8 +11,8 @@ export function toAiTrade(order: Order): AiTrade {
     tradeDate: formatDateTime(order.created_at),
     quantity: order.quantity,
     price: execution?.execution_price ?? order.limit_price ?? 0,
-    reasoning: order.summary ?? "AI 판단 근거를 준비하고 있어요",
-    realizedProfit: order.realized_pnl ?? 0,
-    profitRate: order.realized_return_percent ?? 0,
+    reasoning: order.reason?.summary ?? "AI 판단 근거를 준비하고 있어요",
+    realizedProfit: order.execution_summary?.realized_pnl ?? 0,
+    profitRate: order.execution_summary?.realized_return_percent ?? 0,
   };
 }

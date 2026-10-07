@@ -38,7 +38,7 @@ export function AiTradeCard({
       <span className="body-2-regular text-text-neutral-secondary">
         {tradeDate} | {quantity}주 · {price.toLocaleString()}원
       </span>
-      <p className="body-2-regular">{reasoning}</p>
+      <p className="body-2-regular truncate">{reasoning}</p>
       <div className="mt-1 flex items-center gap-2">
         <span
           className={cn(
