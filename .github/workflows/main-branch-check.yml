@@ -1,0 +1,24 @@
+name: Main Branch Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  branch-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check source branch
+        run: |
+          SOURCE_BRANCH="${{ github.head_ref }}"
+
+          echo "source branch: $SOURCE_BRANCH"
+
+          if [[ "$SOURCE_BRANCH" != bug/* ]]; then
+            echo "Only bug/* branches can be merged into main."
+            exit 1
+          fi
+
+          echo "Valid branch."
