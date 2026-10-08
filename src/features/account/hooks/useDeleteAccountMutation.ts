@@ -14,14 +14,17 @@ export function useDeleteAccountMutation(accountId: number) {
 
   return useMutation({
     mutationFn: () => deleteAccount(accountId),
-    onSuccess: () => {
+    onSuccess: async () => {
       const accounts = queryClient.getQueryData<Account[]>(["accounts"]);
       trackEvent("account_delete", {
         account_count_after: Math.max((accounts?.length ?? 1) - 1, 0),
       });
-      setSelectedAccountId(undefined);
-      queryClient.invalidateQueries({ queryKey: ["accounts"] });
       queryClient.removeQueries({ queryKey: ["account", accountId] });
+      await queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      const remainingAccounts = queryClient.getQueryData<Account[]>([
+        "accounts",
+      ]);
+      setSelectedAccountId(remainingAccounts?.[0]?.account_id);
     },
   });
 }

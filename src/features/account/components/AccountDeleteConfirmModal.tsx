@@ -11,6 +11,8 @@ import {
   ModalPortal,
   ModalTitle,
 } from "@/shared/components/Modal";
+import { useDeleteAccountMutation } from "@/features/account/hooks/useDeleteAccountMutation";
+import { getDeleteAccountErrorMessage } from "@/features/account/utils/getDeleteAccountErrorMessage";
 
 interface AccountDeleteConfirmModalProps {
   accountId: number;
@@ -19,12 +21,25 @@ interface AccountDeleteConfirmModalProps {
 }
 
 export function AccountDeleteConfirmModal({
+  accountId,
   open,
   onOpenChange,
 }: AccountDeleteConfirmModalProps) {
+  const { mutate, isPending } = useDeleteAccountMutation(accountId);
+
   const handleDelete = () => {
-    onOpenChange(false);
-    toast.info("계좌 삭제는 v2에서 이용할 수 있어요");
+    mutate(undefined, {
+      onSuccess: () => {
+        onOpenChange(false);
+        toast.success("계좌를 삭제했어요");
+      },
+      onError: (error) => {
+        toast.error(
+          getDeleteAccountErrorMessage(error) ??
+            "계좌를 삭제하지 못했어요. 다시 시도해 주세요.",
+        );
+      },
+    });
   };
 
   return (
@@ -41,7 +56,11 @@ export function AccountDeleteConfirmModal({
                 취소
               </Button>
             </ModalClose>
-            <Button className="flex-1" onClick={handleDelete}>
+            <Button
+              className="flex-1"
+              onClick={handleDelete}
+              disabled={isPending}
+            >
               삭제하기
             </Button>
           </ModalFooter>
