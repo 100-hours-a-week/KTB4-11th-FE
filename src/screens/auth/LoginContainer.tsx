@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
+import { useUserQuery } from "@/features/user/hooks/useUserQuery";
 import stockSpoonLogo from "@/assets/images/stockspoon-logo-full.png";
 import { KakaoLoginButton } from "@/features/auth/components/KakaoLoginButton";
 import { TermsAgreementNotice } from "@/features/auth/components/TermsAgreementNotice";
@@ -13,21 +13,21 @@ import { Splash } from "@/shared/components/Splash";
 export function LoginContainer() {
   const router = useRouter();
   const {
-    data: accounts,
+    data: user,
     isSuccess,
     isLoading,
-  } = useAccountListQuery({ skipAuthRedirect: true, retry: false });
+  } = useUserQuery({ skipAuthRedirect: true, retry: false });
 
   useEffect(() => {
     if (!isSuccess) return;
 
-    if (accounts.length === 0) {
+    if (!user.onboarding_completed) {
       toast.info("온보딩을 완료하지 않았어요");
       router.replace("/onboarding");
     } else {
       router.replace("/home");
     }
-  }, [isSuccess, accounts, router]);
+  }, [isSuccess, user, router]);
 
   if (isLoading || isSuccess) return <Splash />;
 

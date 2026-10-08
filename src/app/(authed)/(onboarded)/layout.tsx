@@ -4,16 +4,16 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
+import { useUserQuery } from "@/features/user/hooks/useUserQuery";
 import { Splash } from "@/shared/components/Splash";
 
 export default function OnboardedLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const { data, isSuccess } = useAccountListQuery({
+  const { data, isSuccess } = useUserQuery({
     skipAuthRedirect: true,
     retry: false,
   });
-  const needsOnboarding = isSuccess && (data?.length ?? 0) === 0;
+  const needsOnboarding = isSuccess && !data?.onboarding_completed;
 
   useEffect(() => {
     if (needsOnboarding) {

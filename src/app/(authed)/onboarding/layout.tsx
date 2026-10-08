@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
-import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
+import { useUserQuery } from "@/features/user/hooks/useUserQuery";
 import { Splash } from "@/shared/components/Splash";
 
 export default function OnboardingLayout({
@@ -15,11 +15,11 @@ export default function OnboardingLayout({
   const pathname = usePathname();
   const isCompletePage = pathname === "/onboarding/complete";
 
-  const { data, isSuccess } = useAccountListQuery({
+  const { data, isSuccess } = useUserQuery({
     skipAuthRedirect: true,
     retry: false,
   });
-  const alreadyOnboarded = isSuccess && (data?.length ?? 0) > 0;
+  const alreadyOnboarded = isSuccess && !!data?.onboarding_completed;
 
   useEffect(() => {
     if (!isCompletePage && alreadyOnboarded) router.replace("/home");
