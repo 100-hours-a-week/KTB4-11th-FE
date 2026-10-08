@@ -4,20 +4,31 @@ import { cn } from "@/shared/utils/cn";
 
 interface StockTickerBarProps {
   title: string;
+  logo?: boolean;
   kospi?: {
     value: number;
     changeRate: number;
   };
 }
 
-export function StockTickerBar({ title, kospi }: StockTickerBarProps) {
+export function StockTickerBar({
+  title,
+  logo = true,
+  kospi,
+}: StockTickerBarProps) {
   const isRise = kospi !== undefined && kospi.changeRate > 0;
   const isFall = kospi !== undefined && kospi.changeRate < 0;
 
   return (
     <div className="flex items-center gap-2 px-5 py-3">
-      <Image src={stockSpoonLogo} alt={title} className="h-9 w-auto" />
-      <span className="sr-only">{title}</span>
+      {logo ? (
+        <>
+          <Image src={stockSpoonLogo} alt={title} className="h-9 w-auto" />
+          <span className="sr-only">{title}</span>
+        </>
+      ) : (
+        <span className="heading-1-bold">{title}</span>
+      )}
       {kospi && (
         <span className="flex items-center gap-1">
           <span className="body-2-medium text-text-neutral-secondary">
