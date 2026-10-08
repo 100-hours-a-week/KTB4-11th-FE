@@ -171,37 +171,26 @@ export const stockHandlers: HttpHandler[] = [
     });
   }),
 
-  http.get("*/api/v1/accounts/:accountId/watchlist", async ({ params }) => {
+  http.get("*/api/v2/users/me/watchlist", async () => {
     return HttpResponse.json<WatchlistResponse>({
       message: "success",
-      account_id: Number(params.accountId),
       watchlists: [],
     });
   }),
 
-  http.post(
-    "*/api/v1/accounts/:accountId/watchlist",
-    async ({ params, request }) => {
-      const body = (await request.json()) as { stock_code: string };
-      favoriteStockCodes.add(body.stock_code);
+  http.post("*/api/v2/users/me/watchlist", async ({ request }) => {
+    const body = (await request.json()) as { stock_code: string };
+    favoriteStockCodes.add(body.stock_code);
 
-      return HttpResponse.json(
-        {
-          message: "success",
-          account_id: Number(params.accountId),
-          stock_code: body.stock_code,
-        },
-        { status: 201 },
-      );
-    },
-  ),
+    return HttpResponse.json(
+      { message: "success", stock_code: body.stock_code },
+      { status: 201 },
+    );
+  }),
 
-  http.delete(
-    "*/api/v1/accounts/:accountId/watchlist/:stockCode",
-    async ({ params }) => {
-      favoriteStockCodes.delete(params.stockCode as string);
+  http.delete("*/api/v2/users/me/watchlist/:stockCode", async ({ params }) => {
+    favoriteStockCodes.delete(params.stockCode as string);
 
-      return HttpResponse.json({ message: "delete_success" });
-    },
-  ),
+    return HttpResponse.json({ message: "delete_success" });
+  }),
 ];

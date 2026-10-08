@@ -8,6 +8,5 @@ export interface WatchlistItem {
 
 export interface WatchlistResponse {
   message: string;
-  account_id: number;
   watchlists: WatchlistItem[];
 }

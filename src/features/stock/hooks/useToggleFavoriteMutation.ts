@@ -34,19 +34,14 @@ function toggleInCache(
   };
 }
 
-export function useToggleFavoriteMutation(accountId?: number) {
+export function useToggleFavoriteMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ stockCode, isFavorite }: ToggleFavoriteParams) => {
-      if (accountId === undefined) {
-        return Promise.reject(new Error("accountId is required"));
-      }
-
-      return isFavorite
-        ? deleteWatchlistItem(accountId, stockCode)
-        : postWatchlistItem(accountId, stockCode);
-    },
+    mutationFn: ({ stockCode, isFavorite }: ToggleFavoriteParams) =>
+      isFavorite
+        ? deleteWatchlistItem(stockCode)
+        : postWatchlistItem(stockCode),
     onMutate: async ({ stockCode, isFavorite }) => {
       await queryClient.cancelQueries({ queryKey: ["ranking"] });
 

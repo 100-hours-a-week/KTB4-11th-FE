@@ -12,7 +12,6 @@ import { useToggleFavoriteMutation } from "@/features/stock/hooks/useToggleFavor
 import type { RankingType } from "@/features/stock/types/ranking";
 import { toRankingStock } from "@/features/stock/utils/toRankingStock";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
-import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
 import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
@@ -24,7 +23,6 @@ import { StockTickerBar } from "@/shared/components/StockTickerBar";
 import { trackEvent } from "@/shared/utils/analytics";
 
 export function DiscoverContainer() {
-  const accountId = useSelectedAccountId();
   const { data: kospi } = useKospiIndexQuery();
   const [rankingType, setRankingType] = useState<RankingType>("거래대금");
 
@@ -37,7 +35,7 @@ export function DiscoverContainer() {
     hasNextPage,
     isFetchingNextPage,
   } = useRankingQuery(rankingType);
-  const toggleFavorite = useToggleFavoriteMutation(accountId);
+  const toggleFavorite = useToggleFavoriteMutation();
 
   const ranking = (data?.pages ?? []).flatMap((page) =>
     page.items.map(toRankingStock),
