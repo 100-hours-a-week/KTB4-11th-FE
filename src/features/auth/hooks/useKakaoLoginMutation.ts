@@ -3,8 +3,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { getAccountList } from "@/features/account/api/getAccountList";
 import { postKakaoLogin } from "@/features/auth/api/postKakaoLogin";
+import { getMe } from "@/features/user/api/getMe";
 import { setAnalyticsUserId, trackEvent } from "@/shared/utils/analytics";
 
 export function useKakaoLoginMutation() {
@@ -18,11 +18,11 @@ export function useKakaoLoginMutation() {
         setAnalyticsUserId(data.user_id);
       }
 
-      const accounts = await queryClient.fetchQuery({
-        queryKey: ["accounts"],
-        queryFn: getAccountList,
+      const user = await queryClient.fetchQuery({
+        queryKey: ["me"],
+        queryFn: () => getMe(),
       });
-      const onboardingRequired = accounts.length === 0;
+      const onboardingRequired = !user.onboarding_completed;
 
       trackEvent(onboardingRequired ? "sign_up" : "login", {
         method: "kakao",
