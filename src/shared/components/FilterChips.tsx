@@ -16,7 +16,9 @@ export function FilterChips<T extends string>({
   scrollable,
 }: FilterChipsProps<T>) {
   return (
-    <div className={cn("flex gap-1", scrollable && "overflow-x-auto")}>
+    <div
+      className={cn("flex gap-1", scrollable && "touch-pan-x overflow-x-auto")}
+    >
       {options.map((option) => {
         const isSelected = value === option;
 
