@@ -8,4 +8,8 @@ export const userHandlers: HttpHandler[] = [
       profile_image_url: null,
     });
   }),
+
+  http.delete("*/api/v1/users/me", async () => {
+    return HttpResponse.json({ message: "withdraw_success" });
+  }),
 ];
