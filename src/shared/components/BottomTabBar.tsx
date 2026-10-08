@@ -26,7 +26,7 @@ const TABS = [
     href: "/favorites",
     outlineIcon: HeartOutlineIcon,
     filledIcon: HeartFilledIcon,
-    featureName: "favorites",
+    featureName: null,
   },
   {
     label: "대결",

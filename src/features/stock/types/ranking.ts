@@ -20,7 +20,7 @@ export const RANKING_TYPE_TO_API_TYPE: Record<RankingType, RankingApiType> = {
 };
 
 export interface RankingStock {
-  rank: number;
+  rank?: number;
   stockCode: string;
   name: string;
   sector: string;
@@ -29,28 +29,25 @@ export interface RankingStock {
   isFavorite: boolean;
 }
 
-// 응답 필드는 camelCase (다른 API와 컨벤션이 다름, BE 확인 필요)
 export interface RankingApiItem {
   rank: number;
-  stockCode: string;
-  stockName: string;
-  sectorName: string;
-  logoUrl: string | null;
+  stock_code: string;
+  stock_name: string;
+  sector_name: string;
+  logo_url: string | null;
   price: number;
-  changeRate: number;
-  priceBasis: string;
-  priceUpdatedAt: string;
-  isFavorite: boolean;
+  change_rate: number;
+  is_favorite: boolean;
 }
 
 export interface RankingApiResponse {
-  rankingType: RankingApiType;
-  rankUpdatedAt: string;
+  ranking_type: RankingApiType;
+  updated_at: string;
   page: number;
   size: number;
-  totalElements: number;
-  totalPages: number;
-  hasPrevious: boolean;
-  hasNext: boolean;
+  total_elements: number;
+  total_pages: number;
+  has_previous: boolean;
+  has_next: boolean;
   items: RankingApiItem[];
 }

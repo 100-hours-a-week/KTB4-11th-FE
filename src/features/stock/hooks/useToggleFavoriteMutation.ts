@@ -26,8 +26,8 @@ function toggleInCache(
     pages: data.pages.map((page) => ({
       ...page,
       items: page.items.map((item) =>
-        item.stockCode === stockCode
-          ? { ...item, isFavorite: nextIsFavorite }
+        item.stock_code === stockCode
+          ? { ...item, is_favorite: nextIsFavorite }
           : item,
       ),
     })),
@@ -62,6 +62,9 @@ export function useToggleFavoriteMutation() {
       context?.previous.forEach(([queryKey, data]) => {
         queryClient.setQueryData(queryKey, data);
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["watchlist"] });
     },
   });
 }

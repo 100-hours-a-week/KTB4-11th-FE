@@ -5,100 +5,92 @@ import type {
   RankingApiResponse,
   RankingApiType,
 } from "@/features/stock/types/ranking";
-import type { WatchlistResponse } from "@/features/stock/types/watchlist";
+import type {
+  WatchlistItem,
+  WatchlistResponse,
+} from "@/features/stock/types/watchlist";
 
 const BASE_VALUE = 2817.42;
 const BASE_CHANGE = -12.5;
 
 interface StockPoolEntry {
-  stockName: string;
-  sectorName: string;
-  logoUrl: string | null;
+  stock_name: string;
+  sector_name: string;
+  logo_url: string | null;
   price: number;
-  changeRate: number;
-  priceBasis: string;
+  change_rate: number;
 }
 
 const STOCK_POOL: StockPoolEntry[] = [
   {
-    stockName: "삼성전자",
-    sectorName: "반도체",
-    logoUrl: null,
+    stock_name: "삼성전자",
+    sector_name: "반도체",
+    logo_url: null,
     price: 74_100,
-    changeRate: 1.5,
-    priceBasis: "CURRENT",
+    change_rate: 1.5,
   },
   {
-    stockName: "SK하이닉스",
-    sectorName: "반도체",
-    logoUrl: null,
+    stock_name: "SK하이닉스",
+    sector_name: "반도체",
+    logo_url: null,
     price: 183_000,
-    changeRate: 2.6,
-    priceBasis: "CURRENT",
+    change_rate: 2.6,
   },
   {
-    stockName: "알테오젠",
-    sectorName: "바이오",
-    logoUrl: null,
+    stock_name: "알테오젠",
+    sector_name: "바이오",
+    logo_url: null,
     price: 312_000,
-    changeRate: 7.8,
-    priceBasis: "CURRENT",
+    change_rate: 7.8,
   },
   {
-    stockName: "카카오",
-    sectorName: "플랫폼",
-    logoUrl: null,
+    stock_name: "카카오",
+    sector_name: "플랫폼",
+    logo_url: null,
     price: 43_000,
-    changeRate: -1.5,
-    priceBasis: "CURRENT",
+    change_rate: -1.5,
   },
   {
-    stockName: "두산에너빌리티",
-    sectorName: "기계",
-    logoUrl: null,
+    stock_name: "두산에너빌리티",
+    sector_name: "기계",
+    logo_url: null,
     price: 51_200,
-    changeRate: 3.3,
-    priceBasis: "CURRENT",
+    change_rate: 3.3,
   },
   {
-    stockName: "NAVER",
-    sectorName: "플랫폼",
-    logoUrl: null,
+    stock_name: "NAVER",
+    sector_name: "플랫폼",
+    logo_url: null,
     price: 221_500,
-    changeRate: -0.8,
-    priceBasis: "CURRENT",
+    change_rate: -0.8,
   },
   {
-    stockName: "LG에너지솔루션",
-    sectorName: "2차전지",
-    logoUrl: null,
+    stock_name: "LG에너지솔루션",
+    sector_name: "2차전지",
+    logo_url: null,
     price: 412_000,
-    changeRate: 0.9,
-    priceBasis: "CURRENT",
+    change_rate: 0.9,
   },
   {
-    stockName: "현대차",
-    sectorName: "자동차",
-    logoUrl: null,
+    stock_name: "현대차",
+    sector_name: "자동차",
+    logo_url: null,
     price: 245_000,
-    changeRate: -2.1,
-    priceBasis: "CURRENT",
+    change_rate: -2.1,
   },
   {
-    stockName: "LG화학",
-    sectorName: "화학",
-    logoUrl: null,
+    stock_name: "LG화학",
+    sector_name: "화학",
+    logo_url: null,
     price: 398_500,
-    changeRate: 1.1,
-    priceBasis: "CURRENT",
+    change_rate: 1.1,
   },
   {
-    stockName: "삼성SDI",
-    sectorName: "2차전지",
-    logoUrl: null,
+    stock_name: "삼성SDI",
+    sector_name: "2차전지",
+    logo_url: null,
     price: 356_000,
-    changeRate: -0.4,
-    priceBasis: "CURRENT",
+    change_rate: -0.4,
   },
 ];
 
@@ -111,7 +103,17 @@ const MAX_BY_TYPE: Record<RankingApiType, number> = {
   POPULAR: 20,
 };
 
-const favoriteStockCodes = new Set<string>();
+const favoriteItems = new Map<string, WatchlistItem>();
+
+function resolveStockPoolEntry(stockCode: string): StockPoolEntry | null {
+  const lastDash = stockCode.lastIndexOf("-");
+  if (lastDash === -1) return null;
+
+  const index = Number(stockCode.slice(lastDash + 1));
+  if (Number.isNaN(index)) return null;
+
+  return STOCK_POOL[index % STOCK_POOL.length];
+}
 
 function buildRankingItems(type: RankingApiType): RankingApiItem[] {
   const total = MAX_BY_TYPE[type];
@@ -123,9 +125,8 @@ function buildRankingItems(type: RankingApiType): RankingApiItem[] {
     return {
       ...base,
       rank: index + 1,
-      stockCode,
-      isFavorite: favoriteStockCodes.has(stockCode),
-      priceUpdatedAt: new Date().toISOString(),
+      stock_code: stockCode,
+      is_favorite: favoriteItems.has(stockCode),
     };
   });
 }
@@ -159,14 +160,14 @@ export const stockHandlers: HttpHandler[] = [
     const items = allItems.slice(start, start + size);
 
     return HttpResponse.json<RankingApiResponse>({
-      rankingType: type,
-      rankUpdatedAt: new Date().toISOString(),
+      ranking_type: type,
+      updated_at: new Date().toISOString(),
       page,
       size,
-      totalElements,
-      totalPages,
-      hasPrevious: page > 1,
-      hasNext: page < totalPages,
+      total_elements: totalElements,
+      total_pages: totalPages,
+      has_previous: page > 1,
+      has_next: page < totalPages,
       items,
     });
   }),
@@ -174,13 +175,23 @@ export const stockHandlers: HttpHandler[] = [
   http.get("*/api/v2/users/me/watchlist", async () => {
     return HttpResponse.json<WatchlistResponse>({
       message: "success",
-      watchlists: [],
+      watchlists: Array.from(favoriteItems.values()),
     });
   }),
 
   http.post("*/api/v2/users/me/watchlist", async ({ request }) => {
     const body = (await request.json()) as { stock_code: string };
-    favoriteStockCodes.add(body.stock_code);
+    const entry = resolveStockPoolEntry(body.stock_code);
+
+    if (entry) {
+      favoriteItems.set(body.stock_code, {
+        stock_code: body.stock_code,
+        stock_name: entry.stock_name,
+        sector: entry.sector_name,
+        current_price: entry.price,
+        price_change_percent: entry.change_rate,
+      });
+    }
 
     return HttpResponse.json(
       { message: "success", stock_code: body.stock_code },
@@ -189,7 +200,7 @@ export const stockHandlers: HttpHandler[] = [
   }),
 
   http.delete("*/api/v2/users/me/watchlist/:stockCode", async ({ params }) => {
-    favoriteStockCodes.delete(params.stockCode as string);
+    favoriteItems.delete(params.stockCode as string);
 
     return HttpResponse.json({ message: "delete_success" });
   }),

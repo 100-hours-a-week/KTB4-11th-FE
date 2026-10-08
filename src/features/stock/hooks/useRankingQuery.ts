@@ -15,7 +15,7 @@ export function useRankingQuery(rankingType: RankingType) {
     queryFn: ({ pageParam }) => getRanking({ type, page: pageParam }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
-      lastPage.hasNext ? lastPage.page + 1 : undefined,
+      lastPage.has_next ? lastPage.page + 1 : undefined,
     placeholderData: keepPreviousData,
     refetchInterval: 5000,
     refetchIntervalInBackground: false,
