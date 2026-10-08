@@ -6,11 +6,11 @@ import type {
 export function toRankingStock(item: RankingApiItem): RankingStock {
   return {
     rank: item.rank,
-    stockCode: item.stockCode,
-    name: item.stockName,
-    sector: item.sectorName,
+    stockCode: item.stock_code,
+    name: item.stock_name,
+    sector: item.sector_name,
     price: item.price,
-    changeRate: item.changeRate,
-    isFavorite: item.isFavorite,
+    changeRate: item.change_rate,
+    isFavorite: item.is_favorite,
   };
 }
