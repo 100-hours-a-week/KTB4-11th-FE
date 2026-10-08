@@ -4,127 +4,50 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { RankingList } from "@/features/stock/components/RankingList";
+import { RankingItemSkeleton } from "@/features/stock/components/RankingItemSkeleton";
 import { RankingTypeTabs } from "@/features/stock/components/RankingTypeTabs";
 import { SearchInput } from "@/features/stock/components/SearchInput";
-import type { RankingStock, RankingType } from "@/features/stock/types/ranking";
+import { useRankingQuery } from "@/features/stock/hooks/useRankingQuery";
+import { useToggleFavoriteMutation } from "@/features/stock/hooks/useToggleFavoriteMutation";
+import type { RankingType } from "@/features/stock/types/ranking";
+import { toRankingStock } from "@/features/stock/utils/toRankingStock";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
+import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
 import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
+import { EmptyState } from "@/shared/components/EmptyState";
+import { ErrorState } from "@/shared/components/ErrorState";
 import { Header } from "@/shared/components/Header";
 import { StockTickerBar } from "@/shared/components/StockTickerBar";
 import { trackEvent } from "@/shared/utils/analytics";
 
-// 실제 랭킹 API 연동 시 제거
-const DEMO_STOCKS: Omit<RankingStock, "rank" | "isFavorite">[] = [
-  {
-    stockCode: "005930",
-    name: "삼성전자",
-    sector: "반도체",
-    price: 74_100,
-    changeRate: 1.5,
-  },
-  {
-    stockCode: "000660",
-    name: "SK하이닉스",
-    sector: "반도체",
-    price: 183_000,
-    changeRate: 2.6,
-  },
-  {
-    stockCode: "196170",
-    name: "알테오젠",
-    sector: "바이오",
-    price: 312_000,
-    changeRate: 7.8,
-  },
-  {
-    stockCode: "035720",
-    name: "카카오",
-    sector: "플랫폼",
-    price: 43_000,
-    changeRate: -1.5,
-  },
-  {
-    stockCode: "267260",
-    name: "두산에너빌리티",
-    sector: "기계",
-    price: 51_200,
-    changeRate: 3.3,
-  },
-  {
-    stockCode: "035420",
-    name: "NAVER",
-    sector: "플랫폼",
-    price: 221_500,
-    changeRate: -0.8,
-  },
-  {
-    stockCode: "373220",
-    name: "LG에너지솔루션",
-    sector: "2차전지",
-    price: 412_000,
-    changeRate: 0.9,
-  },
-  {
-    stockCode: "005380",
-    name: "현대차",
-    sector: "자동차",
-    price: 245_000,
-    changeRate: -2.1,
-  },
-  {
-    stockCode: "051910",
-    name: "LG화학",
-    sector: "화학",
-    price: 398_500,
-    changeRate: 1.1,
-  },
-  {
-    stockCode: "006400",
-    name: "삼성SDI",
-    sector: "2차전지",
-    price: 356_000,
-    changeRate: -0.4,
-  },
-];
-
-function buildDemoRanking(count: number): RankingStock[] {
-  return Array.from({ length: count }, (_, index) => {
-    const base = DEMO_STOCKS[index % DEMO_STOCKS.length];
-    return {
-      ...base,
-      rank: index + 1,
-      stockCode: `${base.stockCode}-${index}`,
-      isFavorite: false,
-    };
-  });
-}
-
-const PAGE_SIZE = 10;
-const TOTAL_COUNT = 100;
-
 export function DiscoverContainer() {
   const { data: kospi } = useKospiIndexQuery();
   const [rankingType, setRankingType] = useState<RankingType>("거래대금");
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
-  const ranking = buildDemoRanking(TOTAL_COUNT).map((stock) => ({
-    ...stock,
-    isFavorite: favorites.has(stock.stockCode),
-  }));
-  const visibleRanking = ranking.slice(0, visibleCount);
+  const {
+    data,
+    isPending,
+    isError,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useRankingQuery(rankingType);
+  const toggleFavorite = useToggleFavoriteMutation();
+
+  const ranking = (data?.pages ?? []).flatMap((page) =>
+    page.items.map(toRankingStock),
+  );
 
   function handleToggleFavorite(stockCode: string) {
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      if (next.has(stockCode)) {
-        next.delete(stockCode);
-      } else {
-        next.add(stockCode);
-      }
-      return next;
+    const target = ranking.find((item) => item.stockCode === stockCode);
+    if (!target) return;
+
+    toggleFavorite.mutate({
+      stockCode,
+      isFavorite: target.isFavorite,
     });
   }
 
@@ -170,14 +93,24 @@ export function DiscoverContainer() {
         <RankingTypeTabs value={rankingType} onChange={setRankingType} />
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-5 pt-4 pb-28">
-        <RankingList
-          items={visibleRanking}
-          hasMore={visibleCount < ranking.length}
-          onLoadMore={() =>
-            setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, TOTAL_COUNT))
-          }
-          onToggleFavorite={handleToggleFavorite}
-        />
+        {isError ? (
+          <ErrorState onRetry={() => refetch()} />
+        ) : isPending ? (
+          <div className="flex flex-col gap-2">
+            {Array.from({ length: 8 }, (_, index) => (
+              <RankingItemSkeleton key={index} />
+            ))}
+          </div>
+        ) : ranking.length === 0 ? (
+          <EmptyState icon={BasketFlusteredIcon} message="종목 정보가 없어요" />
+        ) : (
+          <RankingList
+            items={ranking}
+            hasMore={hasNextPage && !isFetchingNextPage}
+            onLoadMore={() => fetchNextPage()}
+            onToggleFavorite={handleToggleFavorite}
+          />
+        )}
       </div>
       <BottomTabBar />
     </div>

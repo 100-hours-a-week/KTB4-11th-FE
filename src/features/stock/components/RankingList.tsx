@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { RankingItem } from "@/features/stock/components/RankingItem";
 import type { RankingStock } from "@/features/stock/types/ranking";
+import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
 
 interface RankingListProps {
   items: RankingStock[];
@@ -17,24 +17,7 @@ export function RankingList({
   onLoadMore,
   onToggleFavorite,
 }: RankingListProps) {
-  const sentinelRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!hasMore) return;
-
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) onLoadMore();
-      },
-      { rootMargin: "200px" },
-    );
-
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [hasMore, onLoadMore]);
+  const sentinelRef = useInfiniteScroll({ hasMore, onLoadMore });
 
   return (
     <div className="flex flex-col gap-2">
