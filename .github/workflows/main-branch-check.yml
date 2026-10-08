@@ -16,8 +16,10 @@ jobs:
 
           echo "source branch: $SOURCE_BRANCH"
 
-          if [[ "$SOURCE_BRANCH" != bug/* ]]; then
-            echo "Only bug/* branches can be merged into main."
+          if [[ "$SOURCE_BRANCH" != bug/* && \
+                "$SOURCE_BRANCH" != fix/* && \
+                "$SOURCE_BRANCH" != hotfix/* ]]; then
+            echo "Only bug/*, fix/*, hotfix/* branches can be merged into main."
             exit 1
           fi
 
