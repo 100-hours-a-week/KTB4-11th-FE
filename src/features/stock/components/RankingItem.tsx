@@ -24,9 +24,11 @@ export function RankingItem({
 
   return (
     <div className="bg-bg-layer-default flex items-center gap-3 rounded-2xl px-3 py-2.5">
-      <span className="body-2-semibold text-text-neutral-primary w-4 text-center">
-        {rank}
-      </span>
+      {rank !== undefined && (
+        <span className="body-2-semibold text-text-neutral-primary w-4 text-center">
+          {rank}
+        </span>
+      )}
       <span className="border-border-neutral-tertiary size-9 shrink-0 rounded-full border border-dashed" />
       <div className="flex min-w-0 flex-1 flex-col gap-0">
         <span className="body-2-semibold truncate">{name}</span>

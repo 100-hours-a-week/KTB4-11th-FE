@@ -20,7 +20,7 @@ export const RANKING_TYPE_TO_API_TYPE: Record<RankingType, RankingApiType> = {
 };
 
 export interface RankingStock {
-  rank: number;
+  rank?: number;
   stockCode: string;
   name: string;
   sector: string;
