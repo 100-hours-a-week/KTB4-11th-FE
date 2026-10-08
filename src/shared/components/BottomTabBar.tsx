@@ -40,7 +40,7 @@ const TABS = [
     href: "/discover",
     outlineIcon: DiscoverOutlineIcon,
     filledIcon: DiscoverFilledIcon,
-    featureName: "discover",
+    featureName: null,
   },
 ] as const;
 
