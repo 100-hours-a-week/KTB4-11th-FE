@@ -67,3 +67,58 @@ jobs:
       # 8. 실제 Build가 가능한 코드인지 확인한다
       - name: Build
         run: npm run build
+
+  push-image:
+    needs: test-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_V2_DEV_ECR_PUSH_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Login to Public ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      - name: Build and push V2 frontend image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/g8x9p1p0/stockspoon-v2-frontend:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+            NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.NEXT_PUBLIC_KAKAO_CLIENT_ID }}
+            NEXT_PUBLIC_KAKAO_REDIRECT_URI=${{ secrets.NEXT_PUBLIC_KAKAO_REDIRECT_URI }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+            NEXT_PUBLIC_RELEASE=${{ github.sha }}
+            NEXT_PUBLIC_GA_ID=${{ secrets.NEXT_PUBLIC_GA_ID }}
+          secrets: |
+            sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
+          cache-from: type=gha,scope=stocks-frontend-dev
+          cache-to: type=gha,mode=max,scope=stocks-frontend-dev
+
+  deploy-dev:
+    needs: push-image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/cd-dev.yml
+    with:
+      image_tag: ${{ github.sha }}
+    secrets: inherit
