@@ -1,0 +1,165 @@
+name: Frontend Dev CD (V2)
+
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        description: Frontend image tag pushed by Frontend Dev CI
+        required: true
+        type: string
+
+concurrency:
+  group: stockspoon-v2-dev-frontend-deploy
+  cancel-in-progress: false
+
+jobs:
+  verify-image:
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      ECR_REGION: us-east-1
+      ECR_REPOSITORY: stockspoon-v2-frontend
+      IMAGE_TAG: ${{ inputs.image_tag }}
+    steps:
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_V2_DEV_ECR_PUSH_ROLE_ARN }}
+          aws-region: ${{ env.ECR_REGION }}
+
+      - name: Verify the V2 image in Public ECR
+        run: |
+          set -Eeuo pipefail
+          IMAGE_DIGEST="$(aws ecr-public describe-images \
+            --region "$ECR_REGION" \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-ids "imageTag=$IMAGE_TAG" \
+            --query 'imageDetails[0].imageDigest' \
+            --output text)"
+
+          if [[ -z "$IMAGE_DIGEST" || "$IMAGE_DIGEST" == "None" ]]; then
+            echo "V2 image not found in Public ECR: $IMAGE_TAG" >&2
+            exit 1
+          fi
+
+          echo "Verified stockspoon-v2-frontend:$IMAGE_TAG@$IMAGE_DIGEST"
+
+  deploy:
+    needs: verify-image
+    runs-on: ubuntu-26.04
+    environment: development
+    permissions:
+      contents: read
+    env:
+      IMAGE_TAG: ${{ inputs.image_tag }}
+      SERVICE: frontend
+      TAG_KEY: FE_TAG
+      ECR_REPOSITORY: stockspoon-v2-frontend
+      ECR_REGISTRY: public.ecr.aws/g8x9p1p0
+    steps:
+      - name: Deploy frontend image to the V2 development EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 15m
+          envs: IMAGE_TAG,SERVICE,TAG_KEY
+          script: |
+            set -Eeuo pipefail
+            umask 077
+
+            : "${IMAGE_TAG:?IMAGE_TAG is required}"
+            [[ "$IMAGE_TAG" =~ ^[0-9a-f]{40}$ ]] || { echo "Invalid image tag: $IMAGE_TAG" >&2; exit 1; }
+            [[ "$SERVICE:$TAG_KEY" == "frontend:FE_TAG" ]] || { echo "Unexpected service/tag key" >&2; exit 1; }
+
+            APP_DIR=/opt/stockspoon-v2
+            ENV_FILE="$APP_DIR/.env"
+            COMPOSE_FILE="$APP_DIR/docker-compose.yaml"
+            [[ -f "$ENV_FILE" ]] || { echo "Missing $ENV_FILE" >&2; exit 1; }
+            [[ -f "$COMPOSE_FILE" ]] || { echo "Missing $COMPOSE_FILE" >&2; exit 1; }
+
+            exec 9>"$APP_DIR/.deploy.lock"
+            flock -x 9
+
+            read_tag() {
+              awk -F= -v key="$TAG_KEY" '$1 == key { value = substr($0, length(key) + 2) } END { print value }' "$ENV_FILE"
+            }
+
+            write_tag() {
+              local value="$1"
+              local temp_file
+              temp_file="$(mktemp "$APP_DIR/.env.XXXXXX")"
+              awk -v key="$TAG_KEY" -v value="$value" '
+                BEGIN { updated = 0 }
+                index($0, key "=") == 1 {
+                  if (!updated) print key "=" value
+                  updated = 1
+                  next
+                }
+                { print }
+                END { if (!updated) print key "=" value }
+              ' "$ENV_FILE" > "$temp_file"
+              chmod 600 "$temp_file"
+              mv "$temp_file" "$ENV_FILE"
+            }
+
+            COMPOSE=(docker compose --project-directory "$APP_DIR" --env-file "$ENV_FILE" -f "$COMPOSE_FILE")
+            OLD_TAG="$(read_tag)"
+
+            rollback() {
+              local status=$?
+              trap - EXIT
+              if [[ "$OLD_TAG" =~ ^[0-9a-f]{40}$ ]]; then
+                echo "Deployment failed; restoring frontend tag $OLD_TAG" >&2
+                set +e
+                write_tag "$OLD_TAG"
+                "${COMPOSE[@]}" pull "$SERVICE"
+                "${COMPOSE[@]}" up -d "$SERVICE"
+                "${COMPOSE[@]}" up -d --force-recreate nginx
+              else
+                echo "Deployment failed and there was no previous valid frontend tag to restore." >&2
+              fi
+              exit "$status"
+            }
+            trap rollback EXIT
+
+            write_tag "$IMAGE_TAG"
+            "${COMPOSE[@]}" pull "$SERVICE"
+            "${COMPOSE[@]}" up -d "$SERVICE"
+
+            CONTAINER_NAME="stockspoon-v2-dev-${SERVICE}"
+            HEALTH_STATUS=""
+            for attempt in $(seq 1 60); do
+              HEALTH_STATUS="$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$CONTAINER_NAME" 2>/dev/null || true)"
+              [[ "$HEALTH_STATUS" == "healthy" ]] && break
+              [[ "$HEALTH_STATUS" == "unhealthy" || "$HEALTH_STATUS" == "exited" || "$HEALTH_STATUS" == "dead" ]] && break
+              sleep 5
+            done
+            if [[ "$HEALTH_STATUS" != "healthy" ]]; then
+              "${COMPOSE[@]}" logs --tail=100 "$SERVICE" || true
+              echo "Frontend did not become healthy (state: ${HEALTH_STATUS:-missing})." >&2
+              exit 1
+            fi
+
+            OTHER_STATUS="$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' stockspoon-v2-dev-backend 2>/dev/null || true)"
+            if [[ "$OTHER_STATUS" == "healthy" ]]; then
+              "${COMPOSE[@]}" up -d --force-recreate nginx
+            else
+              echo "Backend is not healthy yet; Nginx will start after its first successful deployment."
+            fi
+
+            trap - EXIT
+            echo "Deployed frontend image ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+
+      - name: Add deployment summary
+        if: always()
+        run: |
+          {
+            echo "### Frontend V2 development deployment"
+            echo "- image: `${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}`"
+            echo "- host: `${{ secrets.EC2_HOST }}`"
+            echo "- result: `${{ job.status }}`"
+          } >> "$GITHUB_STEP_SUMMARY"
