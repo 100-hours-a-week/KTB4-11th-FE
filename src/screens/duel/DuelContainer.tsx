@@ -13,10 +13,10 @@ import {
   type DuelStatusFilter,
 } from "@/features/ai/types/duel";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
-import TrophyOutlineIcon from "@/assets/icons/nav/outline/trophy.svg";
 import PlusIcon from "@/assets/icons/fill/plus.svg";
 import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
+import TrophyHappyIcon from "@/assets/icons/stockspoon/trophy-happy.svg";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { FilterChips } from "@/shared/components/FilterChips";
@@ -123,19 +123,19 @@ export function DuelContainer() {
         logo={false}
         kospi={kospi && { value: kospi.value, changeRate: kospi.changeRate }}
       />
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-4 pb-28">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-28">
         {DEMO_DUELS.length === 0 ? (
           <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
             <EmptyState
-              icon={TrophyOutlineIcon}
+              icon={TrophyHappyIcon}
               message="아직 대결 기록이 없어요"
-              description="AI와 겨루거나 AI끼리 전략 대결을 시험해보세요"
+              description="AI와 겨루거나 AI끼리 전략을 비교해보세요"
               actionLabel="대결 생성하기"
               onAction={handleCreateClick}
             />
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 pt-4">
             <OngoingDuelCarousel duels={ongoingDuels} />
 
             <div className="flex items-center justify-between">
