@@ -42,8 +42,8 @@ export function DuelAlreadyExistsModal({
                 닫기
               </Button>
             </ModalClose>
+            {/* TODO: 해당 대결 진행 리포트 화면으로 이동 */}
             <ModalClose asChild>
-              // TODO: 해당 대결 진행 리포트 화면으로 이동
               <Button className="flex-1" onClick={onViewOngoing}>
                 진행 중 대결 보기
               </Button>
