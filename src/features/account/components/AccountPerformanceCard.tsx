@@ -1,3 +1,5 @@
+import { getReturnRateInfo } from "@/shared/utils/getReturnRateInfo";
+
 interface AccountPerformanceCardProps {
   returnPercent: number;
   tradeCount: number;
@@ -7,7 +9,7 @@ export function AccountPerformanceCard({
   returnPercent,
   tradeCount,
 }: AccountPerformanceCardProps) {
-  const isRise = returnPercent > 0;
+  const { sign } = getReturnRateInfo(returnPercent);
 
   return (
     <div className="bg-bg-layer-default divide-border-neutral-muted grid grid-cols-2 divide-x rounded-2xl p-4">
@@ -16,7 +18,7 @@ export function AccountPerformanceCard({
           누적 수익률
         </span>
         <span className="heading-1-bold text-text-accent">
-          {isRise ? "+" : ""}
+          {sign}
           {returnPercent}%
         </span>
       </div>

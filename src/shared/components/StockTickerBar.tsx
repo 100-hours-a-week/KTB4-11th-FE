@@ -1,6 +1,7 @@
 import Image from "next/image";
 import stockSpoonLogo from "@/assets/images/stockspoon-logo.png";
 import { cn } from "@/shared/utils/cn";
+import { getReturnRateInfo } from "@/shared/utils/getReturnRateInfo";
 
 interface StockTickerBarProps {
   title: string;
@@ -16,8 +17,7 @@ export function StockTickerBar({
   logo = true,
   kospi,
 }: StockTickerBarProps) {
-  const isRise = kospi !== undefined && kospi.changeRate > 0;
-  const isFall = kospi !== undefined && kospi.changeRate < 0;
+  const { sign, colorClass } = getReturnRateInfo(kospi?.changeRate ?? 0);
 
   return (
     <div className="flex items-center gap-2 px-5 py-3">
@@ -39,9 +39,7 @@ export function StockTickerBar({
               key={`${kospi.value}-${kospi.changeRate}`}
               className={cn(
                 "animate-in slide-in-from-bottom-2 fade-in flex items-center gap-1 tabular-nums duration-300",
-                isRise && "text-text-price-rise",
-                isFall && "text-text-price-fall",
-                !isRise && !isFall && "text-text-price-flat",
+                colorClass,
               )}
             >
               <span className="body-2-semibold">
@@ -50,7 +48,7 @@ export function StockTickerBar({
                 })}
               </span>
               <span className="body-2-medium">
-                {isRise ? "+" : ""}
+                {sign}
                 {kospi.changeRate.toFixed(2)}%
               </span>
             </span>
