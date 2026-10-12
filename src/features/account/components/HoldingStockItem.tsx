@@ -1,5 +1,6 @@
 import type { HoldingStock } from "@/features/account/types/holdingStock";
 import { cn } from "@/shared/utils/cn";
+import { getReturnRateInfo } from "@/shared/utils/getReturnRateInfo";
 
 type HoldingStockItemProps = Omit<HoldingStock, "id">;
 
@@ -12,8 +13,7 @@ export function HoldingStockItem({
   profitAmount,
   changeRate,
 }: HoldingStockItemProps) {
-  const isRise = changeRate > 0;
-  const isFall = changeRate < 0;
+  const { sign, colorClass } = getReturnRateInfo(changeRate);
 
   return (
     <div className="bg-bg-layer-default flex items-center justify-between rounded-2xl px-4 py-3">
@@ -33,18 +33,11 @@ export function HoldingStockItem({
       </div>
       <div className="flex flex-col items-end gap-1">
         <span className="body-1-semibold">{value.toLocaleString()}원</span>
-        <span
-          className={cn(
-            "body-2-medium",
-            isRise && "text-text-price-rise",
-            isFall && "text-text-price-fall",
-            !isRise && !isFall && "text-text-price-flat",
-          )}
-        >
-          {isRise ? "+" : ""}
+        <span className={cn("body-2-medium", colorClass)}>
+          {sign}
           {profitAmount.toLocaleString()}원{" "}
           <span className="caption-1-regular">
-            ({isRise ? "+" : ""}
+            ({sign}
             {changeRate.toFixed(1)}%)
           </span>
         </span>

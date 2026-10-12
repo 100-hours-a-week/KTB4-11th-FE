@@ -2,6 +2,7 @@ import Link from "next/link";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
 import type { AiTrade } from "@/features/ai/types/aiTrade";
 import { cn } from "@/shared/utils/cn";
+import { getReturnRateInfo } from "@/shared/utils/getReturnRateInfo";
 
 type AiTradeCardProps = AiTrade;
 
@@ -16,8 +17,7 @@ export function AiTradeCard({
   realizedProfit,
   profitRate,
 }: AiTradeCardProps) {
-  const isProfit = realizedProfit > 0;
-  const isLoss = realizedProfit < 0;
+  const { sign, colorClass } = getReturnRateInfo(realizedProfit);
   const isBuy = tradeType === "매수";
 
   return (
@@ -40,26 +40,17 @@ export function AiTradeCard({
       </span>
       <p className="body-2-regular truncate">{reasoning}</p>
       <div className="mt-1 flex items-center gap-2">
-        <span
-          className={cn(
-            "body-2-semibold",
-            isProfit && "text-text-price-rise",
-            isLoss && "text-text-price-fall",
-            !isProfit && !isLoss && "text-text-price-flat",
-          )}
-        >
-          실현손익 {isProfit ? "+" : ""}
+        <span className={cn("body-2-semibold", colorClass)}>
+          실현손익 {sign}
           {realizedProfit.toLocaleString()}원
         </span>
         <span
           className={cn(
             "caption-1-semibold rounded border border-current px-[5px] py-px",
-            isProfit && "text-text-price-rise",
-            isLoss && "text-text-price-fall",
-            !isProfit && !isLoss && "text-text-price-flat",
+            colorClass,
           )}
         >
-          {isProfit ? "+" : ""}
+          {sign}
           {profitRate}%
         </span>
       </div>
