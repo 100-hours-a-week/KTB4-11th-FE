@@ -135,30 +135,50 @@ export function DuelContainer() {
             />
           </div>
         ) : (
-          <div className="flex flex-col gap-4 pt-4">
-            <OngoingDuelCarousel duels={ongoingDuels} />
+          <div className="flex min-h-0 flex-1 flex-col gap-2 pt-4">
+            <div className="flex flex-col gap-4">
+              <OngoingDuelCarousel duels={ongoingDuels} />
 
-            <div className="flex items-center justify-between">
-              <FilterChips
-                options={DUEL_STATUS_FILTERS}
-                value={statusFilter}
-                onChange={setStatusFilter}
-              />
-              <button
-                type="button"
-                onClick={handleCreateClick}
-                aria-label="새 대결 생성"
-                className="bg-bg-neutral-primary text-text-neutral-inverse flex size-8 shrink-0 items-center justify-center rounded-full"
-              >
-                <PlusIcon width={18} height={18} />
-              </button>
+              <div className="flex items-center justify-between">
+                <FilterChips
+                  options={DUEL_STATUS_FILTERS}
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                />
+                <button
+                  type="button"
+                  onClick={handleCreateClick}
+                  aria-label="새 대결 생성"
+                  className="bg-bg-neutral-primary text-text-neutral-inverse flex size-8 shrink-0 items-center justify-center rounded-full"
+                >
+                  <PlusIcon width={18} height={18} />
+                </button>
+              </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-              {filteredDuels.map((duel) => (
-                <DuelCard key={duel.id} {...duel} />
-              ))}
-            </div>
+            {filteredDuels.length === 0 ? (
+              <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-20">
+                <EmptyState
+                  icon={TrophyHappyIcon}
+                  message={
+                    statusFilter === "진행 중"
+                      ? "진행 중인 대결이 없어요"
+                      : "지난 대결이 없어요"
+                  }
+                  description={
+                    statusFilter === "진행 중"
+                      ? "새로운 대결을 생성해 보세요"
+                      : "대결이 종료되면 리포트가 표시돼요"
+                  }
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {filteredDuels.map((duel) => (
+                  <DuelCard key={duel.id} {...duel} />
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
