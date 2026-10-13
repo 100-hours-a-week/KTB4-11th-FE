@@ -96,8 +96,18 @@ export const duelHandlers: HttpHandler[] = [
       );
     }
 
+    const dDay = Math.round(
+      (new Date(body.end_date).getTime() -
+        new Date(body.start_date).getTime()) /
+        (1000 * 60 * 60 * 24),
+    );
+
     return HttpResponse.json<CreateCompetitionResponse>(
-      { message: "success", competition_id: DEMO_COMPETITIONS.length + 1 },
+      {
+        message: "success",
+        competition_id: DEMO_COMPETITIONS.length + 1,
+        d_day: dDay,
+      },
       { status: 201 },
     );
   }),

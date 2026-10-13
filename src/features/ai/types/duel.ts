@@ -89,12 +89,12 @@ export interface CreateCompetitionRequest {
   start_date: string;
   end_date: string;
   initial_capital: number;
-  ai_participant_count: number;
 }
 
 export interface CreateCompetitionResponse {
   message: string;
   competition_id: number;
+  d_day: number;
 }
 
 export const DUEL_PERIOD_OPTIONS = [
