@@ -24,6 +24,18 @@ export interface Duel {
   result?: DuelResult;
 }
 
+export interface DuelHolding {
+  stockCode: string;
+  stockName: string;
+  category: string;
+  weightPercent: number;
+  quantity: number;
+  avgPrice: number;
+  value: number;
+  profitAmount: number;
+  returnPercent: number;
+}
+
 export const DUEL_PERIOD_OPTIONS = [
   "1주",
   "2주",
