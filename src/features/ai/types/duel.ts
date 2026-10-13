@@ -53,6 +53,17 @@ export interface DuelTrade {
   orderId?: number;
 }
 
+export interface DuelMarketEvent {
+  date: string;
+  title: string;
+  body: string;
+}
+
+export interface DuelJudgmentClue {
+  title: string;
+  description: string;
+}
+
 export const DUEL_PERIOD_OPTIONS = [
   "1주",
   "2주",
