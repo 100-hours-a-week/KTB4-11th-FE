@@ -4,7 +4,10 @@ import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
 import type { RankingStock } from "@/features/stock/types/ranking";
 import { cn } from "@/shared/utils/cn";
-import { getReturnRateInfo } from "@/shared/utils/getReturnRateInfo";
+import {
+  formatSignedPercent,
+  getReturnRateInfo,
+} from "@/shared/utils/getReturnRateInfo";
 
 interface RankingItemProps extends RankingStock {
   onToggleFavorite: (stockCode: string) => void;
@@ -19,7 +22,7 @@ export function RankingItem({
   isFavorite,
   onToggleFavorite,
 }: RankingItemProps) {
-  const { sign, colorClass } = getReturnRateInfo(changeRate);
+  const { colorClass } = getReturnRateInfo(changeRate);
   const HeartIcon = isFavorite ? HeartFilledIcon : HeartOutlineIcon;
 
   return (
@@ -37,8 +40,7 @@ export function RankingItem({
             {price.toLocaleString()}원
           </span>
           <span className={cn("caption-1-semibold", colorClass)}>
-            {sign}
-            {changeRate.toFixed(1)}%
+            {formatSignedPercent(changeRate)}
           </span>
         </span>
       </div>

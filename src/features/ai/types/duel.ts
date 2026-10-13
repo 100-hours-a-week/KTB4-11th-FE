@@ -24,6 +24,46 @@ export interface Duel {
   result?: DuelResult;
 }
 
+export interface DuelHolding {
+  stockCode: string;
+  stockName: string;
+  category: string;
+  weightPercent: number;
+  quantity: number;
+  avgPrice: number;
+  value: number;
+  profitAmount: number;
+  returnPercent: number;
+}
+
+export type DuelTradeSide = "매도" | "매수";
+
+export interface DuelTrade {
+  tradeId: number;
+  stockName: string;
+  tradeSide: DuelTradeSide;
+  tradeDate: string;
+  quantity: number;
+  price: number;
+  /** 매도 체결로 손익이 실현된 경우에만 존재 */
+  realizedProfit?: number;
+  profitRate?: number;
+  /** AI 거래의 한 줄 판단 (리포트 생성 전이면 아직 없음) */
+  reasoning?: string;
+  orderId?: number;
+}
+
+export interface DuelMarketEvent {
+  date: string;
+  title: string;
+  body: string;
+}
+
+export interface DuelJudgmentClue {
+  title: string;
+  description: string;
+}
+
 export const DUEL_PERIOD_OPTIONS = [
   "1주",
   "2주",

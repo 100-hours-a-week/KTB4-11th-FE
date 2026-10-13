@@ -6,7 +6,10 @@ import FireIcon from "@/assets/icons/fill/fire.svg";
 import InfoIcon from "@/assets/icons/fill/info.svg";
 import { useCarousel } from "@/shared/hooks/useCarousel";
 import { cn } from "@/shared/utils/cn";
-import { getReturnRateInfo } from "@/shared/utils/getReturnRateInfo";
+import {
+  formatSignedPercent,
+  getReturnRateInfo,
+} from "@/shared/utils/getReturnRateInfo";
 
 const MAX_ONGOING = 3;
 
@@ -71,7 +74,7 @@ export function OngoingDuelCarousel({ duels }: OngoingDuelCarouselProps) {
       <div className="-ml-3 overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {displayedDuels.map((duel) => {
-            const { sign, colorClass } = getReturnRateInfo(duel.returnPercent);
+            const { colorClass } = getReturnRateInfo(duel.returnPercent);
             const progressPercent = getDuelProgressPercent(duel);
 
             return (
@@ -97,8 +100,7 @@ export function OngoingDuelCarousel({ duels }: OngoingDuelCarouselProps) {
                     내 수익률
                   </span>
                   <span className={cn("heading-1-bold", colorClass)}>
-                    {sign}
-                    {duel.returnPercent.toFixed(1)}%
+                    {formatSignedPercent(duel.returnPercent)}
                   </span>
                   <div className="relative mt-1 h-1.5 w-full">
                     <div

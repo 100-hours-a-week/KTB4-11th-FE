@@ -1,6 +1,9 @@
 import type { HoldingStock } from "@/features/account/types/holdingStock";
 import { cn } from "@/shared/utils/cn";
-import { getReturnRateInfo } from "@/shared/utils/getReturnRateInfo";
+import {
+  formatSignedPercent,
+  getReturnRateInfo,
+} from "@/shared/utils/getReturnRateInfo";
 
 type HoldingStockItemProps = Omit<HoldingStock, "id">;
 
@@ -26,8 +29,10 @@ export function HoldingStockItem({
               {category}
             </span>
           </div>
-          <span className="body-2-regular text-text-neutral-secondary">
-            {quantity}주 · 평단 {avgPrice.toLocaleString()}
+          <span className="body-2-regular text-text-neutral-secondary flex items-center">
+            {quantity}주
+            <span className="bg-border-neutral-muted mx-1.5 h-3 w-px" />
+            평단 {avgPrice.toLocaleString()}
           </span>
         </div>
       </div>
@@ -37,8 +42,7 @@ export function HoldingStockItem({
           {sign}
           {profitAmount.toLocaleString()}원{" "}
           <span className="caption-1-regular">
-            ({sign}
-            {changeRate.toFixed(1)}%)
+            ({formatSignedPercent(changeRate)})
           </span>
         </span>
       </div>

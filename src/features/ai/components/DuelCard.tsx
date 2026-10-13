@@ -6,7 +6,10 @@ import PulseIcon from "@/assets/icons/fill/pulse.svg";
 import SmileyIcon from "@/assets/icons/fill/smiley.svg";
 import SmileyNervousIcon from "@/assets/icons/fill/smiley-nervous.svg";
 import { cn } from "@/shared/utils/cn";
-import { getReturnRateInfo } from "@/shared/utils/getReturnRateInfo";
+import {
+  formatSignedPercent,
+  getReturnRateInfo,
+} from "@/shared/utils/getReturnRateInfo";
 
 type DuelCardProps = Duel;
 
@@ -22,8 +25,7 @@ export function DuelCard({
   winner,
   result,
 }: DuelCardProps) {
-  const { sign, colorClass: returnColorClass } =
-    getReturnRateInfo(returnPercent);
+  const { colorClass: returnColorClass } = getReturnRateInfo(returnPercent);
   const isWin = result === "WIN";
   const ResultIcon = isWin ? SmileyIcon : SmileyNervousIcon;
 
@@ -60,16 +62,14 @@ export function DuelCard({
               <PulseIcon width={14} height={14} />
               <span className="caption-1-regular">내 수익률</span>
               <span className={cn("caption-1-semibold ml-1", returnColorClass)}>
-                {sign}
-                {returnPercent.toFixed(1)}%
+                {formatSignedPercent(returnPercent)}
               </span>
             </>
           )}
         </span>
         {status === "진행 중" ? (
           <span className={cn("body-1-semibold", returnColorClass)}>
-            {sign}
-            {returnPercent.toFixed(1)}%
+            {formatSignedPercent(returnPercent)}
           </span>
         ) : (
           result && (

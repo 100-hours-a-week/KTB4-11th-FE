@@ -13,7 +13,7 @@ export function AiOneLineJudgmentCard({
         <MagicWandIcon width={16} height={16} className="text-icon-accent" />한
         줄 판단
       </span>
-      <p className="body-2-medium">{oneLineJudgment}</p>
+      <p className="body-2-medium text-justify">{oneLineJudgment}</p>
     </div>
   );
 }
