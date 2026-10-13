@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Button } from "@/shared/components/Button";
 import {
   Modal,
@@ -14,18 +15,19 @@ import {
 interface DuelAlreadyExistsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  ongoingDuelId: string;
   ongoingDuelName: string;
   remainingDays: number;
-  onViewOngoing: () => void;
 }
 
 export function DuelAlreadyExistsModal({
   open,
   onOpenChange,
+  ongoingDuelId,
   ongoingDuelName,
   remainingDays,
-  onViewOngoing,
 }: DuelAlreadyExistsModalProps) {
+  const router = useRouter();
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalPortal>
@@ -44,7 +46,10 @@ export function DuelAlreadyExistsModal({
             </ModalClose>
             {/* TODO: 해당 대결 진행 리포트 화면으로 이동 */}
             <ModalClose asChild>
-              <Button className="flex-1" onClick={onViewOngoing}>
+              <Button
+                className="flex-1"
+                onClick={() => router.push(`/duel/${ongoingDuelId}`)}
+              >
                 진행 중 대결 보기
               </Button>
             </ModalClose>

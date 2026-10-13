@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
@@ -10,11 +11,13 @@ import {
   duelCreationFormSchema,
   type DuelCreationFormValues,
 } from "@/features/ai/schemas/duelCreationFormSchema";
+import { DuelAlreadyExistsModal } from "@/features/ai/components/DuelAlreadyExistsModal";
 import { DuelPeriodSelector } from "@/features/ai/components/DuelPeriodSelector";
 import {
   isDuelNameAlreadyExistsError,
   useCreateCompetitionMutation,
 } from "@/features/ai/hooks/useCreateCompetitionMutation";
+import { useCompetitionsQuery } from "@/features/ai/hooks/useCompetitionsQuery";
 import InfoIcon from "@/assets/icons/fill/info.svg";
 import { InitialAmountField } from "@/features/account/components/InitialAmountField";
 import { InitialAmountSlider } from "@/features/account/components/InitialAmountSlider";
@@ -39,6 +42,12 @@ const defaultEnd = addDays(today, DEFAULT_PERIOD_DAYS);
 
 export function DuelCreateFormContainer() {
   const router = useRouter();
+
+  const { data: duels } = useCompetitionsQuery();
+  const ongoingUserVsAiDuel = (duels ?? []).find(
+    (duel) => duel.type === "나 vs AI" && duel.status === "진행 중",
+  );
+  const [isAlreadyExistsOpen, setIsAlreadyExistsOpen] = useState(false);
 
   const {
     watch,
@@ -86,6 +95,11 @@ export function DuelCreateFormContainer() {
     !createCompetitionMutation.isPending;
 
   const onSubmit = handleSubmit((values) => {
+    if (ongoingUserVsAiDuel) {
+      setIsAlreadyExistsOpen(true);
+      return;
+    }
+
     createCompetitionMutation.mutate({
       competition_name: values.name,
       competition_type: "user_vs_ai",
@@ -172,6 +186,16 @@ export function DuelCreateFormContainer() {
           대결 시작
         </Button>
       </div>
+
+      {ongoingUserVsAiDuel && (
+        <DuelAlreadyExistsModal
+          open={isAlreadyExistsOpen}
+          onOpenChange={setIsAlreadyExistsOpen}
+          ongoingDuelId={ongoingUserVsAiDuel.id}
+          ongoingDuelName={ongoingUserVsAiDuel.name}
+          remainingDays={ongoingUserVsAiDuel.dDay}
+        />
+      )}
     </div>
   );
 }

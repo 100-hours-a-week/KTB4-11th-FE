@@ -165,9 +165,9 @@ export function DuelContainer() {
         <DuelAlreadyExistsModal
           open={isAlreadyExistsOpen}
           onOpenChange={setIsAlreadyExistsOpen}
+          ongoingDuelId={ongoingUserVsAiDuel.id}
           ongoingDuelName={ongoingUserVsAiDuel.name}
           remainingDays={ongoingUserVsAiDuel.dDay}
-          onViewOngoing={() => setStatusFilter("진행 중")}
         />
       )}
     </div>
