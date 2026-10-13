@@ -16,7 +16,6 @@ export interface Duel {
   startDate: string;
   endDate: string;
   dDay: number;
-  stockCount: number;
   returnPercent: number;
   /** AI끼리 대결 종료 시 우승 전략명 */
   winner?: string;
