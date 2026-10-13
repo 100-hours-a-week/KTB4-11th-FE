@@ -64,6 +64,40 @@ export interface DuelJudgmentClue {
   description: string;
 }
 
+/** 진행 중이면 null, 완료되면 "user"(내 승리) 또는 "ai"(AI 승리) */
+export type DuelWinner = "user" | "ai" | null;
+
+export interface CompetitionApiItem {
+  competition_id: number;
+  state: "in_progress" | "completed";
+  competition_name: string;
+  competition_type: "user_vs_ai";
+  start_date: string;
+  end_date: string;
+  d_day: number;
+  cumulative_return_percent: number;
+  winner: DuelWinner;
+}
+
+export interface CompetitionsResponse {
+  ongoing_competition_count: number;
+  competitions: CompetitionApiItem[];
+}
+
+export interface CreateCompetitionRequest {
+  competition_name: string;
+  competition_type: "user_vs_ai";
+  start_date: string;
+  end_date: string;
+  initial_capital: number;
+  ai_participant_count: number;
+}
+
+export interface CreateCompetitionResponse {
+  message: string;
+  competition_id: number;
+}
+
 export const DUEL_PERIOD_OPTIONS = [
   "1주",
   "2주",
