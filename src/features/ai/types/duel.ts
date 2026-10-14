@@ -97,6 +97,33 @@ export interface CreateCompetitionResponse {
   d_day: number;
 }
 
+export interface CompetitionDailyPerformance {
+  date: string;
+  cumulative_return_percent: number;
+}
+
+export interface CompetitionDetailResponse {
+  competition_id: number;
+  competition_name: string;
+  competition_type: "user_vs_ai";
+  state: "in_progress" | "completed";
+  start_date: string;
+  end_date: string;
+  /** 잔여일이 아니라 대결 전체 기간 길이 (잔여일 통일 요청함) */
+  d_day: number;
+  remaining_days: number;
+  cumulative_return_percent: number;
+  daily_performances: CompetitionDailyPerformance[];
+  as_of: string;
+}
+
+export interface DuelDetail {
+  name: string;
+  dDay: number;
+  myReturnPercent: number;
+  returnHistory: { date: string; value: number }[];
+}
+
 export const DUEL_PERIOD_OPTIONS = [
   "1주",
   "2주",
