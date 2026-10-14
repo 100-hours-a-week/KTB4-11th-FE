@@ -20,14 +20,14 @@ export function DuelTradeCard({
   price,
   realizedProfit,
   profitRate,
-  reasoning,
+  hasReasoning,
   orderId,
   isAiTrade = false,
 }: DuelTradeCardProps) {
   const isBuy = tradeSide === "매수";
   const hasRealizedProfit = realizedProfit !== undefined;
   const { sign, colorClass } = getReturnRateInfo(realizedProfit ?? 0);
-  const isReportPending = isAiTrade && reasoning === undefined;
+  const isReportPending = isAiTrade && !hasReasoning;
   const totalAmount = quantity * price;
 
   return (
@@ -74,11 +74,11 @@ export function DuelTradeCard({
         </div>
       </div>
 
-      {isAiTrade && (reasoning || isReportPending) && (
+      {isAiTrade && (hasReasoning || isReportPending) && (
         <>
           <hr className="border-border-neutral-muted" />
 
-          {reasoning && orderId !== undefined && (
+          {hasReasoning && orderId !== undefined && (
             <Link
               href={`/ai/trades/${orderId}`}
               className="text-text-neutral-primary caption-1-semibold flex w-full items-center justify-between"

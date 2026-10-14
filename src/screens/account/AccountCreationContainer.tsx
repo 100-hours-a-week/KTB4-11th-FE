@@ -3,20 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/Button";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
-import {
-  Modal,
-  ModalClose,
-  ModalContent,
-  ModalDescription,
-  ModalPortal,
-  ModalTitle,
-} from "@/shared/components/Modal";
-import { AiDelegationSwitch } from "@/features/account/components/AiDelegationSwitch";
 import { InitialAmountField } from "@/features/account/components/InitialAmountField";
 import { InitialAmountSlider } from "@/features/account/components/InitialAmountSlider";
 import { QuickAmountChips } from "@/features/account/components/QuickAmountChips";
@@ -53,9 +44,6 @@ export function AccountCreationContainer({
   const setSelectedAccountId = useAccountStore(
     (state) => state.setSelectedAccountId,
   );
-  const [isAiDelegated, setIsAiDelegated] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   useEffect(() => {
     if (!showAccountNameField) {
       trackEvent("onboarding_start");
@@ -152,23 +140,6 @@ export function AccountCreationContainer({
         )}
 
         <div className="flex flex-col gap-3">
-          <span className="body-1-bold">AI 위임 설정</span>
-          <AiDelegationSwitch
-            checked={isAiDelegated}
-            onCheckedChange={(checked) => {
-              if (checked) {
-                setIsAiDelegated(true);
-              } else {
-                trackEvent("unsupported_feature_click", {
-                  feature_name: "manual_investment",
-                });
-                setIsModalOpen(true);
-              }
-            }}
-          />
-        </div>
-
-        <div className="flex flex-col gap-3">
           <span className="body-1-bold">시작 자금</span>
           <InitialAmountField
             value={amount.toLocaleString()}
@@ -202,22 +173,6 @@ export function AccountCreationContainer({
           {submitLabel}
         </Button>
       </div>
-
-      <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <ModalPortal>
-          <ModalContent>
-            <ModalTitle>지금은 AI 위임 투자만 가능해요</ModalTitle>
-            <ModalDescription>
-              직접 투자는 v2에서 이용할 수 있어요.
-              <br />
-              조금만 기다려 주세요!
-            </ModalDescription>
-            <ModalClose asChild>
-              <Button className="mt-6">확인</Button>
-            </ModalClose>
-          </ModalContent>
-        </ModalPortal>
-      </Modal>
     </div>
   );
 }

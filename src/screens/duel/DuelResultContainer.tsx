@@ -9,97 +9,24 @@ import CalendarIcon from "@/assets/icons/fill/calendar.svg";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
 import CrownIcon from "@/assets/icons/fill/crown.svg";
 import RobotIcon from "@/assets/icons/fill/robot.svg";
-import {
-  DuelCompareReturnChart,
-  type DuelCompareChartPoint,
-} from "@/features/ai/components/DuelCompareReturnChart";
+import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
+import RobotFlusteredIcon from "@/assets/icons/stockspoon/robot-flustered.svg";
+import { AiTradeCardSkeleton } from "@/features/ai/components/AiTradeCardSkeleton";
+import { DuelCompareReturnChart } from "@/features/ai/components/DuelCompareReturnChart";
 import { DuelTradeCard } from "@/features/ai/components/DuelTradeCard";
-import type { DuelResult, DuelTrade } from "@/features/ai/types/duel";
+import { useCompetitionExecutionsQuery } from "@/features/ai/hooks/useCompetitionExecutionsQuery";
+import { useCompetitionResultQuery } from "@/features/ai/hooks/useCompetitionResultQuery";
+import { toDuelTrade } from "@/features/ai/utils/toDuelTrade";
+import { EmptyState } from "@/shared/components/EmptyState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { FilterChips } from "@/shared/components/FilterChips";
 import { cn } from "@/shared/utils/cn";
 import { formatSignedPercent } from "@/shared/utils/getReturnRateInfo";
 
-// TODO : 실제 대결 결과 조회 API 연동 시 제거
-const DEMO_DUEL_RESULT = {
-  name: "8월 반도체 집중",
-  startDate: "2026.08.14",
-  endDate: "09.07",
-  myReturnPercent: 5.6,
-  aiReturnPercent: 8.2,
-  result: "LOSE" as DuelResult,
-};
-
-// TODO : 실제 대결 결과 조회 API 연동 시 제거
-const DEMO_COMPARE_HISTORY: DuelCompareChartPoint[] = [
-  { date: "2026-08-14", myValue: 0, aiValue: 0 },
-  { date: "2026-08-19", myValue: 1.8, aiValue: 1.1 },
-  { date: "2026-08-24", myValue: 3.4, aiValue: 2.9 },
-  { date: "2026-08-29", myValue: 5.1, aiValue: 3.3 },
-  { date: "2026-09-03", myValue: 6.9, aiValue: 4.8 },
-  { date: "2026-09-07", myValue: 8.2, aiValue: 5.6 },
-];
-
 const MY_TRADES_FILTER = "내 매매 내역";
 const AI_TRADES_FILTER = "AI 매매 내역";
 const TRADE_FILTERS = [MY_TRADES_FILTER, AI_TRADES_FILTER] as const;
 type TradeFilter = (typeof TRADE_FILTERS)[number];
-
-// TODO : 실제 매매 내역 조회 API 연동 시 제거
-const DEMO_MY_TRADES: DuelTrade[] = [
-  {
-    tradeId: 1,
-    stockName: "SK하이닉스",
-    tradeSide: "매도",
-    tradeDate: "2026.09.03 14:20",
-    quantity: 2,
-    price: 196000,
-    realizedProfit: 18400,
-    profitRate: 4.9,
-  },
-  {
-    tradeId: 2,
-    stockName: "삼성전자",
-    tradeSide: "매수",
-    tradeDate: "2026.08.20 10:05",
-    quantity: 12,
-    price: 71500,
-  },
-];
-
-// TODO : 실제 매매 내역 조회 API 연동 시 제거
-const DEMO_AI_TRADES: DuelTrade[] = [
-  {
-    tradeId: 3,
-    stockName: "카카오",
-    tradeSide: "매도",
-    tradeDate: "2026.08.25 09:40",
-    quantity: 120,
-    price: 40500,
-    realizedProfit: 102000,
-    profitRate: 2.1,
-  },
-  {
-    tradeId: 4,
-    stockName: "카카오",
-    tradeSide: "매수",
-    tradeDate: "2026.08.24 10:12",
-    quantity: 30,
-    price: 41500,
-    reasoning: "RSI 과매수 구간 진입, 단기 조정 가능성 낮다고 판단",
-    orderId: 1001,
-  },
-  {
-    tradeId: 5,
-    stockName: "카카오",
-    tradeSide: "매수",
-    tradeDate: "2026.08.23 10:03",
-    quantity: 30,
-    price: 41000,
-    reasoning: "데이터센터 화재 이슈 선반영 후 반등 신호 포착",
-    orderId: 1002,
-  },
-];
 
 interface DuelResultContainerProps {
   id: string;
@@ -108,11 +35,19 @@ interface DuelResultContainerProps {
 export function DuelResultContainer({ id }: DuelResultContainerProps) {
   const router = useRouter();
   const [tradeFilter, setTradeFilter] = useState<TradeFilter>(MY_TRADES_FILTER);
+  const { data: result } = useCompetitionResultQuery(id);
+  const { data: myExecutionsData, isPending: isMyTradesPending } =
+    useCompetitionExecutionsQuery(result?.accountId);
+  const { data: aiExecutionsData, isPending: isAiTradesPending } =
+    useCompetitionExecutionsQuery(result?.aiAccountId);
 
-  const isWin = DEMO_DUEL_RESULT.result === "WIN";
+  const isWin = result?.result === "WIN";
   const ResultIcon = isWin ? CrownIcon : RobotIcon;
-  const trades =
-    tradeFilter === MY_TRADES_FILTER ? DEMO_MY_TRADES : DEMO_AI_TRADES;
+  const myTrades = (myExecutionsData?.executions ?? []).map(toDuelTrade);
+  const aiTrades = (aiExecutionsData?.executions ?? []).map(toDuelTrade);
+  const trades = tradeFilter === MY_TRADES_FILTER ? myTrades : aiTrades;
+  const isTradesPending =
+    tradeFilter === MY_TRADES_FILTER ? isMyTradesPending : isAiTradesPending;
 
   useEffect(() => {
     if (!isWin) return;
@@ -123,6 +58,8 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
       origin: { y: 0.3 },
     });
   }, [isWin]);
+
+  if (!result) return null;
 
   return (
     <div className="pt-screen-top flex h-full flex-col">
@@ -148,14 +85,14 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
               height={14}
               className="text-icon-accent mr-0.5"
             />
-            {DEMO_DUEL_RESULT.name}
+            {result.name}
             <span className="bg-border-neutral-muted mx-1.5 h-3 w-px" />
             <CalendarIcon
               width={13}
               height={13}
               className="text-icon-accent mr-0.5"
             />
-            {DEMO_DUEL_RESULT.startDate} ~ {DEMO_DUEL_RESULT.endDate}
+            {result.startDate} ~ {result.endDate}
           </span>
 
           <div className="mt-3 flex w-full items-center justify-center gap-4">
@@ -174,7 +111,7 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
                   isWin ? "text-text-accent" : "text-text-neutral-secondary",
                 )}
               >
-                {formatSignedPercent(DEMO_DUEL_RESULT.myReturnPercent)}
+                {formatSignedPercent(result.myReturnPercent)}
               </span>
             </div>
             <span className="text-text-neutral-secondary body-1-bold">vs</span>
@@ -193,13 +130,16 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
                   isWin ? "text-text-neutral-secondary" : "text-text-accent",
                 )}
               >
-                {formatSignedPercent(DEMO_DUEL_RESULT.aiReturnPercent)}
+                {formatSignedPercent(result.aiReturnPercent)}
               </span>
             </div>
           </div>
 
           <div className="border-border-neutral-muted mt-3 w-full rounded-xl border px-2 pt-14 pb-2">
-            <DuelCompareReturnChart data={DEMO_COMPARE_HISTORY} />
+            <DuelCompareReturnChart
+              data={result.compareHistory}
+              isWin={isWin}
+            />
           </div>
         </div>
 
@@ -222,13 +162,36 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
             onChange={setTradeFilter}
           />
           <div className="flex flex-col gap-2">
-            {trades.map((trade) => (
-              <DuelTradeCard
-                key={trade.tradeId}
-                {...trade}
-                isAiTrade={tradeFilter === AI_TRADES_FILTER}
-              />
-            ))}
+            {isTradesPending ? (
+              <>
+                <AiTradeCardSkeleton />
+                <AiTradeCardSkeleton />
+              </>
+            ) : trades.length === 0 ? (
+              <div className="bg-bg-layer-default rounded-2xl">
+                {tradeFilter === AI_TRADES_FILTER ? (
+                  <EmptyState
+                    icon={RobotFlusteredIcon}
+                    message="AI 매매 내역이 없어요"
+                    description="대결 기간 중 진행한 매매가 없어요"
+                  />
+                ) : (
+                  <EmptyState
+                    icon={BasketFlusteredIcon}
+                    message="매매 내역이 없어요"
+                    description="대결 기간 중 진행한 매매가 없어요"
+                  />
+                )}
+              </div>
+            ) : (
+              trades.map((trade) => (
+                <DuelTradeCard
+                  key={trade.tradeId}
+                  {...trade}
+                  isAiTrade={tradeFilter === AI_TRADES_FILTER}
+                />
+              ))
+            )}
           </div>
         </div>
       </div>

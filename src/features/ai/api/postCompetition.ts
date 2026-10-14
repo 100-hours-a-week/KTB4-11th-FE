@@ -7,7 +7,7 @@ import type {
 export async function postCompetition(payload: CreateCompetitionRequest) {
   const { data: createCompetitionResponse } =
     await apiClient.post<CreateCompetitionResponse>(
-      "/api/v1/users/me/competitions",
+      "/api/v2/users/me/competitions",
       payload,
     );
 

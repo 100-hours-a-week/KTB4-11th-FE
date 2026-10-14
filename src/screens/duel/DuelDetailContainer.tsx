@@ -4,16 +4,19 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { HoldingStockItem } from "@/features/account/components/HoldingStockItem";
+import { HoldingStockItemSkeleton } from "@/features/account/components/HoldingStockItemSkeleton";
+import { useHoldingsQuery } from "@/features/account/hooks/useHoldingsQuery";
+import { toHoldingStock } from "@/features/account/utils/toHoldingStock";
 import {
   DuelPortfolioToggle,
   type DuelPortfolioOption,
 } from "@/features/ai/components/DuelPortfolioToggle";
-import {
-  DuelReturnChart,
-  type DuelReturnChartPoint,
-} from "@/features/ai/components/DuelReturnChart";
-import type { DuelHolding } from "@/features/ai/types/duel";
+import { DuelReturnChart } from "@/features/ai/components/DuelReturnChart";
+import { useCompetitionDetailQuery } from "@/features/ai/hooks/useCompetitionDetailQuery";
 import FireIcon from "@/assets/icons/fill/fire.svg";
+import InfoIcon from "@/assets/icons/fill/info.svg";
+import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
+import { EmptyState } from "@/shared/components/EmptyState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { cn } from "@/shared/utils/cn";
 import {
@@ -21,75 +24,28 @@ import {
   getReturnRateInfo,
 } from "@/shared/utils/getReturnRateInfo";
 
-// TODO : 실제 대결 상세 조회 API 연동 시 제거
-const DEMO_DUEL_DETAIL = {
-  name: "8월 반도체 집중",
-  dDay: 12,
-  myReturnPercent: 6.4,
-};
-
-// TODO : 실제 대결 상세 조회 API 연동 시 제거
-const DEMO_RETURN_HISTORY: DuelReturnChartPoint[] = [
-  { date: "2026-10-08T09:12:00", value: 0 },
-  { date: "2026-10-09T10:45:00", value: 1.2 },
-  { date: "2026-10-10T11:30:00", value: 2.8 },
-  { date: "2026-10-11T13:05:00", value: 2.1 },
-  { date: "2026-10-12T14:20:00", value: 4.5 },
-  { date: "2026-10-13T10:00:00", value: 5.9 },
-  { date: "2026-10-14T15:40:00", value: 6.4 },
-];
-
-// TODO : 실제 대결 상세 조회 API 연동 시 제거
-const DEMO_HOLDINGS: DuelHolding[] = [
-  {
-    stockCode: "005930",
-    stockName: "삼성전자",
-    category: "전자",
-    weightPercent: 32,
-    quantity: 12,
-    avgPrice: 71500,
-    value: 892320,
-    profitAmount: 34320,
-    returnPercent: 4.0,
-  },
-  {
-    stockCode: "005380",
-    stockName: "현대차",
-    category: "자동차",
-    weightPercent: 28,
-    quantity: 6,
-    avgPrice: 245000,
-    value: 1497930,
-    profitAmount: 27930,
-    returnPercent: 1.9,
-  },
-  {
-    stockCode: "035720",
-    stockName: "카카오",
-    category: "플랫폼",
-    weightPercent: 22,
-    quantity: 15,
-    avgPrice: 41500,
-    value: 613163,
-    profitAmount: -9337,
-    returnPercent: -1.5,
-  },
-];
-
 interface DuelDetailContainerProps {
   id: string;
 }
 
-export function DuelDetailContainer({ id: _id }: DuelDetailContainerProps) {
+export function DuelDetailContainer({ id }: DuelDetailContainerProps) {
   const router = useRouter();
   const [portfolio, setPortfolio] =
     useState<DuelPortfolioOption>("내 포트폴리오");
+  const { data: detail } = useCompetitionDetailQuery(id);
+  const { data: holdingsData, isPending: isHoldingsPending } = useHoldingsQuery(
+    detail?.accountId,
+  );
 
-  const { colorClass } = getReturnRateInfo(DEMO_DUEL_DETAIL.myReturnPercent);
+  if (!detail) return null;
+
+  const holdings = (holdingsData?.holdings ?? []).map(toHoldingStock);
+
+  const { colorClass } = getReturnRateInfo(detail.myReturnPercent);
   const chartColorVar =
-    DEMO_DUEL_DETAIL.myReturnPercent > 0
+    detail.myReturnPercent > 0
       ? "var(--color-text-price-rise)"
-      : DEMO_DUEL_DETAIL.myReturnPercent < 0
+      : detail.myReturnPercent < 0
         ? "var(--color-text-price-fall)"
         : "var(--color-text-price-flat)";
 
@@ -98,11 +54,11 @@ export function DuelDetailContainer({ id: _id }: DuelDetailContainerProps) {
       <Header
         className="px-5 py-3"
         left={<HeaderBackButton onClick={() => router.push("/duel")} />}
-        title={DEMO_DUEL_DETAIL.name}
+        title={detail.name}
         right={
           <span className="text-text-neutral-secondary body-2-semibold flex items-center gap-0.5">
             <FireIcon width={14} height={14} />
-            D-{DEMO_DUEL_DETAIL.dDay}
+            D-{detail.dDay}
           </span>
         }
       />
@@ -113,22 +69,29 @@ export function DuelDetailContainer({ id: _id }: DuelDetailContainerProps) {
             내 수익률
           </span>
           <span className={cn("title-1", colorClass)}>
-            {formatSignedPercent(DEMO_DUEL_DETAIL.myReturnPercent)}
+            {formatSignedPercent(detail.myReturnPercent)}
           </span>
 
           <div className="border-border-neutral-muted mt-3 rounded-xl border px-2 pt-14 pb-2">
             <DuelReturnChart
-              data={DEMO_RETURN_HISTORY}
+              data={detail.returnHistory}
               colorVar={chartColorVar}
               colorClass={colorClass}
             />
           </div>
-          <span className="caption-1-regular text-text-neutral-tertiary text-center">
-            AI 성적은 대결이 끝나면 공개돼요
+          <span className="flex items-center justify-center gap-1">
+            <InfoIcon
+              width={12}
+              height={12}
+              className="text-text-neutral-tertiary"
+            />
+            <span className="caption-1-regular text-text-neutral-tertiary">
+              AI 성적은 대결 종료 후 공개돼요
+            </span>
           </span>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-1 flex-col gap-3">
           <DuelPortfolioToggle
             value={portfolio}
             onChange={setPortfolio}
@@ -138,19 +101,26 @@ export function DuelDetailContainer({ id: _id }: DuelDetailContainerProps) {
             }
           />
 
-          <div className="flex flex-col gap-2">
-            {DEMO_HOLDINGS.map((holding) => (
-              <HoldingStockItem
-                key={holding.stockCode}
-                name={holding.stockName}
-                category={holding.category}
-                quantity={holding.quantity}
-                avgPrice={holding.avgPrice}
-                value={holding.value}
-                profitAmount={holding.profitAmount}
-                changeRate={holding.returnPercent}
-              />
-            ))}
+          <div className="flex flex-1 flex-col gap-2">
+            {isHoldingsPending ? (
+              <>
+                <HoldingStockItemSkeleton />
+                <HoldingStockItemSkeleton />
+                <HoldingStockItemSkeleton />
+              </>
+            ) : holdings.length === 0 ? (
+              <div className="bg-bg-layer-default flex flex-1 flex-col items-center justify-center rounded-2xl">
+                <EmptyState
+                  icon={BasketFlusteredIcon}
+                  message="보유 중인 종목이 없어요"
+                  description="체결된 매매가 있으면 여기 표시돼요"
+                />
+              </div>
+            ) : (
+              holdings.map((holding) => (
+                <HoldingStockItem key={holding.id} {...holding} />
+              ))
+            )}
           </div>
         </div>
       </div>

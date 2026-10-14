@@ -23,18 +23,6 @@ export interface Duel {
   result?: DuelResult;
 }
 
-export interface DuelHolding {
-  stockCode: string;
-  stockName: string;
-  category: string;
-  weightPercent: number;
-  quantity: number;
-  avgPrice: number;
-  value: number;
-  profitAmount: number;
-  returnPercent: number;
-}
-
 export type DuelTradeSide = "매도" | "매수";
 
 export interface DuelTrade {
@@ -47,8 +35,8 @@ export interface DuelTrade {
   /** 매도 체결로 손익이 실현된 경우에만 존재 */
   realizedProfit?: number;
   profitRate?: number;
-  /** AI 거래의 한 줄 판단 (리포트 생성 전이면 아직 없음) */
-  reasoning?: string;
+  /** AI 거래의 판단 근거가 준비됐는지 (리포트 생성 전이면 false/undefined) */
+  hasReasoning?: boolean;
   orderId?: number;
 }
 
@@ -95,6 +83,122 @@ export interface CreateCompetitionResponse {
   message: string;
   competition_id: number;
   d_day: number;
+}
+
+export interface CompetitionDailyPerformance {
+  date: string;
+  cumulative_return_percent: number;
+}
+
+export interface CompetitionParticipant {
+  participant_id: number;
+  account_id: number;
+  participant_type: "user" | "ai";
+  display_name: string;
+}
+
+export interface CompetitionDetailResponse {
+  competition_id: number;
+  competition_name: string;
+  competition_type: "user_vs_ai";
+  state: "in_progress" | "completed";
+  start_date: string;
+  end_date: string;
+  /** 잔여일 (목록 조회와 동일한 의미) */
+  d_day: number;
+  participants: CompetitionParticipant[];
+  cumulative_return_percent: number;
+  daily_performances: CompetitionDailyPerformance[];
+}
+
+export interface DuelDetail {
+  name: string;
+  dDay: number;
+  accountId: number;
+  myReturnPercent: number;
+  returnHistory: { date: string; value: number }[];
+}
+
+export interface CompetitionCompareDailyPerformance {
+  date: string;
+  user_cumulative_return_percent: number;
+  ai_cumulative_return_percent: number;
+}
+
+export interface CompetitionResultResponse {
+  competition_id: number;
+  competition_name: string;
+  competition_type: "user_vs_ai";
+  state: "completed";
+  start_date: string;
+  end_date: string;
+  d_day: number | null;
+  participants: CompetitionParticipant[];
+  winner: DuelWinner;
+  user_final_return_percent: number;
+  ai_final_return_percent: number;
+  daily_performances: CompetitionCompareDailyPerformance[];
+}
+
+export interface DuelResultSummary {
+  name: string;
+  startDate: string;
+  endDate: string;
+  accountId: number;
+  aiAccountId: number;
+  myReturnPercent: number;
+  aiReturnPercent: number;
+  result: DuelResult;
+  compareHistory: { date: string; myValue: number; aiValue: number }[];
+}
+
+export interface CompetitionMarketAnalysis {
+  analysis_id: number;
+  date: string;
+  title: string;
+  content: string;
+}
+
+export interface CompetitionJudgmentSummary {
+  title: string;
+  content: string;
+}
+
+export interface CompetitionReportResponse {
+  competition_id: number;
+  competition_name: string;
+  start_date: string;
+  end_date: string;
+  state: string;
+  market_analyses: CompetitionMarketAnalysis[];
+  judgment_summaries: CompetitionJudgmentSummary[];
+}
+
+export interface DuelReportData {
+  name: string;
+  startDate: string;
+  endDate: string;
+  isReady: boolean;
+  marketEvents: DuelMarketEvent[];
+  judgmentClues: DuelJudgmentClue[];
+}
+
+export interface CompetitionExecution {
+  execution_id: number;
+  order_id: number;
+  stock_code: string;
+  stock_name: string;
+  order_side: "buy" | "sell";
+  executed_at: string;
+  execution_quantity: number;
+  execution_amount: number;
+  realized_profit_amount: number | null;
+  realized_return_percent: number | null;
+}
+
+export interface CompetitionExecutionsResponse {
+  account_id: number;
+  executions: CompetitionExecution[];
 }
 
 export const DUEL_PERIOD_OPTIONS = [

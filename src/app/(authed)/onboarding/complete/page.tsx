@@ -9,7 +9,5 @@ export default async function OnboardingCompletePage({
 }: OnboardingCompletePageProps) {
   const { amount } = await searchParams;
 
-  return (
-    <OnboardingCompleteContainer amount={Number(amount) || 0} isAiDelegated />
-  );
+  return <OnboardingCompleteContainer amount={Number(amount) || 0} />;
 }

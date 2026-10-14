@@ -16,7 +16,7 @@ export function EmptyState({
   onAction,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-8">
+    <div className="flex flex-col items-center justify-center gap-3 py-8">
       <Icon width={48} height={48} />
       <div className="flex flex-col items-center gap-1">
         <span className="body-1-semibold text-text-neutral-primary">

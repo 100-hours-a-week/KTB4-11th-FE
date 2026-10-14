@@ -5,7 +5,7 @@ import {
   DUEL_PERIOD_OPTIONS,
   type DuelPeriodOption,
 } from "@/features/ai/types/duel";
-import { useDateRangeDraft } from "@/features/ai/hooks/useDateRangeDraft";
+import InfoIcon from "@/assets/icons/fill/info.svg";
 import { Button } from "@/shared/components/Button";
 import { Calendar } from "@/shared/components/Calendar";
 import {
@@ -29,6 +29,8 @@ const PERIOD_DAYS: Partial<Record<DuelPeriodOption, number>> = {
   "3개월": 90,
 };
 
+const PLACEHOLDER_PERIOD_DAYS = 30;
+
 function addDays(date: Date, days: number) {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
@@ -42,7 +44,6 @@ function formatDisplayDate(value: string) {
 interface DuelPeriodSelectorProps {
   startDate: string;
   endDate: string;
-  onStartDateChange: (value: string) => void;
   onEndDateChange: (value: string) => void;
   error?: string;
 }
@@ -50,15 +51,15 @@ interface DuelPeriodSelectorProps {
 export function DuelPeriodSelector({
   startDate,
   endDate,
-  onStartDateChange,
   onEndDateChange,
   error,
 }: DuelPeriodSelectorProps) {
-  const [periodOption, setPeriodOption] = useState<DuelPeriodOption>("1개월");
+  const [periodOption, setPeriodOption] = useState<
+    DuelPeriodOption | undefined
+  >(undefined);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const { draftStart, draftEnd, selectDay, reset } = useDateRangeDraft(
-    startDate,
-    endDate,
+  const [draftEnd, setDraftEnd] = useState<string | undefined>(
+    endDate || undefined,
   );
 
   const hasPeriod = !!startDate && !!endDate;
@@ -71,32 +72,28 @@ export function DuelPeriodSelector({
       : 0;
 
   const today = new Date();
-  const weekLater = new Date(today);
-  weekLater.setDate(weekLater.getDate() + 7);
-  const placeholderText = `${formatDisplayDate(toDateOnly(today))} ~ ${formatDisplayDate(toDateOnly(weekLater))}`;
+  const placeholderEndDate = addDays(today, PLACEHOLDER_PERIOD_DAYS);
+  const placeholderEndText = formatDisplayDate(toDateOnly(placeholderEndDate));
 
   function handlePeriodOptionChange(option: DuelPeriodOption) {
     setPeriodOption(option);
     if (option === RESET_OPTION) {
-      onStartDateChange("");
       onEndDateChange("");
       return;
     }
 
     const days = PERIOD_DAYS[option]!;
-    onStartDateChange(toDateOnly(today));
     onEndDateChange(toDateOnly(addDays(today, days)));
   }
 
   function openSheet() {
-    reset(startDate, endDate);
+    setDraftEnd(endDate || undefined);
     setIsSheetOpen(true);
   }
 
   function handleConfirm() {
-    if (!draftStart || !draftEnd) return;
+    if (!draftEnd) return;
     setPeriodOption(RESET_OPTION);
-    onStartDateChange(draftStart);
     onEndDateChange(draftEnd);
     setIsSheetOpen(false);
   }
@@ -105,12 +102,12 @@ export function DuelPeriodSelector({
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-2">
         <span className="body-1-bold">대결 기간</span>
-        {error && (
-          <p className="text-text-error text-[10px] leading-[14px] font-light">
-            {error}
-          </p>
-        )}
-        <div className="bg-bg-layer-default flex flex-col gap-2 rounded-2xl p-4">
+        <div
+          className={cn(
+            "bg-bg-layer-default flex flex-col gap-2 rounded-2xl border-[1.4px] p-4",
+            error ? "border-border-error" : "border-transparent",
+          )}
+        >
           <button
             type="button"
             onClick={openSheet}
@@ -126,16 +123,26 @@ export function DuelPeriodSelector({
                 </span>
               </>
             ) : (
-              <span className="body-1-medium text-text-neutral-tertiary">
-                {placeholderText}
-              </span>
+              <>
+                <span className="body-1-medium">
+                  <span className="text-text-neutral-primary">
+                    {formatDisplayDate(startDate)} ~{" "}
+                  </span>
+                  <span className="text-text-neutral-tertiary">
+                    {placeholderEndText}
+                  </span>
+                </span>
+                <span className="body-2-medium text-text-neutral-tertiary shrink-0">
+                  {PLACEHOLDER_PERIOD_DAYS}일
+                </span>
+              </>
             )}
           </button>
         </div>
       </div>
 
-      <div className="flex gap-1.5">
-        <div className="grid flex-1 grid-cols-4 gap-1.5">
+      <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-5 gap-1.5">
           {PRESET_OPTIONS.map((preset) => {
             const isSelected = periodOption === preset;
             return (
@@ -154,14 +161,28 @@ export function DuelPeriodSelector({
               </button>
             );
           })}
+          <button
+            type="button"
+            onClick={() => handlePeriodOptionChange(RESET_OPTION)}
+            className="body-2-medium bg-bg-layer-default border-border-neutral-muted text-text-neutral-secondary active:bg-bg-neutral-primary active:border-bg-neutral-primary active:text-text-neutral-inverse rounded-full border px-2 py-1 transition-colors"
+          >
+            {RESET_OPTION}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => handlePeriodOptionChange(RESET_OPTION)}
-          className="body-2-medium bg-bg-layer-default border-border-neutral-muted text-text-neutral-secondary active:bg-bg-neutral-primary active:border-bg-neutral-primary active:text-text-neutral-inverse shrink-0 rounded-full border px-3 py-1 transition-colors"
-        >
-          {RESET_OPTION}
-        </button>
+        {error ? (
+          <p className="body-2-regular text-text-error">{error}</p>
+        ) : (
+          <span className="flex items-center gap-1">
+            <InfoIcon
+              width={12}
+              height={12}
+              className="text-text-neutral-tertiary"
+            />
+            <span className="caption-1-regular text-text-neutral-tertiary">
+              대결 시작일은 오늘로 고정돼요
+            </span>
+          </span>
+        )}
       </div>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -171,15 +192,12 @@ export function DuelPeriodSelector({
               <div className="bg-bg-neutral-tertiary mx-auto mb-1 h-1 w-9 rounded-full" />
               <SheetTitle className="sr-only">대결 기간 선택</SheetTitle>
               <Calendar
-                rangeStart={draftStart}
+                rangeStart={startDate}
                 rangeEnd={draftEnd}
-                minDate={toDateOnly(new Date())}
-                onSelect={selectDay}
+                minDate={toDateOnly(addDays(today, 1))}
+                onSelect={(value) => setDraftEnd(value)}
               />
-              <Button
-                disabled={!draftStart || !draftEnd}
-                onClick={handleConfirm}
-              >
+              <Button disabled={!draftEnd} onClick={handleConfirm}>
                 선택 완료
               </Button>
             </div>
