@@ -9,36 +9,14 @@ import CalendarIcon from "@/assets/icons/fill/calendar.svg";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
 import CrownIcon from "@/assets/icons/fill/crown.svg";
 import RobotIcon from "@/assets/icons/fill/robot.svg";
-import {
-  DuelCompareReturnChart,
-  type DuelCompareChartPoint,
-} from "@/features/ai/components/DuelCompareReturnChart";
+import { DuelCompareReturnChart } from "@/features/ai/components/DuelCompareReturnChart";
 import { DuelTradeCard } from "@/features/ai/components/DuelTradeCard";
-import type { DuelResult, DuelTrade } from "@/features/ai/types/duel";
+import { useCompetitionResultQuery } from "@/features/ai/hooks/useCompetitionResultQuery";
+import type { DuelTrade } from "@/features/ai/types/duel";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { FilterChips } from "@/shared/components/FilterChips";
 import { cn } from "@/shared/utils/cn";
 import { formatSignedPercent } from "@/shared/utils/getReturnRateInfo";
-
-// TODO : 실제 대결 결과 조회 API 연동 시 제거
-const DEMO_DUEL_RESULT = {
-  name: "8월 반도체 집중",
-  startDate: "2026.08.14",
-  endDate: "09.07",
-  myReturnPercent: 5.6,
-  aiReturnPercent: 8.2,
-  result: "LOSE" as DuelResult,
-};
-
-// TODO : 실제 대결 결과 조회 API 연동 시 제거
-const DEMO_COMPARE_HISTORY: DuelCompareChartPoint[] = [
-  { date: "2026-08-14", myValue: 0, aiValue: 0 },
-  { date: "2026-08-19", myValue: 1.8, aiValue: 1.1 },
-  { date: "2026-08-24", myValue: 3.4, aiValue: 2.9 },
-  { date: "2026-08-29", myValue: 5.1, aiValue: 3.3 },
-  { date: "2026-09-03", myValue: 6.9, aiValue: 4.8 },
-  { date: "2026-09-07", myValue: 8.2, aiValue: 5.6 },
-];
 
 const MY_TRADES_FILTER = "내 매매 내역";
 const AI_TRADES_FILTER = "AI 매매 내역";
@@ -108,8 +86,9 @@ interface DuelResultContainerProps {
 export function DuelResultContainer({ id }: DuelResultContainerProps) {
   const router = useRouter();
   const [tradeFilter, setTradeFilter] = useState<TradeFilter>(MY_TRADES_FILTER);
+  const { data: result } = useCompetitionResultQuery(id);
 
-  const isWin = DEMO_DUEL_RESULT.result === "WIN";
+  const isWin = result?.result === "WIN";
   const ResultIcon = isWin ? CrownIcon : RobotIcon;
   const trades =
     tradeFilter === MY_TRADES_FILTER ? DEMO_MY_TRADES : DEMO_AI_TRADES;
@@ -123,6 +102,8 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
       origin: { y: 0.3 },
     });
   }, [isWin]);
+
+  if (!result) return null;
 
   return (
     <div className="pt-screen-top flex h-full flex-col">
@@ -148,14 +129,14 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
               height={14}
               className="text-icon-accent mr-0.5"
             />
-            {DEMO_DUEL_RESULT.name}
+            {result.name}
             <span className="bg-border-neutral-muted mx-1.5 h-3 w-px" />
             <CalendarIcon
               width={13}
               height={13}
               className="text-icon-accent mr-0.5"
             />
-            {DEMO_DUEL_RESULT.startDate} ~ {DEMO_DUEL_RESULT.endDate}
+            {result.startDate} ~ {result.endDate}
           </span>
 
           <div className="mt-3 flex w-full items-center justify-center gap-4">
@@ -174,7 +155,7 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
                   isWin ? "text-text-accent" : "text-text-neutral-secondary",
                 )}
               >
-                {formatSignedPercent(DEMO_DUEL_RESULT.myReturnPercent)}
+                {formatSignedPercent(result.myReturnPercent)}
               </span>
             </div>
             <span className="text-text-neutral-secondary body-1-bold">vs</span>
@@ -193,13 +174,13 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
                   isWin ? "text-text-neutral-secondary" : "text-text-accent",
                 )}
               >
-                {formatSignedPercent(DEMO_DUEL_RESULT.aiReturnPercent)}
+                {formatSignedPercent(result.aiReturnPercent)}
               </span>
             </div>
           </div>
 
           <div className="border-border-neutral-muted mt-3 w-full rounded-xl border px-2 pt-14 pb-2">
-            <DuelCompareReturnChart data={DEMO_COMPARE_HISTORY} />
+            <DuelCompareReturnChart data={result.compareHistory} />
           </div>
         </div>
 
