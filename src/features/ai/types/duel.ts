@@ -170,6 +170,7 @@ export interface DuelReportData {
   name: string;
   startDate: string;
   endDate: string;
+  isReady: boolean;
   marketEvents: DuelMarketEvent[];
   judgmentClues: DuelJudgmentClue[];
 }

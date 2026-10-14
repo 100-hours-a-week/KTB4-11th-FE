@@ -15,6 +15,7 @@ export function toDuelReportData(
     name: report.competition_name,
     startDate: formatFullDotDate(report.start_date),
     endDate: formatShortDotDate(report.end_date),
+    isReady: report.state === "ready",
     marketEvents: report.market_analyses.map((analysis) => ({
       date: formatEventDate(analysis.date),
       title: analysis.title,
