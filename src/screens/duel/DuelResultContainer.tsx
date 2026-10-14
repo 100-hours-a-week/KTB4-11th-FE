@@ -14,9 +14,8 @@ import RobotFlusteredIcon from "@/assets/icons/stockspoon/robot-flustered.svg";
 import { AiTradeCardSkeleton } from "@/features/ai/components/AiTradeCardSkeleton";
 import { DuelCompareReturnChart } from "@/features/ai/components/DuelCompareReturnChart";
 import { DuelTradeCard } from "@/features/ai/components/DuelTradeCard";
+import { useCompetitionExecutionsQuery } from "@/features/ai/hooks/useCompetitionExecutionsQuery";
 import { useCompetitionResultQuery } from "@/features/ai/hooks/useCompetitionResultQuery";
-import { useOrdersQuery } from "@/features/ai/hooks/useOrdersQuery";
-import type { DuelTrade } from "@/features/ai/types/duel";
 import { toDuelTrade } from "@/features/ai/utils/toDuelTrade";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
@@ -29,40 +28,6 @@ const AI_TRADES_FILTER = "AI 매매 내역";
 const TRADE_FILTERS = [MY_TRADES_FILTER, AI_TRADES_FILTER] as const;
 type TradeFilter = (typeof TRADE_FILTERS)[number];
 
-// TODO : AI 매매 내역 조회 API 연동 시 제거 (AI 참가자 계좌 id 응답 대기 중)
-const DEMO_AI_TRADES: DuelTrade[] = [
-  {
-    tradeId: 3,
-    stockName: "카카오",
-    tradeSide: "매도",
-    tradeDate: "2026.08.25 09:40",
-    quantity: 120,
-    price: 40500,
-    realizedProfit: 102000,
-    profitRate: 2.1,
-  },
-  {
-    tradeId: 4,
-    stockName: "카카오",
-    tradeSide: "매수",
-    tradeDate: "2026.08.24 10:12",
-    quantity: 30,
-    price: 41500,
-    reasoning: "RSI 과매수 구간 진입, 단기 조정 가능성 낮다고 판단",
-    orderId: 1001,
-  },
-  {
-    tradeId: 5,
-    stockName: "카카오",
-    tradeSide: "매수",
-    tradeDate: "2026.08.23 10:03",
-    quantity: 30,
-    price: 41000,
-    reasoning: "데이터센터 화재 이슈 선반영 후 반등 신호 포착",
-    orderId: 1002,
-  },
-];
-
 interface DuelResultContainerProps {
   id: string;
 }
@@ -71,15 +36,18 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
   const router = useRouter();
   const [tradeFilter, setTradeFilter] = useState<TradeFilter>(MY_TRADES_FILTER);
   const { data: result } = useCompetitionResultQuery(id);
-  const { data: ordersData, isPending: isMyTradesPending } = useOrdersQuery(
-    result?.accountId,
-  );
+  const { data: myExecutionsData, isPending: isMyTradesPending } =
+    useCompetitionExecutionsQuery(result?.accountId);
+  const { data: aiExecutionsData, isPending: isAiTradesPending } =
+    useCompetitionExecutionsQuery(result?.aiAccountId);
 
   const isWin = result?.result === "WIN";
   const ResultIcon = isWin ? CrownIcon : RobotIcon;
-  const myTrades = (ordersData?.orders ?? []).map(toDuelTrade);
-  const trades = tradeFilter === MY_TRADES_FILTER ? myTrades : DEMO_AI_TRADES;
-  const isTradesPending = tradeFilter === MY_TRADES_FILTER && isMyTradesPending;
+  const myTrades = (myExecutionsData?.executions ?? []).map(toDuelTrade);
+  const aiTrades = (aiExecutionsData?.executions ?? []).map(toDuelTrade);
+  const trades = tradeFilter === MY_TRADES_FILTER ? myTrades : aiTrades;
+  const isTradesPending =
+    tradeFilter === MY_TRADES_FILTER ? isMyTradesPending : isAiTradesPending;
 
   useEffect(() => {
     if (!isWin) return;

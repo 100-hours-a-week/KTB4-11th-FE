@@ -35,8 +35,8 @@ export interface DuelTrade {
   /** 매도 체결로 손익이 실현된 경우에만 존재 */
   realizedProfit?: number;
   profitRate?: number;
-  /** AI 거래의 한 줄 판단 (리포트 생성 전이면 아직 없음) */
-  reasoning?: string;
+  /** AI 거래의 판단 근거가 준비됐는지 (리포트 생성 전이면 false/undefined) */
+  hasReasoning?: boolean;
   orderId?: number;
 }
 
@@ -181,6 +181,24 @@ export interface DuelReportData {
   isReady: boolean;
   marketEvents: DuelMarketEvent[];
   judgmentClues: DuelJudgmentClue[];
+}
+
+export interface CompetitionExecution {
+  execution_id: number;
+  order_id: number;
+  stock_code: string;
+  stock_name: string;
+  order_side: "buy" | "sell";
+  executed_at: string;
+  execution_quantity: number;
+  execution_amount: number;
+  realized_profit_amount: number | null;
+  realized_return_percent: number | null;
+}
+
+export interface CompetitionExecutionsResponse {
+  account_id: number;
+  executions: CompetitionExecution[];
 }
 
 export const DUEL_PERIOD_OPTIONS = [
