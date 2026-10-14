@@ -131,7 +131,7 @@ export function Calendar({
                     ? "bg-bg-accent text-text-neutral-inverse"
                     : "text-text-neutral-primary",
                   !isEndpoint && isToday && "text-text-accent",
-                  isDisabled && "text-text-neutral-tertiary",
+                  !isEndpoint && isDisabled && "text-text-neutral-tertiary",
                   !isDisabled && !isEndpoint && "active:bg-bg-neutral-tertiary",
                 )}
               >
