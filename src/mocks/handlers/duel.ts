@@ -43,7 +43,7 @@ const DEMO_COMPETITIONS: CompetitionApiItem[] = [
 ];
 
 export const duelHandlers: HttpHandler[] = [
-  http.get("*/api/v1/users/me/competitions", async () => {
+  http.get("*/api/v2/users/me/competitions", async () => {
     return HttpResponse.json<CompetitionsResponse>({
       ongoing_competition_count: DEMO_COMPETITIONS.filter(
         (competition) => competition.state === "in_progress",
@@ -52,7 +52,7 @@ export const duelHandlers: HttpHandler[] = [
     });
   }),
 
-  http.post("*/api/v1/users/me/competitions", async ({ request }) => {
+  http.post("*/api/v2/users/me/competitions", async ({ request }) => {
     const body = (await request.json()) as CreateCompetitionRequest;
 
     if (!body.competition_name || body.competition_name.length < 1) {
