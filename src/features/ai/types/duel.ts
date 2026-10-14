@@ -154,6 +154,36 @@ export interface DuelResultSummary {
   compareHistory: { date: string; myValue: number; aiValue: number }[];
 }
 
+export interface CompetitionMarketAnalysis {
+  analysis_id: number;
+  date: string;
+  title: string;
+  content: string;
+}
+
+export interface CompetitionJudgmentSummary {
+  title: string;
+  content: string;
+}
+
+export interface CompetitionReportResponse {
+  competition_id: number;
+  competition_name: string;
+  start_date: string;
+  end_date: string;
+  state: string;
+  market_analyses: CompetitionMarketAnalysis[];
+  judgment_summaries: CompetitionJudgmentSummary[];
+}
+
+export interface DuelReportData {
+  name: string;
+  startDate: string;
+  endDate: string;
+  marketEvents: DuelMarketEvent[];
+  judgmentClues: DuelJudgmentClue[];
+}
+
 export const DUEL_PERIOD_OPTIONS = [
   "1주",
   "2주",
