@@ -53,8 +53,8 @@ const DEMO_COMPETITION_DETAILS: Record<number, CompetitionDetailResponse> = {
     state: "in_progress",
     start_date: "2026-08-14",
     end_date: "2026-09-07",
-    d_day: 24,
-    remaining_days: 12,
+    d_day: 12,
+    account_id: 1,
     cumulative_return_percent: 6.4,
     daily_performances: [
       { date: "2026-08-14", cumulative_return_percent: 0 },
@@ -62,7 +62,6 @@ const DEMO_COMPETITION_DETAILS: Record<number, CompetitionDetailResponse> = {
       { date: "2026-08-24", cumulative_return_percent: 3.4 },
       { date: "2026-08-26", cumulative_return_percent: 6.4 },
     ],
-    as_of: "2026-08-26T15:30:00+09:00",
   },
 };
 
@@ -75,6 +74,7 @@ const DEMO_COMPETITION_RESULTS: Record<number, CompetitionResultResponse> = {
     start_date: "2026-05-01",
     end_date: "2026-05-31",
     d_day: null,
+    account_id: 1,
     winner: "user",
     user_final_return_percent: 3.2,
     ai_final_return_percent: 1.5,
@@ -104,6 +104,7 @@ const DEMO_COMPETITION_RESULTS: Record<number, CompetitionResultResponse> = {
     start_date: "2026-04-01",
     end_date: "2026-04-30",
     d_day: null,
+    account_id: 1,
     winner: "ai",
     user_final_return_percent: -1.5,
     ai_final_return_percent: 2.3,

@@ -6,7 +6,8 @@ import type {
 export function toDuelDetail(detail: CompetitionDetailResponse): DuelDetail {
   return {
     name: detail.competition_name,
-    dDay: detail.remaining_days,
+    dDay: detail.d_day,
+    accountId: detail.account_id,
     myReturnPercent: detail.cumulative_return_percent,
     returnHistory: detail.daily_performances.map((performance) => ({
       date: performance.date,

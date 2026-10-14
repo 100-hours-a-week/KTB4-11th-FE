@@ -14,6 +14,7 @@ export function toDuelResultSummary(
     name: result.competition_name,
     startDate: formatFullDotDate(result.start_date),
     endDate: formatShortDotDate(result.end_date),
+    accountId: result.account_id,
     myReturnPercent: result.user_final_return_percent,
     aiReturnPercent: result.ai_final_return_percent,
     result: result.winner === "user" ? "WIN" : "LOSE",

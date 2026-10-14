@@ -23,18 +23,6 @@ export interface Duel {
   result?: DuelResult;
 }
 
-export interface DuelHolding {
-  stockCode: string;
-  stockName: string;
-  category: string;
-  weightPercent: number;
-  quantity: number;
-  avgPrice: number;
-  value: number;
-  profitAmount: number;
-  returnPercent: number;
-}
-
 export type DuelTradeSide = "매도" | "매수";
 
 export interface DuelTrade {
@@ -109,17 +97,17 @@ export interface CompetitionDetailResponse {
   state: "in_progress" | "completed";
   start_date: string;
   end_date: string;
-  /** 잔여일이 아니라 대결 전체 기간 길이 (잔여일 통일 요청함) */
+  /** 잔여일 (목록 조회와 동일한 의미) */
   d_day: number;
-  remaining_days: number;
+  account_id: number;
   cumulative_return_percent: number;
   daily_performances: CompetitionDailyPerformance[];
-  as_of: string;
 }
 
 export interface DuelDetail {
   name: string;
   dDay: number;
+  accountId: number;
   myReturnPercent: number;
   returnHistory: { date: string; value: number }[];
 }
@@ -138,6 +126,7 @@ export interface CompetitionResultResponse {
   start_date: string;
   end_date: string;
   d_day: number | null;
+  account_id: number;
   winner: DuelWinner;
   user_final_return_percent: number;
   ai_final_return_percent: number;
@@ -148,6 +137,7 @@ export interface DuelResultSummary {
   name: string;
   startDate: string;
   endDate: string;
+  accountId: number;
   myReturnPercent: number;
   aiReturnPercent: number;
   result: DuelResult;
