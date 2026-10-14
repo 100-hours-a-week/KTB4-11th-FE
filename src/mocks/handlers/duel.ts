@@ -1,6 +1,7 @@
 import { http, HttpResponse, type HttpHandler } from "msw";
 import type {
   CompetitionApiItem,
+  CompetitionDetailResponse,
   CompetitionsResponse,
   CreateCompetitionRequest,
   CreateCompetitionResponse,
@@ -41,6 +42,27 @@ const DEMO_COMPETITIONS: CompetitionApiItem[] = [
     winner: "ai",
   },
 ];
+
+const DEMO_COMPETITION_DETAILS: Record<number, CompetitionDetailResponse> = {
+  1: {
+    competition_id: 1,
+    competition_name: "8월 반도체 집중",
+    competition_type: "user_vs_ai",
+    state: "in_progress",
+    start_date: "2026-08-14",
+    end_date: "2026-09-07",
+    d_day: 24,
+    remaining_days: 12,
+    cumulative_return_percent: 6.4,
+    daily_performances: [
+      { date: "2026-08-14", cumulative_return_percent: 0 },
+      { date: "2026-08-19", cumulative_return_percent: 1.8 },
+      { date: "2026-08-24", cumulative_return_percent: 3.4 },
+      { date: "2026-08-26", cumulative_return_percent: 6.4 },
+    ],
+    as_of: "2026-08-26T15:30:00+09:00",
+  },
+};
 
 export const duelHandlers: HttpHandler[] = [
   http.get("*/api/v2/users/me/competitions", async () => {
@@ -110,5 +132,16 @@ export const duelHandlers: HttpHandler[] = [
       },
       { status: 201 },
     );
+  }),
+
+  http.get("*/api/v2/users/me/competitions/:id", async ({ params }) => {
+    const detail = DEMO_COMPETITION_DETAILS[Number(params.id)];
+    if (!detail) {
+      return HttpResponse.json(
+        { code: "NOT_FOUND", message: "찾을 수 없습니다" },
+        { status: 404 },
+      );
+    }
+    return HttpResponse.json<CompetitionDetailResponse>(detail);
   }),
 ];
