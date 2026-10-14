@@ -2,6 +2,7 @@ import { http, HttpResponse, type HttpHandler } from "msw";
 import type {
   CompetitionApiItem,
   CompetitionDetailResponse,
+  CompetitionResultResponse,
   CompetitionsResponse,
   CreateCompetitionRequest,
   CreateCompetitionResponse,
@@ -61,6 +62,67 @@ const DEMO_COMPETITION_DETAILS: Record<number, CompetitionDetailResponse> = {
       { date: "2026-08-26", cumulative_return_percent: 6.4 },
     ],
     as_of: "2026-08-26T15:30:00+09:00",
+  },
+};
+
+const DEMO_COMPETITION_RESULTS: Record<number, CompetitionResultResponse> = {
+  2: {
+    competition_id: 2,
+    competition_name: "5월 첫 대결",
+    competition_type: "user_vs_ai",
+    state: "completed",
+    start_date: "2026-05-01",
+    end_date: "2026-05-31",
+    d_day: null,
+    winner: "user",
+    user_final_return_percent: 3.2,
+    ai_final_return_percent: 1.5,
+    daily_performances: [
+      {
+        date: "2026-05-01",
+        user_cumulative_return_percent: 0,
+        ai_cumulative_return_percent: 0,
+      },
+      {
+        date: "2026-05-15",
+        user_cumulative_return_percent: 1.9,
+        ai_cumulative_return_percent: 0.8,
+      },
+      {
+        date: "2026-05-31",
+        user_cumulative_return_percent: 3.2,
+        ai_cumulative_return_percent: 1.5,
+      },
+    ],
+  },
+  3: {
+    competition_id: 3,
+    competition_name: "4월 연습 대결",
+    competition_type: "user_vs_ai",
+    state: "completed",
+    start_date: "2026-04-01",
+    end_date: "2026-04-30",
+    d_day: null,
+    winner: "ai",
+    user_final_return_percent: -1.5,
+    ai_final_return_percent: 2.3,
+    daily_performances: [
+      {
+        date: "2026-04-01",
+        user_cumulative_return_percent: 0,
+        ai_cumulative_return_percent: 0,
+      },
+      {
+        date: "2026-04-15",
+        user_cumulative_return_percent: -0.8,
+        ai_cumulative_return_percent: 1.1,
+      },
+      {
+        date: "2026-04-30",
+        user_cumulative_return_percent: -1.5,
+        ai_cumulative_return_percent: 2.3,
+      },
+    ],
   },
 };
 
@@ -143,5 +205,16 @@ export const duelHandlers: HttpHandler[] = [
       );
     }
     return HttpResponse.json<CompetitionDetailResponse>(detail);
+  }),
+
+  http.get("*/api/v2/users/me/competitions/:id/result", async ({ params }) => {
+    const result = DEMO_COMPETITION_RESULTS[Number(params.id)];
+    if (!result) {
+      return HttpResponse.json(
+        { code: "NOT_FOUND", message: "찾을 수 없습니다" },
+        { status: 404 },
+      );
+    }
+    return HttpResponse.json<CompetitionResultResponse>(result);
   }),
 ];
