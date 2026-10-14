@@ -31,7 +31,7 @@ export function DuelCard({
 
   return (
     <Link
-      href={`/duel/${id}`}
+      href={status === "진행 중" ? `/duel/${id}` : `/duel/${id}/result`}
       className="bg-bg-layer-default relative flex flex-col gap-1 rounded-2xl p-4"
     >
       {!result && winner && (
