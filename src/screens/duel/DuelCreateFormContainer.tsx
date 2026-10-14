@@ -28,17 +28,8 @@ import { Input } from "@/shared/components/Input";
 import { toDateOnly } from "@/shared/utils/toDateOnly";
 
 const DUEL_NAME_MAX_LENGTH = 20;
-const DEFAULT_PERIOD_DAYS = 30;
 
-function addDays(date: Date, days: number) {
-  const next = new Date(date);
-  next.setDate(next.getDate() + days);
-  return next;
-}
-
-const today = new Date();
-const defaultStart = today;
-const defaultEnd = addDays(today, DEFAULT_PERIOD_DAYS);
+const defaultStart = new Date();
 
 export function DuelCreateFormContainer() {
   const router = useRouter();
@@ -60,7 +51,7 @@ export function DuelCreateFormContainer() {
     defaultValues: {
       name: "",
       startDate: toDateOnly(defaultStart),
-      endDate: toDateOnly(defaultEnd),
+      endDate: "",
       amount: 10_000_000,
     },
   });
@@ -134,9 +125,6 @@ export function DuelCreateFormContainer() {
         <DuelPeriodSelector
           startDate={startDate}
           endDate={endDate}
-          onStartDateChange={(value) =>
-            setValue("startDate", value, { shouldValidate: true })
-          }
           onEndDateChange={(value) =>
             setValue("endDate", value, { shouldValidate: true })
           }
