@@ -5,6 +5,7 @@ import {
   DUEL_PERIOD_OPTIONS,
   type DuelPeriodOption,
 } from "@/features/ai/types/duel";
+import InfoIcon from "@/assets/icons/fill/info.svg";
 import { Button } from "@/shared/components/Button";
 import { Calendar } from "@/shared/components/Calendar";
 import {
@@ -141,36 +142,47 @@ export function DuelPeriodSelector({
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="flex gap-1.5">
-          <div className="grid flex-1 grid-cols-4 gap-1.5">
-            {PRESET_OPTIONS.map((preset) => {
-              const isSelected = periodOption === preset;
-              return (
-                <button
-                  key={preset}
-                  type="button"
-                  onClick={() => handlePeriodOptionChange(preset)}
-                  className={cn(
-                    "body-2-medium rounded-full border px-2 py-1 transition-colors",
-                    isSelected
-                      ? "bg-bg-neutral-primary border-bg-neutral-primary text-text-neutral-inverse"
-                      : "bg-bg-layer-default border-border-neutral-muted text-text-neutral-secondary",
-                  )}
-                >
-                  {preset}
-                </button>
-              );
-            })}
-          </div>
+        <div className="grid grid-cols-5 gap-1.5">
+          {PRESET_OPTIONS.map((preset) => {
+            const isSelected = periodOption === preset;
+            return (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => handlePeriodOptionChange(preset)}
+                className={cn(
+                  "body-2-medium rounded-full border px-2 py-1 transition-colors",
+                  isSelected
+                    ? "bg-bg-neutral-primary border-bg-neutral-primary text-text-neutral-inverse"
+                    : "bg-bg-layer-default border-border-neutral-muted text-text-neutral-secondary",
+                )}
+              >
+                {preset}
+              </button>
+            );
+          })}
           <button
             type="button"
             onClick={() => handlePeriodOptionChange(RESET_OPTION)}
-            className="body-2-medium bg-bg-layer-default border-border-neutral-muted text-text-neutral-secondary active:bg-bg-neutral-primary active:border-bg-neutral-primary active:text-text-neutral-inverse shrink-0 rounded-full border px-3 py-1 transition-colors"
+            className="body-2-medium bg-bg-layer-default border-border-neutral-muted text-text-neutral-secondary active:bg-bg-neutral-primary active:border-bg-neutral-primary active:text-text-neutral-inverse rounded-full border px-2 py-1 transition-colors"
           >
             {RESET_OPTION}
           </button>
         </div>
-        {error && <p className="body-2-regular text-text-error">{error}</p>}
+        {error ? (
+          <p className="body-2-regular text-text-error">{error}</p>
+        ) : (
+          <span className="flex items-center gap-1">
+            <InfoIcon
+              width={12}
+              height={12}
+              className="text-text-neutral-tertiary"
+            />
+            <span className="caption-1-regular text-text-neutral-tertiary">
+              대결 시작일은 오늘로 고정돼요
+            </span>
+          </span>
+        )}
       </div>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
