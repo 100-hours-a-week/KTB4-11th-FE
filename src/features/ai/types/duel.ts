@@ -124,6 +124,36 @@ export interface DuelDetail {
   returnHistory: { date: string; value: number }[];
 }
 
+export interface CompetitionCompareDailyPerformance {
+  date: string;
+  user_cumulative_return_percent: number;
+  ai_cumulative_return_percent: number;
+}
+
+export interface CompetitionResultResponse {
+  competition_id: number;
+  competition_name: string;
+  competition_type: "user_vs_ai";
+  state: "completed";
+  start_date: string;
+  end_date: string;
+  d_day: number | null;
+  winner: DuelWinner;
+  user_final_return_percent: number;
+  ai_final_return_percent: number;
+  daily_performances: CompetitionCompareDailyPerformance[];
+}
+
+export interface DuelResultSummary {
+  name: string;
+  startDate: string;
+  endDate: string;
+  myReturnPercent: number;
+  aiReturnPercent: number;
+  result: DuelResult;
+  compareHistory: { date: string; myValue: number; aiValue: number }[];
+}
+
 export const DUEL_PERIOD_OPTIONS = [
   "1주",
   "2주",
