@@ -90,6 +90,13 @@ export interface CompetitionDailyPerformance {
   cumulative_return_percent: number;
 }
 
+export interface CompetitionParticipant {
+  participant_id: number;
+  account_id: number;
+  participant_type: "user" | "ai";
+  display_name: string;
+}
+
 export interface CompetitionDetailResponse {
   competition_id: number;
   competition_name: string;
@@ -99,7 +106,7 @@ export interface CompetitionDetailResponse {
   end_date: string;
   /** 잔여일 (목록 조회와 동일한 의미) */
   d_day: number;
-  account_id: number;
+  participants: CompetitionParticipant[];
   cumulative_return_percent: number;
   daily_performances: CompetitionDailyPerformance[];
 }
@@ -126,7 +133,7 @@ export interface CompetitionResultResponse {
   start_date: string;
   end_date: string;
   d_day: number | null;
-  account_id: number;
+  participants: CompetitionParticipant[];
   winner: DuelWinner;
   user_final_return_percent: number;
   ai_final_return_percent: number;
@@ -138,6 +145,7 @@ export interface DuelResultSummary {
   startDate: string;
   endDate: string;
   accountId: number;
+  aiAccountId: number;
   myReturnPercent: number;
   aiReturnPercent: number;
   result: DuelResult;

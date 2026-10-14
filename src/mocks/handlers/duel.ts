@@ -55,7 +55,20 @@ const DEMO_COMPETITION_DETAILS: Record<number, CompetitionDetailResponse> = {
     start_date: "2026-08-14",
     end_date: "2026-09-07",
     d_day: 12,
-    account_id: 1,
+    participants: [
+      {
+        participant_id: 1,
+        account_id: 3,
+        participant_type: "user",
+        display_name: "나",
+      },
+      {
+        participant_id: 2,
+        account_id: 4,
+        participant_type: "ai",
+        display_name: "AI",
+      },
+    ],
     cumulative_return_percent: 6.4,
     daily_performances: [
       { date: "2026-08-14", cumulative_return_percent: 0 },
@@ -75,7 +88,20 @@ const DEMO_COMPETITION_RESULTS: Record<number, CompetitionResultResponse> = {
     start_date: "2026-05-01",
     end_date: "2026-05-31",
     d_day: null,
-    account_id: 1,
+    participants: [
+      {
+        participant_id: 1,
+        account_id: 5,
+        participant_type: "user",
+        display_name: "나",
+      },
+      {
+        participant_id: 2,
+        account_id: 6,
+        participant_type: "ai",
+        display_name: "AI",
+      },
+    ],
     winner: "user",
     user_final_return_percent: 3.2,
     ai_final_return_percent: 1.5,
@@ -105,7 +131,20 @@ const DEMO_COMPETITION_RESULTS: Record<number, CompetitionResultResponse> = {
     start_date: "2026-04-01",
     end_date: "2026-04-30",
     d_day: null,
-    account_id: 1,
+    participants: [
+      {
+        participant_id: 1,
+        account_id: 7,
+        participant_type: "user",
+        display_name: "나",
+      },
+      {
+        participant_id: 2,
+        account_id: 8,
+        participant_type: "ai",
+        display_name: "AI",
+      },
+    ],
     winner: "ai",
     user_final_return_percent: -1.5,
     ai_final_return_percent: 2.3,

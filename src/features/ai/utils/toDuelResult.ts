@@ -10,11 +10,19 @@ import {
 export function toDuelResultSummary(
   result: CompetitionResultResponse,
 ): DuelResultSummary {
+  const myAccountId = result.participants.find(
+    (participant) => participant.participant_type === "user",
+  )!.account_id;
+  const aiAccountId = result.participants.find(
+    (participant) => participant.participant_type === "ai",
+  )!.account_id;
+
   return {
     name: result.competition_name,
     startDate: formatFullDotDate(result.start_date),
     endDate: formatShortDotDate(result.end_date),
-    accountId: result.account_id,
+    accountId: myAccountId,
+    aiAccountId,
     myReturnPercent: result.user_final_return_percent,
     aiReturnPercent: result.ai_final_return_percent,
     result: result.winner === "user" ? "WIN" : "LOSE",
