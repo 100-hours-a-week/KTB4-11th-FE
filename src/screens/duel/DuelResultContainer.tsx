@@ -9,10 +9,16 @@ import CalendarIcon from "@/assets/icons/fill/calendar.svg";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
 import CrownIcon from "@/assets/icons/fill/crown.svg";
 import RobotIcon from "@/assets/icons/fill/robot.svg";
+import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
+import RobotFlusteredIcon from "@/assets/icons/stockspoon/robot-flustered.svg";
+import { AiTradeCardSkeleton } from "@/features/ai/components/AiTradeCardSkeleton";
 import { DuelCompareReturnChart } from "@/features/ai/components/DuelCompareReturnChart";
 import { DuelTradeCard } from "@/features/ai/components/DuelTradeCard";
 import { useCompetitionResultQuery } from "@/features/ai/hooks/useCompetitionResultQuery";
+import { useOrdersQuery } from "@/features/ai/hooks/useOrdersQuery";
 import type { DuelTrade } from "@/features/ai/types/duel";
+import { toDuelTrade } from "@/features/ai/utils/toDuelTrade";
+import { EmptyState } from "@/shared/components/EmptyState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { FilterChips } from "@/shared/components/FilterChips";
 import { cn } from "@/shared/utils/cn";
@@ -23,29 +29,7 @@ const AI_TRADES_FILTER = "AI 매매 내역";
 const TRADE_FILTERS = [MY_TRADES_FILTER, AI_TRADES_FILTER] as const;
 type TradeFilter = (typeof TRADE_FILTERS)[number];
 
-// TODO : 실제 매매 내역 조회 API 연동 시 제거
-const DEMO_MY_TRADES: DuelTrade[] = [
-  {
-    tradeId: 1,
-    stockName: "SK하이닉스",
-    tradeSide: "매도",
-    tradeDate: "2026.09.03 14:20",
-    quantity: 2,
-    price: 196000,
-    realizedProfit: 18400,
-    profitRate: 4.9,
-  },
-  {
-    tradeId: 2,
-    stockName: "삼성전자",
-    tradeSide: "매수",
-    tradeDate: "2026.08.20 10:05",
-    quantity: 12,
-    price: 71500,
-  },
-];
-
-// TODO : 실제 매매 내역 조회 API 연동 시 제거
+// TODO : AI 매매 내역 조회 API 연동 시 제거 (AI 참가자 계좌 id 응답 대기 중)
 const DEMO_AI_TRADES: DuelTrade[] = [
   {
     tradeId: 3,
@@ -87,11 +71,15 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
   const router = useRouter();
   const [tradeFilter, setTradeFilter] = useState<TradeFilter>(MY_TRADES_FILTER);
   const { data: result } = useCompetitionResultQuery(id);
+  const { data: ordersData, isPending: isMyTradesPending } = useOrdersQuery(
+    result?.accountId,
+  );
 
   const isWin = result?.result === "WIN";
   const ResultIcon = isWin ? CrownIcon : RobotIcon;
-  const trades =
-    tradeFilter === MY_TRADES_FILTER ? DEMO_MY_TRADES : DEMO_AI_TRADES;
+  const myTrades = (ordersData?.orders ?? []).map(toDuelTrade);
+  const trades = tradeFilter === MY_TRADES_FILTER ? myTrades : DEMO_AI_TRADES;
+  const isTradesPending = tradeFilter === MY_TRADES_FILTER && isMyTradesPending;
 
   useEffect(() => {
     if (!isWin) return;
@@ -203,13 +191,36 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
             onChange={setTradeFilter}
           />
           <div className="flex flex-col gap-2">
-            {trades.map((trade) => (
-              <DuelTradeCard
-                key={trade.tradeId}
-                {...trade}
-                isAiTrade={tradeFilter === AI_TRADES_FILTER}
-              />
-            ))}
+            {isTradesPending ? (
+              <>
+                <AiTradeCardSkeleton />
+                <AiTradeCardSkeleton />
+              </>
+            ) : trades.length === 0 ? (
+              <div className="bg-bg-layer-default rounded-2xl">
+                {tradeFilter === AI_TRADES_FILTER ? (
+                  <EmptyState
+                    icon={RobotFlusteredIcon}
+                    message="AI 매매 내역이 없어요"
+                    description="대결 기간 중 진행한 매매가 없어요"
+                  />
+                ) : (
+                  <EmptyState
+                    icon={BasketFlusteredIcon}
+                    message="매매 내역이 없어요"
+                    description="대결 기간 중 진행한 매매가 없어요"
+                  />
+                )}
+              </div>
+            ) : (
+              trades.map((trade) => (
+                <DuelTradeCard
+                  key={trade.tradeId}
+                  {...trade}
+                  isAiTrade={tradeFilter === AI_TRADES_FILTER}
+                />
+              ))
+            )}
           </div>
         </div>
       </div>
