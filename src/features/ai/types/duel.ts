@@ -16,7 +16,6 @@ export interface Duel {
   startDate: string;
   endDate: string;
   dDay: number;
-  stockCount: number;
   returnPercent: number;
   /** AI끼리 대결 종료 시 우승 전략명 */
   winner?: string;
@@ -62,6 +61,40 @@ export interface DuelMarketEvent {
 export interface DuelJudgmentClue {
   title: string;
   description: string;
+}
+
+/** 진행 중이면 null, 완료되면 "user"(내 승리) 또는 "ai"(AI 승리) */
+export type DuelWinner = "user" | "ai" | null;
+
+export interface CompetitionApiItem {
+  competition_id: number;
+  state: "in_progress" | "completed";
+  competition_name: string;
+  competition_type: "user_vs_ai";
+  start_date: string;
+  end_date: string;
+  d_day: number;
+  cumulative_return_percent: number;
+  winner: DuelWinner;
+}
+
+export interface CompetitionsResponse {
+  ongoing_competition_count: number;
+  competitions: CompetitionApiItem[];
+}
+
+export interface CreateCompetitionRequest {
+  competition_name: string;
+  competition_type: "user_vs_ai";
+  start_date: string;
+  end_date: string;
+  initial_capital: number;
+}
+
+export interface CreateCompetitionResponse {
+  message: string;
+  competition_id: number;
+  d_day: number;
 }
 
 export const DUEL_PERIOD_OPTIONS = [

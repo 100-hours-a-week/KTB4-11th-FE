@@ -5,11 +5,12 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { DuelAlreadyExistsModal } from "@/features/ai/components/DuelAlreadyExistsModal";
 import { DuelCard } from "@/features/ai/components/DuelCard";
+import { DuelCardSkeleton } from "@/features/ai/components/DuelCardSkeleton";
 import { DuelTypeSheet } from "@/features/ai/components/DuelTypeSheet";
 import { OngoingDuelCarousel } from "@/features/ai/components/OngoingDuelCarousel";
+import { useCompetitionsQuery } from "@/features/ai/hooks/useCompetitionsQuery";
 import {
   DUEL_STATUS_FILTERS,
-  type Duel,
   type DuelStatusFilter,
 } from "@/features/ai/types/duel";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
@@ -24,60 +25,24 @@ import { Header } from "@/shared/components/Header";
 import { StockTickerBar } from "@/shared/components/StockTickerBar";
 import { trackEvent } from "@/shared/utils/analytics";
 
-// TODO : 실제 대결 목록 조회 API 연동 시 제거
-const DEMO_DUELS: Duel[] = [
-  {
-    id: "1",
-    name: "8월 반도체 집중",
-    type: "나 vs AI",
-    status: "진행 중",
-    startDate: "8/14",
-    endDate: "9/7",
-    dDay: 12,
-    stockCount: 5,
-    returnPercent: 6.4,
-  },
-  {
-    id: "4",
-    name: "5월 첫 대결",
-    type: "나 vs AI",
-    status: "종료",
-    startDate: "5/1",
-    endDate: "5/31",
-    dDay: 0,
-    stockCount: 4,
-    returnPercent: 3.2,
-    result: "WIN",
-  },
-  {
-    id: "5",
-    name: "4월 연습 대결",
-    type: "나 vs AI",
-    status: "종료",
-    startDate: "4/1",
-    endDate: "4/30",
-    dDay: 0,
-    stockCount: 2,
-    returnPercent: -1.5,
-    result: "LOSE",
-  },
-];
-
 const ALL_FILTER: DuelStatusFilter = "전체";
 
 export function DuelContainer() {
   const { data: kospi } = useKospiIndexQuery();
+  const { data: duels, isPending: isDuelsPending } = useCompetitionsQuery();
   const [statusFilter, setStatusFilter] =
     useState<DuelStatusFilter>(ALL_FILTER);
   const [isTypeSheetOpen, setIsTypeSheetOpen] = useState(false);
   const [isAlreadyExistsOpen, setIsAlreadyExistsOpen] = useState(false);
 
-  const ongoingUserVsAiDuel = DEMO_DUELS.find(
+  const allDuels = duels ?? [];
+
+  const ongoingUserVsAiDuel = allDuels.find(
     (duel) => duel.type === "나 vs AI" && duel.status === "진행 중",
   );
-  const ongoingDuels = DEMO_DUELS.filter((duel) => duel.status === "진행 중");
+  const ongoingDuels = allDuels.filter((duel) => duel.status === "진행 중");
 
-  const filteredDuels = DEMO_DUELS.filter((duel) => {
+  const filteredDuels = allDuels.filter((duel) => {
     if (statusFilter === "전체") return true;
     if (statusFilter === "진행 중") return duel.status === "진행 중";
     return duel.status === "종료";
@@ -124,7 +89,13 @@ export function DuelContainer() {
         kospi={kospi && { value: kospi.value, changeRate: kospi.changeRate }}
       />
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-28">
-        {DEMO_DUELS.length === 0 ? (
+        {isDuelsPending ? (
+          <div className="flex flex-col gap-2 pt-4">
+            <DuelCardSkeleton />
+            <DuelCardSkeleton />
+            <DuelCardSkeleton />
+          </div>
+        ) : allDuels.length === 0 ? (
           <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
             <EmptyState
               icon={TrophyHappyIcon}
@@ -194,9 +165,9 @@ export function DuelContainer() {
         <DuelAlreadyExistsModal
           open={isAlreadyExistsOpen}
           onOpenChange={setIsAlreadyExistsOpen}
+          ongoingDuelId={ongoingUserVsAiDuel.id}
           ongoingDuelName={ongoingUserVsAiDuel.name}
           remainingDays={ongoingUserVsAiDuel.dDay}
-          onViewOngoing={() => setStatusFilter("진행 중")}
         />
       )}
     </div>

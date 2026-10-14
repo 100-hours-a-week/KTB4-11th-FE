@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
@@ -10,7 +11,13 @@ import {
   duelCreationFormSchema,
   type DuelCreationFormValues,
 } from "@/features/ai/schemas/duelCreationFormSchema";
+import { DuelAlreadyExistsModal } from "@/features/ai/components/DuelAlreadyExistsModal";
 import { DuelPeriodSelector } from "@/features/ai/components/DuelPeriodSelector";
+import {
+  isDuelNameAlreadyExistsError,
+  useCreateCompetitionMutation,
+} from "@/features/ai/hooks/useCreateCompetitionMutation";
+import { useCompetitionsQuery } from "@/features/ai/hooks/useCompetitionsQuery";
 import InfoIcon from "@/assets/icons/fill/info.svg";
 import { InitialAmountField } from "@/features/account/components/InitialAmountField";
 import { InitialAmountSlider } from "@/features/account/components/InitialAmountSlider";
@@ -36,9 +43,16 @@ const defaultEnd = addDays(today, DEFAULT_PERIOD_DAYS);
 export function DuelCreateFormContainer() {
   const router = useRouter();
 
+  const { data: duels } = useCompetitionsQuery();
+  const ongoingUserVsAiDuel = (duels ?? []).find(
+    (duel) => duel.type === "나 vs AI" && duel.status === "진행 중",
+  );
+  const [isAlreadyExistsOpen, setIsAlreadyExistsOpen] = useState(false);
+
   const {
     watch,
     setValue,
+    setError,
     handleSubmit,
     formState: { errors },
   } = useForm<DuelCreationFormValues>({
@@ -59,13 +73,40 @@ export function DuelCreateFormContainer() {
   const updateAmount = (value: number) =>
     setValue("amount", value, { shouldValidate: true });
 
-  const canSubmit = !!name && !!startDate && !!endDate && !!amount;
+  const createCompetitionMutation = useCreateCompetitionMutation({
+    onSuccess: () => {
+      toast.success("대결이 생성됐어요");
+      router.push("/duel");
+    },
+    onError: (error) => {
+      if (isDuelNameAlreadyExistsError(error)) {
+        setError("name", { message: "이미 존재하는 대결 이름이에요" });
+        return true;
+      }
+      return false;
+    },
+  });
 
-  const onSubmit = handleSubmit(() => {
-    // TODO : 실제 대결 생성 뮤테이션 연동, 실패 시 토스트 처리 예정
-    // TODO : 대결 이름은 기존 계좌명 전체와도 중복 불가 (서버 쪽 DUPLICATE 체크 필요, useCreateAccountMutation 패턴 참고)
-    toast.success("대결이 생성됐어요");
-    router.push("/duel");
+  const canSubmit =
+    !!name &&
+    !!startDate &&
+    !!endDate &&
+    !!amount &&
+    !createCompetitionMutation.isPending;
+
+  const onSubmit = handleSubmit((values) => {
+    if (ongoingUserVsAiDuel) {
+      setIsAlreadyExistsOpen(true);
+      return;
+    }
+
+    createCompetitionMutation.mutate({
+      competition_name: values.name,
+      competition_type: "user_vs_ai",
+      start_date: values.startDate,
+      end_date: values.endDate,
+      initial_capital: values.amount,
+    });
   });
 
   return (
@@ -145,6 +186,16 @@ export function DuelCreateFormContainer() {
           대결 시작
         </Button>
       </div>
+
+      {ongoingUserVsAiDuel && (
+        <DuelAlreadyExistsModal
+          open={isAlreadyExistsOpen}
+          onOpenChange={setIsAlreadyExistsOpen}
+          ongoingDuelId={ongoingUserVsAiDuel.id}
+          ongoingDuelName={ongoingUserVsAiDuel.name}
+          remainingDays={ongoingUserVsAiDuel.dDay}
+        />
+      )}
     </div>
   );
 }
