@@ -3,12 +3,12 @@
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
-import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
+import { useUserQuery } from "@/features/user/hooks/useUserQuery";
 import { Splash } from "@/shared/components/Splash";
 
 export default function AuthedLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const { isSuccess, isError } = useAccountListQuery({
+  const { isSuccess, isError } = useUserQuery({
     skipAuthRedirect: true,
     retry: false,
   });

@@ -6,6 +6,7 @@ export const userHandlers: HttpHandler[] = [
     return HttpResponse.json<UserProfile>({
       nickname: "스푼러버",
       profile_image_url: null,
+      onboarding_completed: true,
     });
   }),
 
