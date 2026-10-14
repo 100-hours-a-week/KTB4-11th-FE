@@ -8,10 +8,8 @@ import {
   DuelPortfolioToggle,
   type DuelPortfolioOption,
 } from "@/features/ai/components/DuelPortfolioToggle";
-import {
-  DuelReturnChart,
-  type DuelReturnChartPoint,
-} from "@/features/ai/components/DuelReturnChart";
+import { DuelReturnChart } from "@/features/ai/components/DuelReturnChart";
+import { useCompetitionDetailQuery } from "@/features/ai/hooks/useCompetitionDetailQuery";
 import type { DuelHolding } from "@/features/ai/types/duel";
 import FireIcon from "@/assets/icons/fill/fire.svg";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
@@ -21,25 +19,7 @@ import {
   getReturnRateInfo,
 } from "@/shared/utils/getReturnRateInfo";
 
-// TODO : 실제 대결 상세 조회 API 연동 시 제거
-const DEMO_DUEL_DETAIL = {
-  name: "8월 반도체 집중",
-  dDay: 12,
-  myReturnPercent: 6.4,
-};
-
-// TODO : 실제 대결 상세 조회 API 연동 시 제거
-const DEMO_RETURN_HISTORY: DuelReturnChartPoint[] = [
-  { date: "2026-10-08T09:12:00", value: 0 },
-  { date: "2026-10-09T10:45:00", value: 1.2 },
-  { date: "2026-10-10T11:30:00", value: 2.8 },
-  { date: "2026-10-11T13:05:00", value: 2.1 },
-  { date: "2026-10-12T14:20:00", value: 4.5 },
-  { date: "2026-10-13T10:00:00", value: 5.9 },
-  { date: "2026-10-14T15:40:00", value: 6.4 },
-];
-
-// TODO : 실제 대결 상세 조회 API 연동 시 제거
+// TODO : 보유 종목 조회 API 연동 시 제거 (대결 계좌 account_id 응답 추가 요청 대기 중)
 const DEMO_HOLDINGS: DuelHolding[] = [
   {
     stockCode: "005930",
@@ -80,16 +60,19 @@ interface DuelDetailContainerProps {
   id: string;
 }
 
-export function DuelDetailContainer({ id: _id }: DuelDetailContainerProps) {
+export function DuelDetailContainer({ id }: DuelDetailContainerProps) {
   const router = useRouter();
   const [portfolio, setPortfolio] =
     useState<DuelPortfolioOption>("내 포트폴리오");
+  const { data: detail } = useCompetitionDetailQuery(id);
 
-  const { colorClass } = getReturnRateInfo(DEMO_DUEL_DETAIL.myReturnPercent);
+  if (!detail) return null;
+
+  const { colorClass } = getReturnRateInfo(detail.myReturnPercent);
   const chartColorVar =
-    DEMO_DUEL_DETAIL.myReturnPercent > 0
+    detail.myReturnPercent > 0
       ? "var(--color-text-price-rise)"
-      : DEMO_DUEL_DETAIL.myReturnPercent < 0
+      : detail.myReturnPercent < 0
         ? "var(--color-text-price-fall)"
         : "var(--color-text-price-flat)";
 
@@ -98,11 +81,11 @@ export function DuelDetailContainer({ id: _id }: DuelDetailContainerProps) {
       <Header
         className="px-5 py-3"
         left={<HeaderBackButton onClick={() => router.push("/duel")} />}
-        title={DEMO_DUEL_DETAIL.name}
+        title={detail.name}
         right={
           <span className="text-text-neutral-secondary body-2-semibold flex items-center gap-0.5">
             <FireIcon width={14} height={14} />
-            D-{DEMO_DUEL_DETAIL.dDay}
+            D-{detail.dDay}
           </span>
         }
       />
@@ -113,12 +96,12 @@ export function DuelDetailContainer({ id: _id }: DuelDetailContainerProps) {
             내 수익률
           </span>
           <span className={cn("title-1", colorClass)}>
-            {formatSignedPercent(DEMO_DUEL_DETAIL.myReturnPercent)}
+            {formatSignedPercent(detail.myReturnPercent)}
           </span>
 
           <div className="border-border-neutral-muted mt-3 rounded-xl border px-2 pt-14 pb-2">
             <DuelReturnChart
-              data={DEMO_RETURN_HISTORY}
+              data={detail.returnHistory}
               colorVar={chartColorVar}
               colorClass={colorClass}
             />
