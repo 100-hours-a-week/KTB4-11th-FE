@@ -2,6 +2,7 @@ import { http, HttpResponse, type HttpHandler } from "msw";
 import type {
   CompetitionApiItem,
   CompetitionDetailResponse,
+  CompetitionReportResponse,
   CompetitionResultResponse,
   CompetitionsResponse,
   CreateCompetitionRequest,
@@ -126,6 +127,67 @@ const DEMO_COMPETITION_RESULTS: Record<number, CompetitionResultResponse> = {
   },
 };
 
+const DEMO_COMPETITION_REPORTS: Record<number, CompetitionReportResponse> = {
+  2: {
+    competition_id: 2,
+    competition_name: "5월 첫 대결",
+    start_date: "2026-05-01",
+    end_date: "2026-05-31",
+    state: "ready",
+    market_analyses: [
+      {
+        analysis_id: 201,
+        date: "2026-05-25",
+        title: "반도체 업황 반등 신호, 메모리 가격 상승세 전환",
+        content:
+          "메모리 반도체 가격이 바닥을 다지고 상승세로 전환했다는 분석이 나왔다. 주요 증권사들은 하반기 실적 개선을 전망했다.",
+      },
+      {
+        analysis_id: 202,
+        date: "2026-05-18",
+        title: "2차전지 소재주, 공급 과잉 우려로 조정",
+        content:
+          "2차전지 소재 업종이 공급 과잉 우려로 단기 조정을 받았다. 다만 중장기 수요 전망은 여전히 긍정적이라는 평가다.",
+      },
+    ],
+    judgment_summaries: [
+      {
+        title: "금리 전망",
+        content:
+          "5월 기준금리가 동결되면서 시장의 금리 인하 기대가 다소 늦춰졌습니다. 이는 성장주보다 실적 기반 종목에 유리한 환경을 만들었습니다.",
+      },
+      {
+        title: "업종 로테이션",
+        content:
+          "반도체·2차전지 중심의 순환매 장세가 이어지며, 업황 반등 신호가 뚜렷한 종목 위주로 비중을 조정했습니다.",
+      },
+    ],
+  },
+  3: {
+    competition_id: 3,
+    competition_name: "4월 연습 대결",
+    start_date: "2026-04-01",
+    end_date: "2026-04-30",
+    state: "ready",
+    market_analyses: [
+      {
+        analysis_id: 301,
+        date: "2026-04-20",
+        title: "플랫폼 업종, 광고 매출 둔화 우려로 약세",
+        content:
+          "주요 플랫폼 기업들의 1분기 광고 매출 증가율이 둔화되며 관련 종목이 약세를 보였다.",
+      },
+    ],
+    judgment_summaries: [
+      {
+        title: "소비 심리",
+        content:
+          "4월 소비자심리지수가 전월 대비 하락하며 소비 관련 업종 전반에 보수적으로 접근했습니다.",
+      },
+    ],
+  },
+};
+
 export const duelHandlers: HttpHandler[] = [
   http.get("*/api/v2/users/me/competitions", async () => {
     return HttpResponse.json<CompetitionsResponse>({
@@ -216,5 +278,16 @@ export const duelHandlers: HttpHandler[] = [
       );
     }
     return HttpResponse.json<CompetitionResultResponse>(result);
+  }),
+
+  http.get("*/api/v2/users/me/competitions/:id/report", async ({ params }) => {
+    const report = DEMO_COMPETITION_REPORTS[Number(params.id)];
+    if (!report) {
+      return HttpResponse.json(
+        { code: "NOT_FOUND", message: "찾을 수 없습니다" },
+        { status: 404 },
+      );
+    }
+    return HttpResponse.json<CompetitionReportResponse>(report);
   }),
 ];
