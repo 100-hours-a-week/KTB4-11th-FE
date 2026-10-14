@@ -7,12 +7,10 @@ import WalletHappyIcon from "@/assets/icons/stockspoon/wallet-happy.svg";
 
 interface OnboardingCompleteContainerProps {
   amount: number;
-  isAiDelegated: boolean;
 }
 
 export function OnboardingCompleteContainer({
   amount,
-  isAiDelegated,
 }: OnboardingCompleteContainerProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -24,8 +22,7 @@ export function OnboardingCompleteContainer({
         <div className="mb-5 flex flex-col items-center gap-1">
           <span className="heading-1-bold">모의 계좌가 준비됐어요</span>
           <span className="body-2-regular text-text-neutral-secondary">
-            시작 자금 {amount.toLocaleString()}원 · AI 위임{" "}
-            {isAiDelegated ? "ON" : "OFF"}
+            시작 자금 {amount.toLocaleString()}원
           </span>
         </div>
         <Button
