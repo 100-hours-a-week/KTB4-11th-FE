@@ -21,6 +21,7 @@ export function useCreateCompetitionMutation(
     mutationFn: postCompetition,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["competitions"] });
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
       options?.onSuccess?.(data);
     },
     onError: (error) => {

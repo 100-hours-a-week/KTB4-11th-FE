@@ -67,8 +67,15 @@ export function AccountSelectSheet({ trigger }: AccountSelectSheetProps) {
                     <div className="flex items-center gap-3">
                       <span className="border-border-neutral-tertiary size-10 rounded-full border border-dashed" />
                       <div className="flex flex-col items-start">
-                        <span className="body-1-semibold">
-                          {account.account_name}
+                        <span className="flex items-center gap-2">
+                          <span className="body-1-semibold">
+                            {account.account_name}
+                          </span>
+                          {account.is_duel_account && (
+                            <span className="bg-sky-blue-50 text-text-accent caption-1-semibold rounded px-1.5 py-0.5">
+                              나 vs AI
+                            </span>
+                          )}
                         </span>
                         <span className="body-2-regular text-text-neutral-secondary">
                           {account.total_assets.toLocaleString()}원

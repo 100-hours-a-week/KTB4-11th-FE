@@ -8,6 +8,7 @@ import type {
   CreateCompetitionRequest,
   CreateCompetitionResponse,
 } from "@/features/ai/types/duel";
+import { addDemoAccount } from "@/mocks/handlers/account";
 
 const DEMO_COMPETITIONS: CompetitionApiItem[] = [
   {
@@ -249,10 +250,33 @@ export const duelHandlers: HttpHandler[] = [
         (1000 * 60 * 60 * 24),
     );
 
+    const competitionId = DEMO_COMPETITIONS.length + 1;
+
+    DEMO_COMPETITIONS.push({
+      competition_id: competitionId,
+      state: "in_progress",
+      competition_name: body.competition_name,
+      competition_type: body.competition_type,
+      start_date: body.start_date,
+      end_date: body.end_date,
+      d_day: dDay,
+      cumulative_return_percent: 0,
+      winner: null,
+    });
+
+    addDemoAccount({
+      account_id: 100 + competitionId,
+      account_name: body.competition_name,
+      is_duel_account: true,
+      cash_balance: body.initial_capital,
+      total_assets: body.initial_capital,
+      return_percent: 0,
+    });
+
     return HttpResponse.json<CreateCompetitionResponse>(
       {
         message: "success",
-        competition_id: DEMO_COMPETITIONS.length + 1,
+        competition_id: competitionId,
         d_day: dDay,
       },
       { status: 201 },
