@@ -168,7 +168,10 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
           </div>
 
           <div className="border-border-neutral-muted mt-3 w-full rounded-xl border px-2 pt-14 pb-2">
-            <DuelCompareReturnChart data={result.compareHistory} />
+            <DuelCompareReturnChart
+              data={result.compareHistory}
+              isWin={isWin}
+            />
           </div>
         </div>
 
