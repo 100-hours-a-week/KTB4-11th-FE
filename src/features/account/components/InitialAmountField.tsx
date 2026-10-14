@@ -20,7 +20,8 @@ export function InitialAmountField({
   return (
     <div
       className={cn(
-        "bg-bg-layer-default flex flex-col gap-2 rounded-2xl p-4",
+        "bg-bg-layer-default flex flex-col gap-2 rounded-2xl border-[1.4px] p-4",
+        error ? "border-border-error" : "border-transparent",
         className,
       )}
     >
