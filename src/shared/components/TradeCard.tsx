@@ -1,18 +1,16 @@
-import Link from "next/link";
-import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
-import LockIcon from "@/assets/icons/fill/lock.svg";
-import type { DuelTrade } from "@/features/ai/types/duel";
+import type { ReactNode } from "react";
+import type { Trade } from "@/shared/types/trade";
 import { cn } from "@/shared/utils/cn";
 import {
   formatSignedPercent,
   getReturnRateInfo,
 } from "@/shared/utils/getReturnRateInfo";
 
-interface DuelTradeCardProps extends DuelTrade {
-  isAiTrade?: boolean;
+interface TradeCardProps extends Trade {
+  children?: ReactNode;
 }
 
-export function DuelTradeCard({
+export function TradeCard({
   stockName,
   tradeSide,
   tradeDate,
@@ -20,14 +18,11 @@ export function DuelTradeCard({
   price,
   realizedProfit,
   profitRate,
-  hasReasoning,
-  orderId,
-  isAiTrade = false,
-}: DuelTradeCardProps) {
+  children,
+}: TradeCardProps) {
   const isBuy = tradeSide === "매수";
   const hasRealizedProfit = realizedProfit !== undefined;
   const { sign, colorClass } = getReturnRateInfo(realizedProfit ?? 0);
-  const isReportPending = isAiTrade && !hasReasoning;
   const totalAmount = quantity * price;
 
   return (
@@ -74,36 +69,7 @@ export function DuelTradeCard({
         </div>
       </div>
 
-      {isAiTrade && (hasReasoning || isReportPending) && (
-        <>
-          <hr className="border-border-neutral-muted" />
-
-          {hasReasoning && orderId !== undefined && (
-            <Link
-              href={`/ai/trades/${orderId}`}
-              className="text-text-neutral-primary caption-1-semibold flex w-full items-center justify-between"
-            >
-              판단 근거
-              <ChevronForwardIcon
-                width={14}
-                height={14}
-                className="text-icon-neutral-secondary"
-              />
-            </Link>
-          )}
-
-          {isReportPending && (
-            <span className="text-text-neutral-tertiary caption-1-semibold flex w-full items-center justify-between">
-              판단 근거 생성 중
-              <LockIcon
-                width={14}
-                height={14}
-                className="text-icon-neutral-secondary"
-              />
-            </span>
-          )}
-        </>
-      )}
+      {children}
     </div>
   );
 }

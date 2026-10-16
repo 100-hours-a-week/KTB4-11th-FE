@@ -13,7 +13,8 @@ import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg"
 import RobotFlusteredIcon from "@/assets/icons/stockspoon/robot-flustered.svg";
 import { AiTradeCardSkeleton } from "@/features/ai/components/AiTradeCardSkeleton";
 import { DuelCompareReturnChart } from "@/features/ai/components/DuelCompareReturnChart";
-import { DuelTradeCard } from "@/features/ai/components/DuelTradeCard";
+import { TradeCard } from "@/shared/components/TradeCard";
+import { DuelAiTradeCard } from "@/features/ai/components/DuelAiTradeCard";
 import { useCompetitionExecutionsQuery } from "@/features/ai/hooks/useCompetitionExecutionsQuery";
 import { useCompetitionResultQuery } from "@/features/ai/hooks/useCompetitionResultQuery";
 import { toDuelTrade } from "@/features/ai/utils/toDuelTrade";
@@ -184,13 +185,13 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
                 )}
               </div>
             ) : (
-              trades.map((trade) => (
-                <DuelTradeCard
-                  key={trade.tradeId}
-                  {...trade}
-                  isAiTrade={tradeFilter === AI_TRADES_FILTER}
-                />
-              ))
+              trades.map((trade) =>
+                tradeFilter === AI_TRADES_FILTER ? (
+                  <DuelAiTradeCard key={trade.tradeId} {...trade} />
+                ) : (
+                  <TradeCard key={trade.tradeId} {...trade} />
+                ),
+              )
             )}
           </div>
         </div>
