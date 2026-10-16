@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { cn } from "@/shared/utils/cn";
 import {
   DEMO_STOCK_INFO,
@@ -43,6 +44,7 @@ export function StockDetailContainer({
   const hasHolding = DEMO_HOLDING_STOCK_CODES.has(stockInfo.stockCode);
 
   const [isFavorite, setIsFavorite] = useState(stockInfo.isFavorite);
+  const [pendingOrders, setPendingOrders] = useState(DEMO_PENDING_ORDERS);
   const tabs = hasHolding
     ? STOCK_DETAIL_TABS_WITH_HOLDING
     : STOCK_DETAIL_TABS_WITHOUT_HOLDING;
@@ -96,7 +98,15 @@ export function StockDetailContainer({
         {tab === "내 주식" && hasHolding && (
           <div className="flex flex-col gap-4 px-5 pt-4">
             <StockHoldingSummary holding={DEMO_HOLDING} />
-            <StockPendingOrderList orders={DEMO_PENDING_ORDERS} />
+            <StockPendingOrderList
+              orders={pendingOrders}
+              onCancel={(orderId) => {
+                setPendingOrders((prev) =>
+                  prev.filter((order) => order.orderId !== orderId),
+                );
+                toast.success("주문을 취소했어요");
+              }}
+            />
             <StockOrderHistoryList items={DEMO_ORDER_HISTORY} />
           </div>
         )}
