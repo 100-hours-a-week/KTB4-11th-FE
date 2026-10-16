@@ -1,0 +1,99 @@
+"use client";
+
+import { cn } from "@/shared/utils/cn";
+import {
+  DEMO_STOCK_INFO,
+  DEMO_HOLDING_STOCK_CODES,
+} from "@/features/stock/mocks/stockDetail";
+import { useState } from "react";
+import { toast } from "sonner";
+import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
+import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
+import { StockChartPlaceholder } from "@/features/stock/components/StockChartPlaceholder";
+import { StockDetailTabs } from "@/features/stock/components/StockDetailTabs";
+import { StockPriceSummary } from "@/features/stock/components/StockPriceSummary";
+import { StockTradeButtons } from "@/features/stock/components/StockTradeButtons";
+import {
+  STOCK_DETAIL_TABS_WITH_HOLDING,
+  STOCK_DETAIL_TABS_WITHOUT_HOLDING,
+  type StockDetailTab,
+} from "@/features/stock/types/stockDetail";
+import { Header, HeaderBackButton } from "@/shared/components/Header";
+
+interface StockDetailContainerProps {
+  code: string;
+}
+
+export function StockDetailContainer({ code }: StockDetailContainerProps) {
+  const stockInfo = DEMO_STOCK_INFO[code] ?? DEMO_STOCK_INFO["035420"];
+  const hasHolding = DEMO_HOLDING_STOCK_CODES.has(stockInfo.stockCode);
+
+  const [isFavorite, setIsFavorite] = useState(stockInfo.isFavorite);
+  const tabs = hasHolding
+    ? STOCK_DETAIL_TABS_WITH_HOLDING
+    : STOCK_DETAIL_TABS_WITHOUT_HOLDING;
+  const [tab, setTab] = useState<StockDetailTab>("차트");
+
+  const HeartIcon = isFavorite ? HeartFilledIcon : HeartOutlineIcon;
+
+  return (
+    <div className="bg-page-gradient pt-screen-top flex h-full flex-col">
+      <Header
+        className="px-5 py-3"
+        left={<HeaderBackButton />}
+        right={
+          <button
+            type="button"
+            onClick={() => setIsFavorite((prev) => !prev)}
+            aria-label={isFavorite ? "관심 종목 해제" : "관심 종목 등록"}
+          >
+            <HeartIcon
+              width={24}
+              height={24}
+              className={
+                isFavorite ? "text-icon-accent" : "text-icon-neutral-secondary"
+              }
+            />
+          </button>
+        }
+      />
+
+      <StockPriceSummary
+        name={stockInfo.name}
+        price={stockInfo.price}
+        changeAmount={stockInfo.changeAmount}
+        changeRate={stockInfo.changeRate}
+      />
+
+      <div className="mt-4">
+        <StockDetailTabs tabs={tabs} value={tab} onChange={setTab} />
+      </div>
+
+      <div
+        className={cn(
+          "flex min-h-0 flex-1 flex-col overflow-y-auto",
+          tab !== "호가" && "pb-4",
+        )}
+      >
+        {tab === "차트" && <StockChartPlaceholder />}
+      </div>
+
+      <div className="relative">
+        {tab !== "호가" && (
+          <div
+            className="pointer-events-none absolute inset-x-0 -top-9 h-9"
+            style={{
+              background:
+                "linear-gradient(180deg, transparent 0%, var(--color-bg-layer-basement) 100%)",
+            }}
+          />
+        )}
+        <StockTradeButtons
+          showSell={hasHolding}
+          onBuyClick={() => toast.info("매수 기능은 추후 제공될 예정이에요")}
+          onSellClick={() => toast.info("매도 기능은 추후 제공될 예정이에요")}
+        />
+      </div>
+    </div>
+  );
+}
