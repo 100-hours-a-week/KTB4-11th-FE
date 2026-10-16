@@ -12,6 +12,7 @@ interface StockTradePriceInputProps {
   price: number;
   priceError?: string | null;
   showAdjust?: boolean;
+  isRegularMarket: boolean;
   onModeChange: (mode: StockPriceMode) => void;
   onFocus: () => void;
   onChange: (value: string) => void;
@@ -24,6 +25,7 @@ export function StockTradePriceInput({
   price,
   priceError,
   showAdjust = true,
+  isRegularMarket,
   onModeChange,
   onFocus,
   onChange,
@@ -33,7 +35,7 @@ export function StockTradePriceInput({
   const modes = [
     { value: "limit", label: `${action}할 가격` },
     { value: "current", label: "현재가" },
-    { value: "market", label: "시장가" },
+    ...(isRegularMarket ? [{ value: "market", label: "시장가" } as const] : []),
   ] as const;
   return (
     <section

@@ -25,8 +25,7 @@ export type StockTradeResult =
       pendingNextSession: boolean;
     }
   | { type: "insufficient-cash"; shortfall: number }
-  | { type: "insufficient-shares" }
-  | { type: "market-closed" };
+  | { type: "insufficient-shares" };
 
 export const STOCK_PRICE_MODE_LABELS: Record<StockPriceMode, string> = {
   limit: "직접 입력",

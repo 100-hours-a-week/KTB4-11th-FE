@@ -96,6 +96,7 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
           price={form.price}
           priceError={form.priceError}
           showAdjust={form.field === "price"}
+          isRegularMarket={demo.isRegularMarket}
           onModeChange={form.selectPriceMode}
           onFocus={() => form.selectField("price")}
           onChange={(value) => form.changeInput("price", value)}

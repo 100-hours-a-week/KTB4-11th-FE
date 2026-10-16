@@ -1,4 +1,3 @@
-import CalendarClockIcon from "@/assets/icons/fill/calendar-clock.svg";
 import CheckCircleIcon from "@/assets/icons/fill/check-circle.svg";
 import CurrencyKrwIcon from "@/assets/icons/fill/currency-krw.svg";
 import TradePendingIcon from "@/assets/icons/fill/trade-pending.svg";
@@ -102,12 +101,6 @@ export function StockTradeResultSheet({
     title = "판매할 수 있는 주식이 부족해요";
     description = "판매 대기 중인 주식을 제외한 보유 수량을 확인해 주세요";
     icon = <BasketFlusteredIcon width={60} height={60} />;
-  } else if (displayResult?.type === "market-closed") {
-    title = "지금은 지정가 주문만 가능해요";
-    description = "시장가 주문 가능 시간 : 09:00 ~ 15:30";
-    icon = (
-      <CalendarClockIcon width={60} height={60} className="text-icon-accent" />
-    );
   }
   return (
     <Sheet

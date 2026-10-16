@@ -33,8 +33,6 @@ export function getDemoTradeResult({
   quantity: number;
   demo: StockTradeDemo;
 }): StockTradeResult {
-  if (priceMode === "market" && !demo.isRegularMarket)
-    return { type: "market-closed" };
   if (side === "sell" && quantity > demo.availableQuantity)
     return { type: "insufficient-shares" };
   const shortfall = price * quantity - demo.availableCash;
