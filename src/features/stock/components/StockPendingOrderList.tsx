@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import { StockPendingOrderCancelModal } from "@/features/stock/components/StockPendingOrderCancelModal";
 import type { PendingOrder } from "@/features/stock/types/stockDetail";
 
 interface StockPendingOrderListProps {
@@ -9,6 +13,8 @@ export function StockPendingOrderList({
   orders,
   onCancel,
 }: StockPendingOrderListProps) {
+  const [cancelTarget, setCancelTarget] = useState<PendingOrder | null>(null);
+
   if (orders.length === 0) return null;
 
   return (
@@ -32,14 +38,24 @@ export function StockPendingOrderList({
             </div>
             <button
               type="button"
-              onClick={() => onCancel?.(order.orderId)}
-              className="caption-1-semibold text-text-neutral-tertiary"
+              onClick={() => setCancelTarget(order)}
+              className="caption-1-semibold text-text-neutral-primary"
             >
               취소
             </button>
           </div>
         ))}
       </div>
+      <StockPendingOrderCancelModal
+        open={cancelTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setCancelTarget(null);
+        }}
+        onConfirm={() => {
+          if (cancelTarget) onCancel?.(cancelTarget.orderId);
+          setCancelTarget(null);
+        }}
+      />
     </div>
   );
 }

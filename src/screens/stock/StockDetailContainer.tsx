@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { cn } from "@/shared/utils/cn";
 import {
   DEMO_STOCK_INFO,
@@ -10,7 +11,7 @@ import {
   DEMO_ORDER_HISTORY,
 } from "@/features/stock/mocks/stockDetail";
 import { useState } from "react";
-import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
 import { StockChartPlaceholder } from "@/features/stock/components/StockChartPlaceholder";
@@ -31,17 +32,25 @@ import { Header, HeaderBackButton } from "@/shared/components/Header";
 
 interface StockDetailContainerProps {
   code: string;
+  initialTab?: StockDetailTab;
 }
 
-export function StockDetailContainer({ code }: StockDetailContainerProps) {
+export function StockDetailContainer({
+  code,
+  initialTab = "차트",
+}: StockDetailContainerProps) {
+  const router = useRouter();
   const stockInfo = DEMO_STOCK_INFO[code] ?? DEMO_STOCK_INFO["035420"];
   const hasHolding = DEMO_HOLDING_STOCK_CODES.has(stockInfo.stockCode);
 
   const [isFavorite, setIsFavorite] = useState(stockInfo.isFavorite);
+  const [pendingOrders, setPendingOrders] = useState(DEMO_PENDING_ORDERS);
   const tabs = hasHolding
     ? STOCK_DETAIL_TABS_WITH_HOLDING
     : STOCK_DETAIL_TABS_WITHOUT_HOLDING;
-  const [tab, setTab] = useState<StockDetailTab>("차트");
+  const [tab, setTab] = useState<StockDetailTab>(
+    initialTab === "내 주식" && !hasHolding ? "차트" : initialTab,
+  );
 
   const HeartIcon = isFavorite ? HeartFilledIcon : HeartOutlineIcon;
 
@@ -89,7 +98,15 @@ export function StockDetailContainer({ code }: StockDetailContainerProps) {
         {tab === "내 주식" && hasHolding && (
           <div className="flex flex-col gap-4 px-5 pt-4">
             <StockHoldingSummary holding={DEMO_HOLDING} />
-            <StockPendingOrderList orders={DEMO_PENDING_ORDERS} />
+            <StockPendingOrderList
+              orders={pendingOrders}
+              onCancel={(orderId) => {
+                setPendingOrders((prev) =>
+                  prev.filter((order) => order.orderId !== orderId),
+                );
+                toast.success("주문을 취소했어요");
+              }}
+            />
             <StockOrderHistoryList items={DEMO_ORDER_HISTORY} />
           </div>
         )}
@@ -110,8 +127,8 @@ export function StockDetailContainer({ code }: StockDetailContainerProps) {
         )}
         <StockTradeButtons
           showSell={hasHolding}
-          onBuyClick={() => toast.info("매수 기능은 추후 제공될 예정이에요")}
-          onSellClick={() => toast.info("매도 기능은 추후 제공될 예정이에요")}
+          onBuyClick={() => router.push(`/stock/${code}/buy`)}
+          onSellClick={() => router.push(`/stock/${code}/sell`)}
         />
       </div>
     </div>
