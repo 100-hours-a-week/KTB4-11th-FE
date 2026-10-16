@@ -10,6 +10,15 @@ export function appendTradeDigit(value: string, key: string): string {
   return digits.slice(0, 9);
 }
 
+// TODO: 종목 시세 API 연동 시 실제 상·하한가로 교체
+export function getPriceLimits(currentPrice: number, changeRate: number) {
+  const previousClose = currentPrice / (1 + changeRate / 100);
+  return {
+    upperLimitPrice: Math.round(previousClose * 1.3),
+    lowerLimitPrice: Math.round(previousClose * 0.7),
+  };
+}
+
 // UI 데모용 결과 판정 (실제 접수·체결 결과는 주문 API 응답으로 대체)
 export function getDemoTradeResult({
   side,

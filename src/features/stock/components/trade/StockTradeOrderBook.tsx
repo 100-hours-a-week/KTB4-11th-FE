@@ -1,6 +1,7 @@
 import { StockOrderBook } from "@/features/stock/components/StockOrderBook";
 import type { OrderBook } from "@/features/stock/types/stockDetail";
 import type { StockTradeQuote } from "@/features/stock/types/stockTrade";
+import { getPriceLimits } from "@/features/stock/utils/stockTrade";
 
 interface StockTradeOrderBookProps {
   quotes: StockTradeQuote[];
@@ -19,9 +20,10 @@ export function StockTradeOrderBook({
   onSelect,
 }: StockTradeOrderBookProps) {
   const previousClose = currentPrice / (1 + changeRate / 100);
-  // TODO: 종목 시세 API 연동 시 실제 상·하한가로 교체
-  const upperLimitPrice = Math.round(previousClose * 1.3);
-  const lowerLimitPrice = Math.round(previousClose * 0.7);
+  const { upperLimitPrice, lowerLimitPrice } = getPriceLimits(
+    currentPrice,
+    changeRate,
+  );
   const toLevel = (quote: StockTradeQuote) => ({
     price: quote.price,
     quantity: quote.quantity,
