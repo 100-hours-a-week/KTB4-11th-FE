@@ -39,7 +39,7 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
       ),
     [stock.price, stock.stockCode],
   );
-  const form = useStockTradeForm(side, stock.price, demo);
+  const form = useStockTradeForm(side, stock.price, stock.changeRate, demo);
   const action = side === "buy" ? "구매" : "판매";
   const { colorClass } = getReturnRateInfo(stock.changeRate);
   const availability =
@@ -94,6 +94,7 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
           side={side}
           mode={form.priceMode}
           price={form.price}
+          priceError={form.priceError}
           showAdjust={form.field === "price"}
           onModeChange={form.selectPriceMode}
           onFocus={() => form.selectField("price")}

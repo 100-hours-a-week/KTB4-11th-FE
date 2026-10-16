@@ -10,6 +10,7 @@ interface StockTradePriceInputProps {
   side: StockTradeSide;
   mode: StockPriceMode;
   price: number;
+  priceError?: string | null;
   showAdjust?: boolean;
   onModeChange: (mode: StockPriceMode) => void;
   onFocus: () => void;
@@ -21,6 +22,7 @@ export function StockTradePriceInput({
   side,
   mode,
   price,
+  priceError,
   showAdjust = true,
   onModeChange,
   onFocus,
@@ -103,6 +105,9 @@ export function StockTradePriceInput({
           </div>
         )}
       </div>
+      {mode === "limit" && priceError && (
+        <p className="caption-1-regular text-text-error mt-1">{priceError}</p>
+      )}
       {mode !== "limit" && (
         <p className="caption-1-regular text-text-neutral-secondary mt-1">
           {mode === "market"
