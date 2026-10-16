@@ -50,42 +50,49 @@ export function StockTradeResultSheet({
     title = `${stockName} ${result.quantity.toLocaleString()}주 ${isFilled ? (side === "buy" ? "구매" : "판매") : "주문"} 완료`;
     icon = <CartHappyIcon width={60} height={60} />;
     description = (
-      <span className="inline-flex items-center gap-2">
-        <span className="inline-flex items-center gap-1">
-          <CurrencyKrwIcon
-            width={14}
-            height={14}
+      <>
+        <span className="inline-flex items-center gap-2">
+          <span className="inline-flex items-center gap-1">
+            <CurrencyKrwIcon
+              width={14}
+              height={14}
+              aria-hidden="true"
+              className="text-icon-accent shrink-0"
+            />
+            {result.priceMode === "limit"
+              ? "지정가"
+              : STOCK_PRICE_MODE_LABELS[result.priceMode]}{" "}
+            {result.price.toLocaleString()}원
+          </span>
+          <span
             aria-hidden="true"
-            className="text-icon-accent shrink-0"
+            className="bg-border-neutral-tertiary h-3 w-px shrink-0"
           />
-          {result.priceMode === "limit"
-            ? "지정가"
-            : STOCK_PRICE_MODE_LABELS[result.priceMode]}{" "}
-          {result.price.toLocaleString()}원
+          <span className="inline-flex items-center gap-1">
+            {isFilled ? (
+              <CheckCircleIcon
+                width={14}
+                height={14}
+                aria-hidden="true"
+                className="text-icon-accent shrink-0"
+              />
+            ) : (
+              <TradePendingIcon
+                width={14}
+                height={14}
+                aria-hidden="true"
+                className="text-icon-accent shrink-0"
+              />
+            )}
+            {isFilled ? "체결 완료" : "체결 대기"}
+          </span>
         </span>
-        <span
-          aria-hidden="true"
-          className="bg-border-neutral-tertiary h-3 w-px shrink-0"
-        />
-        <span className="inline-flex items-center gap-1">
-          {isFilled ? (
-            <CheckCircleIcon
-              width={14}
-              height={14}
-              aria-hidden="true"
-              className="text-icon-accent shrink-0"
-            />
-          ) : (
-            <TradePendingIcon
-              width={14}
-              height={14}
-              aria-hidden="true"
-              className="text-icon-accent shrink-0"
-            />
-          )}
-          {isFilled ? "체결 완료" : "체결 대기"}
-        </span>
-      </span>
+        {result.pendingNextSession && (
+          <span className="text-text-neutral-secondary mt-1.5 block">
+            장 마감 시간이라 다음 정규장(09:00)에 체결돼요
+          </span>
+        )}
+      </>
     );
   } else if (displayResult?.type === "insufficient-cash") {
     title = "계좌에 잔액이 부족해요";

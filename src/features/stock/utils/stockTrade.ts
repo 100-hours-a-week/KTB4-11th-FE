@@ -40,5 +40,11 @@ export function getDemoTradeResult({
   const shortfall = price * quantity - demo.availableCash;
   if (side === "buy" && shortfall > 0)
     return { type: "insufficient-cash", shortfall };
-  return { type: "success", price, quantity, priceMode };
+  return {
+    type: "success",
+    price,
+    quantity,
+    priceMode,
+    pendingNextSession: priceMode !== "market" && !demo.isRegularMarket,
+  };
 }

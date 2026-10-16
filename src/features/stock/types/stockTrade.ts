@@ -22,6 +22,7 @@ export type StockTradeResult =
       price: number;
       quantity: number;
       priceMode: StockPriceMode;
+      pendingNextSession: boolean;
     }
   | { type: "insufficient-cash"; shortfall: number }
   | { type: "insufficient-shares" }
