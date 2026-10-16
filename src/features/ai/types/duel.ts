@@ -1,3 +1,5 @@
+import type { Trade } from "@/shared/types/trade";
+
 export const DUEL_TYPES = ["나 vs AI", "AI끼리"] as const;
 export type DuelType = (typeof DUEL_TYPES)[number];
 
@@ -23,18 +25,7 @@ export interface Duel {
   result?: DuelResult;
 }
 
-export type DuelTradeSide = "매도" | "매수";
-
-export interface DuelTrade {
-  tradeId: number;
-  stockName: string;
-  tradeSide: DuelTradeSide;
-  tradeDate: string;
-  quantity: number;
-  price: number;
-  /** 매도 체결로 손익이 실현된 경우에만 존재 */
-  realizedProfit?: number;
-  profitRate?: number;
+export interface DuelTrade extends Trade {
   /** AI 거래의 판단 근거가 준비됐는지 (리포트 생성 전이면 false/undefined) */
   hasReasoning?: boolean;
   orderId?: number;
