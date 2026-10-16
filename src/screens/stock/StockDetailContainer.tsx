@@ -5,6 +5,9 @@ import {
   DEMO_STOCK_INFO,
   DEMO_HOLDING_STOCK_CODES,
   DEMO_ORDER_BOOK,
+  DEMO_HOLDING,
+  DEMO_PENDING_ORDERS,
+  DEMO_ORDER_HISTORY,
 } from "@/features/stock/mocks/stockDetail";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,8 +15,11 @@ import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
 import { StockChartPlaceholder } from "@/features/stock/components/StockChartPlaceholder";
 import { StockDetailTabs } from "@/features/stock/components/StockDetailTabs";
+import { StockHoldingSummary } from "@/features/stock/components/StockHoldingSummary";
 import { StockOrderBook } from "@/features/stock/components/StockOrderBook";
 import { StockOrderBookWaitingBar } from "@/features/stock/components/StockOrderBookWaitingBar";
+import { StockOrderHistoryList } from "@/features/stock/components/StockOrderHistoryList";
+import { StockPendingOrderList } from "@/features/stock/components/StockPendingOrderList";
 import { StockPriceSummary } from "@/features/stock/components/StockPriceSummary";
 import { StockTradeButtons } from "@/features/stock/components/StockTradeButtons";
 import {
@@ -80,6 +86,13 @@ export function StockDetailContainer({ code }: StockDetailContainerProps) {
       >
         {tab === "차트" && <StockChartPlaceholder />}
         {tab === "호가" && <StockOrderBook orderBook={DEMO_ORDER_BOOK} />}
+        {tab === "내 주식" && hasHolding && (
+          <div className="flex flex-col gap-4 px-5 pt-4">
+            <StockHoldingSummary holding={DEMO_HOLDING} />
+            <StockPendingOrderList orders={DEMO_PENDING_ORDERS} />
+            <StockOrderHistoryList items={DEMO_ORDER_HISTORY} />
+          </div>
+        )}
       </div>
 
       <div className="relative">
