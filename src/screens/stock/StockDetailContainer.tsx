@@ -2,10 +2,7 @@
 
 import { toast } from "sonner";
 import { cn } from "@/shared/utils/cn";
-import {
-  DEMO_STOCK_INFO,
-  DEMO_ORDER_BOOK,
-} from "@/features/stock/mocks/stockDetail";
+import { DEMO_ORDER_BOOK } from "@/features/stock/mocks/stockDetail";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
@@ -22,7 +19,9 @@ import { StockPendingOrderList } from "@/features/stock/components/StockPendingO
 import { StockPriceSummary } from "@/features/stock/components/StockPriceSummary";
 import { StockTradeButtons } from "@/features/stock/components/StockTradeButtons";
 import { useCancelOrderMutation } from "@/features/stock/hooks/useCancelOrderMutation";
+import { useMarketPrice } from "@/features/stock/hooks/useMarketPrice";
 import { useStockHoldingQuery } from "@/features/stock/hooks/useStockHoldingQuery";
+import { useStockInfoQuery } from "@/features/stock/hooks/useStockInfoQuery";
 import { useToggleWatchlistMutation } from "@/features/stock/hooks/useToggleWatchlistMutation";
 import { useWatchlistQuery } from "@/features/stock/hooks/useWatchlistQuery";
 import {
@@ -45,13 +44,16 @@ export function StockDetailContainer({
   initialTab = "차트",
 }: StockDetailContainerProps) {
   const router = useRouter();
-  const stockInfo = DEMO_STOCK_INFO[code] ?? DEMO_STOCK_INFO["035420"];
+
+  const { data: stockInfo } = useStockInfoQuery(code);
+  const { price: marketPrice } = useMarketPrice(code);
+  const name = stockInfo?.stock_name ?? code;
+  const price = marketPrice?.price ?? stockInfo?.current_price ?? 0;
+  const changeAmount = marketPrice?.change ?? stockInfo?.price_change ?? 0;
+  const changeRate = marketPrice?.rate ?? stockInfo?.price_change_percent ?? 0;
 
   const accountId = useSelectedAccountId();
-  const { data: holdingData } = useStockHoldingQuery(
-    accountId,
-    stockInfo.stockCode,
-  );
+  const { data: holdingData } = useStockHoldingQuery(accountId, code);
   const hasHolding = holdingData?.is_held ?? false;
   const holding = holdingData ? toStockHolding(holdingData) : undefined;
 
@@ -59,11 +61,9 @@ export function StockDetailContainer({
   const stockOrders = useMemo(
     () =>
       (ordersData?.orders ?? []).filter(
-        (order) =>
-          order.stock_code === stockInfo.stockCode &&
-          order.order_source === "user",
+        (order) => order.stock_code === code && order.order_source === "user",
       ),
-    [ordersData, stockInfo.stockCode],
+    [ordersData, code],
   );
   const pendingOrders = stockOrders
     .filter((order) => order.order_status === "pending")
@@ -76,9 +76,7 @@ export function StockDetailContainer({
 
   const { data: watchlistData } = useWatchlistQuery();
   const isFavorite =
-    watchlistData?.watchlists.some(
-      (item) => item.stock_code === stockInfo.stockCode,
-    ) ?? false;
+    watchlistData?.watchlists.some((item) => item.stock_code === code) ?? false;
   const toggleWatchlistMutation = useToggleWatchlistMutation();
 
   const tabs = hasHolding
@@ -100,7 +98,7 @@ export function StockDetailContainer({
             type="button"
             onClick={() => {
               toggleWatchlistMutation.mutate(
-                { stockCode: stockInfo.stockCode, isFavorite },
+                { stockCode: code, isFavorite },
                 {
                   onError: () =>
                     toast.error(
@@ -125,10 +123,10 @@ export function StockDetailContainer({
       />
 
       <StockPriceSummary
-        name={stockInfo.name}
-        price={stockInfo.price}
-        changeAmount={stockInfo.changeAmount}
-        changeRate={stockInfo.changeRate}
+        name={name}
+        price={price}
+        changeAmount={changeAmount}
+        changeRate={changeRate}
       />
 
       <div className="mt-4">
