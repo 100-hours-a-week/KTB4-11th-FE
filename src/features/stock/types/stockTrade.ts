@@ -32,3 +32,10 @@ export const STOCK_PRICE_MODE_LABELS: Record<StockPriceMode, string> = {
   current: "현재가",
   market: "시장가",
 };
+
+export interface CancelOrderResponse {
+  message: string;
+  order_id: number;
+  order_status: "cancelled";
+  canceled_at: string;
+}

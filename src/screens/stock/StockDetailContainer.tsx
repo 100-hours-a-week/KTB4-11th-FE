@@ -5,13 +5,12 @@ import { cn } from "@/shared/utils/cn";
 import {
   DEMO_STOCK_INFO,
   DEMO_ORDER_BOOK,
-  DEMO_PENDING_ORDERS,
-  DEMO_ORDER_HISTORY,
 } from "@/features/stock/mocks/stockDetail";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
+import { useOrdersQuery } from "@/features/ai/hooks/useOrdersQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { StockChartPlaceholder } from "@/features/stock/components/StockChartPlaceholder";
 import { StockDetailTabs } from "@/features/stock/components/StockDetailTabs";
@@ -22,13 +21,16 @@ import { StockOrderHistoryList } from "@/features/stock/components/StockOrderHis
 import { StockPendingOrderList } from "@/features/stock/components/StockPendingOrderList";
 import { StockPriceSummary } from "@/features/stock/components/StockPriceSummary";
 import { StockTradeButtons } from "@/features/stock/components/StockTradeButtons";
+import { useCancelOrderMutation } from "@/features/stock/hooks/useCancelOrderMutation";
 import { useStockHoldingQuery } from "@/features/stock/hooks/useStockHoldingQuery";
 import {
   STOCK_DETAIL_TABS_WITH_HOLDING,
   STOCK_DETAIL_TABS_WITHOUT_HOLDING,
   type StockDetailTab,
 } from "@/features/stock/types/stockDetail";
+import { toPendingOrder } from "@/features/stock/utils/toPendingOrder";
 import { toStockHolding } from "@/features/stock/utils/toStockHolding";
+import { toStockTrade } from "@/features/stock/utils/toStockTrade";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 
 interface StockDetailContainerProps {
@@ -51,7 +53,24 @@ export function StockDetailContainer({
   const hasHolding = holdingData?.is_held ?? false;
   const holding = holdingData ? toStockHolding(holdingData) : undefined;
 
-  const [pendingOrders, setPendingOrders] = useState(DEMO_PENDING_ORDERS);
+  const { data: ordersData } = useOrdersQuery(accountId);
+  const stockOrders = useMemo(
+    () =>
+      (ordersData?.orders ?? []).filter(
+        (order) =>
+          order.stock_code === stockInfo.stockCode &&
+          order.order_source === "user",
+      ),
+    [ordersData, stockInfo.stockCode],
+  );
+  const pendingOrders = stockOrders
+    .filter((order) => order.order_status === "pending")
+    .map(toPendingOrder);
+  const orderHistory = stockOrders
+    .filter((order) => order.order_status === "executed")
+    .map(toStockTrade);
+
+  const cancelOrderMutation = useCancelOrderMutation(accountId);
 
   const [isFavorite, setIsFavorite] = useState(stockInfo.isFavorite);
   const tabs = hasHolding
@@ -110,13 +129,16 @@ export function StockDetailContainer({
             <StockPendingOrderList
               orders={pendingOrders}
               onCancel={(orderId) => {
-                setPendingOrders((prev) =>
-                  prev.filter((order) => order.orderId !== orderId),
-                );
-                toast.success("주문을 취소했어요");
+                cancelOrderMutation.mutate(orderId, {
+                  onSuccess: () => toast.success("주문을 취소했어요"),
+                  onError: () =>
+                    toast.error(
+                      "주문을 취소하지 못했어요. 다시 시도해 주세요.",
+                    ),
+                });
               }}
             />
-            <StockOrderHistoryList items={DEMO_ORDER_HISTORY} />
+            <StockOrderHistoryList items={orderHistory} />
           </div>
         )}
       </div>

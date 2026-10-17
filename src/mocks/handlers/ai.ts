@@ -155,8 +155,150 @@ const AI_REPORTS: Record<number, AiReportResponse> = {
   },
 };
 
-const ORDERS: Order[] = Object.values(AI_REPORTS)
-  .map((report) => ({
+// 종목 상세 "내 주식" 탭 데모용 (사용자가 직접 낸 주문)
+const USER_ORDERS: Order[] = [
+  {
+    order_id: 201,
+    stock_code: "035420",
+    stock_name: "NAVER",
+    order_source: "user",
+    order_side: "buy",
+    order_type: "limit",
+    order_status: "pending",
+    quantity: 3,
+    limit_price: 220_000,
+    reserved_cash: 660_000,
+    created_at: "2026-08-25T09:41:00+09:00",
+    canceled_at: null,
+    reason: null,
+    executions: [],
+    execution_summary: null,
+    can_cancel: true,
+  },
+  {
+    order_id: 202,
+    stock_code: "035420",
+    stock_name: "NAVER",
+    order_source: "user",
+    order_side: "sell",
+    order_type: "limit",
+    order_status: "pending",
+    quantity: 1,
+    limit_price: 225_000,
+    reserved_cash: 0,
+    created_at: "2026-08-25T10:02:00+09:00",
+    canceled_at: null,
+    reason: null,
+    executions: [],
+    execution_summary: null,
+    can_cancel: true,
+  },
+  {
+    order_id: 203,
+    stock_code: "035420",
+    stock_name: "NAVER",
+    order_source: "user",
+    order_side: "buy",
+    order_type: "limit",
+    order_status: "executed",
+    quantity: 2,
+    limit_price: 223_000,
+    reserved_cash: 0,
+    created_at: "2026-08-26T09:32:00+09:00",
+    canceled_at: null,
+    reason: null,
+    executions: [
+      {
+        execution_id: 3001,
+        execution_price: 223_000,
+        execution_quantity: 2,
+        realized_pnl: null,
+        realized_return_percent: null,
+        created_at: "2026-08-26T09:32:00+09:00",
+      },
+    ],
+    execution_summary: {
+      quantity: 2,
+      average_price: 223_000,
+      total_amount: 446_000,
+      executed_at: "2026-08-26T09:32:00+09:00",
+      realized_pnl: null,
+      realized_return_percent: null,
+    },
+    can_cancel: false,
+  },
+  {
+    order_id: 204,
+    stock_code: "035420",
+    stock_name: "NAVER",
+    order_source: "user",
+    order_side: "buy",
+    order_type: "limit",
+    order_status: "executed",
+    quantity: 3,
+    limit_price: 221_000,
+    reserved_cash: 0,
+    created_at: "2026-08-20T10:15:00+09:00",
+    canceled_at: null,
+    reason: null,
+    executions: [
+      {
+        execution_id: 3002,
+        execution_price: 221_000,
+        execution_quantity: 3,
+        realized_pnl: null,
+        realized_return_percent: null,
+        created_at: "2026-08-20T10:15:00+09:00",
+      },
+    ],
+    execution_summary: {
+      quantity: 3,
+      average_price: 221_000,
+      total_amount: 663_000,
+      executed_at: "2026-08-20T10:15:00+09:00",
+      realized_pnl: null,
+      realized_return_percent: null,
+    },
+    can_cancel: false,
+  },
+  {
+    order_id: 205,
+    stock_code: "035420",
+    stock_name: "NAVER",
+    order_source: "user",
+    order_side: "sell",
+    order_type: "limit",
+    order_status: "executed",
+    quantity: 1,
+    limit_price: 219_500,
+    reserved_cash: 0,
+    created_at: "2026-08-18T13:47:00+09:00",
+    canceled_at: null,
+    reason: null,
+    executions: [
+      {
+        execution_id: 3003,
+        execution_price: 219_500,
+        execution_quantity: 1,
+        realized_pnl: -1_500,
+        realized_return_percent: -0.7,
+        created_at: "2026-08-18T13:47:00+09:00",
+      },
+    ],
+    execution_summary: {
+      quantity: 1,
+      average_price: 219_500,
+      total_amount: 219_500,
+      executed_at: "2026-08-18T13:47:00+09:00",
+      realized_pnl: -1_500,
+      realized_return_percent: -0.7,
+    },
+    can_cancel: false,
+  },
+];
+
+const ORDERS: Order[] = [
+  ...Object.values(AI_REPORTS).map((report) => ({
     order_id: report.order_id,
     stock_code: report.stock_code,
     stock_name: report.stock_name,
@@ -191,11 +333,11 @@ const ORDERS: Order[] = Object.values(AI_REPORTS)
         report.sell_result?.realized_return_percent ?? null,
     },
     can_cancel: false,
-  }))
-  .sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  );
+  })),
+  ...USER_ORDERS,
+].sort(
+  (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+);
 
 export const aiHandlers: HttpHandler[] = [
   http.get("*/api/v1/accounts/:accountId/orders", async () => {
@@ -216,6 +358,48 @@ export const aiHandlers: HttpHandler[] = [
       }
 
       return HttpResponse.json<AiReportResponse>(report);
+    },
+  ),
+
+  http.patch(
+    "*/api/v1/accounts/:accountId/orders/:orderId",
+    async ({ params }) => {
+      const orderId = Number(params.orderId);
+      const order = ORDERS.find((item) => item.order_id === orderId);
+
+      if (!order) {
+        return HttpResponse.json(
+          { message: "찾을 수 없습니다" },
+          { status: 404 },
+        );
+      }
+      if (order.order_status === "executed") {
+        return HttpResponse.json(
+          {
+            message: "이미 체결된 주문은 취소할 수 없습니다.",
+            code: "ORDER_ALREADY_FILLED",
+          },
+          { status: 400 },
+        );
+      }
+      if (order.order_status === "cancelled") {
+        return HttpResponse.json(
+          { message: "이미 취소된 주문입니다." },
+          { status: 409 },
+        );
+      }
+
+      const canceledAt = new Date().toISOString();
+      order.order_status = "cancelled";
+      order.canceled_at = canceledAt;
+      order.can_cancel = false;
+
+      return HttpResponse.json({
+        message: "success",
+        order_id: order.order_id,
+        order_status: order.order_status,
+        canceled_at: canceledAt,
+      });
     },
   ),
 ];
