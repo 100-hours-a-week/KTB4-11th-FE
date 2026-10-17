@@ -23,6 +23,8 @@ import { StockPriceSummary } from "@/features/stock/components/StockPriceSummary
 import { StockTradeButtons } from "@/features/stock/components/StockTradeButtons";
 import { useCancelOrderMutation } from "@/features/stock/hooks/useCancelOrderMutation";
 import { useStockHoldingQuery } from "@/features/stock/hooks/useStockHoldingQuery";
+import { useToggleWatchlistMutation } from "@/features/stock/hooks/useToggleWatchlistMutation";
+import { useWatchlistQuery } from "@/features/stock/hooks/useWatchlistQuery";
 import {
   STOCK_DETAIL_TABS_WITH_HOLDING,
   STOCK_DETAIL_TABS_WITHOUT_HOLDING,
@@ -72,7 +74,13 @@ export function StockDetailContainer({
 
   const cancelOrderMutation = useCancelOrderMutation(accountId);
 
-  const [isFavorite, setIsFavorite] = useState(stockInfo.isFavorite);
+  const { data: watchlistData } = useWatchlistQuery();
+  const isFavorite =
+    watchlistData?.watchlists.some(
+      (item) => item.stock_code === stockInfo.stockCode,
+    ) ?? false;
+  const toggleWatchlistMutation = useToggleWatchlistMutation();
+
   const tabs = hasHolding
     ? STOCK_DETAIL_TABS_WITH_HOLDING
     : STOCK_DETAIL_TABS_WITHOUT_HOLDING;
@@ -90,7 +98,19 @@ export function StockDetailContainer({
         right={
           <button
             type="button"
-            onClick={() => setIsFavorite((prev) => !prev)}
+            onClick={() => {
+              toggleWatchlistMutation.mutate(
+                { stockCode: stockInfo.stockCode, isFavorite },
+                {
+                  onError: () =>
+                    toast.error(
+                      isFavorite
+                        ? "관심 종목 취소에 실패했어요"
+                        : "관심 종목 등록에 실패했어요",
+                    ),
+                },
+              );
+            }}
             aria-label={isFavorite ? "관심 종목 해제" : "관심 종목 등록"}
           >
             <HeartIcon
