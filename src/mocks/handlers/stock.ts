@@ -1,4 +1,5 @@
 import { http, HttpResponse, type HttpHandler } from "msw";
+import type { StockInfoResponse } from "@/features/stock/types/stockDetail";
 import type { KospiIndexResponse } from "@/features/stock/types/kospiIndex";
 import type {
   RankingApiItem,
@@ -151,6 +152,34 @@ function buildRankingItems(type: RankingApiType): RankingApiItem[] {
 }
 
 export const stockHandlers: HttpHandler[] = [
+  http.get("*/api/v1/stocks/:stockCode", async ({ params }) => {
+    const stockCode = String(params.stockCode);
+    const entry = resolveStockPoolEntry(stockCode);
+
+    if (!entry) {
+      return HttpResponse.json(
+        { message: "찾을 수 없습니다", code: "NOT_FOUND" },
+        { status: 404 },
+      );
+    }
+
+    const openPrice = Math.round(entry.price / (1 + entry.change_rate / 100));
+
+    return HttpResponse.json<StockInfoResponse>({
+      message: "success",
+      stock_code: stockCode,
+      stock_name: entry.stock_name,
+      current_price: entry.price,
+      price_change: entry.price - openPrice,
+      price_change_percent: entry.change_rate,
+      open_price: openPrice,
+      high_price: Math.round(entry.price * 1.01),
+      low_price: Math.round(entry.price * 0.99),
+      volume: 1_250_000,
+      fetched_at: new Date().toISOString(),
+    });
+  }),
+
   http.get("*/api/v1/market/indices/kospi", async () => {
     const fluctuation = (Math.random() - 0.5) * 10;
     const value = BASE_VALUE + fluctuation;
