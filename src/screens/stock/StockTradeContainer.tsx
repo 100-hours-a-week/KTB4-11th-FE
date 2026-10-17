@@ -11,11 +11,13 @@ import { StockTradeOrderBook } from "@/features/stock/components/trade/StockTrad
 import { StockTradePriceInput } from "@/features/stock/components/trade/StockTradePriceInput";
 import { StockTradeQuantityInput } from "@/features/stock/components/trade/StockTradeQuantityInput";
 import { StockTradeResultSheet } from "@/features/stock/components/trade/StockTradeResultSheet";
+import { useMarketPrice } from "@/features/stock/hooks/useMarketPrice";
 import { useStockHoldingQuery } from "@/features/stock/hooks/useStockHoldingQuery";
+import { useStockInfoQuery } from "@/features/stock/hooks/useStockInfoQuery";
 import { useStockTradeForm } from "@/features/stock/hooks/useStockTradeForm";
-import { DEMO_STOCK_INFO } from "@/features/stock/mocks/stockDetail";
 import { getStockTradeDemo } from "@/features/stock/mocks/stockTrade";
 import type { StockTradeSide } from "@/features/stock/types/stockTrade";
+import { AnimatedPriceText } from "@/shared/components/AnimatedPriceText";
 import { Button } from "@/shared/components/Button";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import {
@@ -30,32 +32,34 @@ interface StockTradeContainerProps {
 
 export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
   const router = useRouter();
-  const stock = DEMO_STOCK_INFO[code] ?? DEMO_STOCK_INFO["035420"];
+
+  const { data: stockInfo } = useStockInfoQuery(code);
+  const { price: marketPrice } = useMarketPrice(code);
+  const stockName = stockInfo?.stock_name ?? code;
+  const price = marketPrice?.price ?? stockInfo?.current_price ?? 0;
+  const changeRate = marketPrice?.rate ?? stockInfo?.price_change_percent ?? 0;
 
   const accountId = useSelectedAccountId();
   const { data: accountDetail } = useAccountDetailQuery(accountId);
-  const { data: holdingData } = useStockHoldingQuery(
-    accountId,
-    stock.stockCode,
-  );
+  const { data: holdingData } = useStockHoldingQuery(accountId, code);
   const availableCash = accountDetail?.available_cash ?? 0;
   const availableQuantity = holdingData?.quantity ?? 0;
 
-  // TODO: 시세/호가 실시간 연동 시 교체 (별도 이슈)
-  const demo = useMemo(() => getStockTradeDemo(stock.price), [stock.price]);
+  // TODO: 호가 실시간 연동 시 교체 (별도 이슈)
+  const demo = useMemo(() => getStockTradeDemo(price), [price]);
   const form = useStockTradeForm(
     accountId,
-    stock.stockCode,
-    stock.name,
+    code,
+    stockName,
     side,
-    stock.price,
-    stock.changeRate,
+    price,
+    changeRate,
     availableCash,
     availableQuantity,
     demo.isRegularMarket,
   );
   const action = side === "buy" ? "구매" : "판매";
-  const { colorClass } = getReturnRateInfo(stock.changeRate);
+  const { colorClass } = getReturnRateInfo(changeRate);
   const availability =
     side === "buy"
       ? `구매가능 ${availableCash.toLocaleString()}원${form.priceMode === "market" ? "" : ` · 최대 ${form.maxQuantity.toLocaleString()}주`}`
@@ -94,12 +98,12 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
         />
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
           <span className="caption-1-regular text-text-neutral-secondary">
-            {stock.name}
+            {stockName}
           </span>
-          <span className={cn("body-2-semibold", colorClass)}>
-            {stock.price.toLocaleString()}원{" "}
-            {formatSignedPercent(stock.changeRate)}
-          </span>
+          <AnimatedPriceText
+            className={cn("body-2-semibold", colorClass)}
+            text={`${price.toLocaleString()}원 ${formatSignedPercent(changeRate)}`}
+          />
         </div>
       </div>
 
@@ -127,8 +131,8 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
           <StockTradeOrderBook
             quotes={demo.quotes}
             selectedPrice={form.price}
-            currentPrice={stock.price}
-            changeRate={stock.changeRate}
+            currentPrice={price}
+            changeRate={changeRate}
             onSelect={form.selectQuote}
           />
         )}
@@ -197,7 +201,7 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
       </div>
       <StockTradeResultSheet
         result={form.result}
-        stockName={stock.name}
+        stockName={stockName}
         side={side}
         onClose={() => form.setResult(null)}
         onViewHolding={() => router.replace(`/stock/${code}?tab=holding`)}

@@ -34,6 +34,12 @@ export function useStockTradeForm(
 ) {
   const [priceMode, setPriceMode] = useState<StockPriceMode>("limit");
   const [priceInput, setPriceInput] = useState(String(currentPrice));
+  const [hasEditedPrice, setHasEditedPrice] = useState(false);
+  const [lastSyncedPrice, setLastSyncedPrice] = useState(currentPrice);
+  if (!hasEditedPrice && currentPrice !== lastSyncedPrice) {
+    setLastSyncedPrice(currentPrice);
+    setPriceInput(String(currentPrice));
+  }
   const [quantityInput, setQuantityInput] = useState("");
   const [field, setField] = useState<StockTradeField>("quantity");
   const [inputMode, setInputMode] = useState<StockTradeInputMode>("number");
@@ -96,7 +102,10 @@ export function useStockTradeForm(
     setInputMode("number");
   }
   function enterKey(key: string) {
-    if (field === "price") setPriceError(null);
+    if (field === "price") {
+      setPriceError(null);
+      setHasEditedPrice(true);
+    }
     const setValue = field === "price" ? setPriceInput : setQuantityInput;
     setValue((value) =>
       key === "delete" ? value.slice(0, -1) : appendTradeDigit(value, key),
@@ -109,10 +118,12 @@ export function useStockTradeForm(
       .slice(0, 9);
     if (target === "price") {
       setPriceError(null);
+      setHasEditedPrice(true);
       setPriceInput(digits);
     } else setQuantityInput(digits);
   }
   function selectQuote(value: number) {
+    setHasEditedPrice(true);
     setPriceMode("limit");
     setPriceInput(String(clampPriceToLimits(value)));
   }

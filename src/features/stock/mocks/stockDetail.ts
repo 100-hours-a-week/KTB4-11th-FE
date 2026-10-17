@@ -1,27 +1,4 @@
-import type {
-  OrderBook,
-  StockDetailInfo,
-} from "@/features/stock/types/stockDetail";
-
-// TODO : 종목 상세 API 연동 시 제거 (별도 이슈)
-export const DEMO_STOCK_INFO: Record<string, StockDetailInfo> = {
-  "035420": {
-    stockCode: "035420",
-    name: "NAVER",
-    price: 221_500,
-    changeAmount: -2_000,
-    changeRate: -0.8,
-    isFavorite: true,
-  },
-  "005930": {
-    stockCode: "005930",
-    name: "삼성전자",
-    price: 74_100,
-    changeAmount: 1_200,
-    changeRate: 1.6,
-    isFavorite: false,
-  },
-};
+import type { OrderBook } from "@/features/stock/types/stockDetail";
 
 export const DEMO_ORDER_BOOK: OrderBook = {
   asks: [

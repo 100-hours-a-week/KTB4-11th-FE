@@ -1,3 +1,4 @@
+import { AnimatedPriceText } from "@/shared/components/AnimatedPriceText";
 import {
   formatSignedPercent,
   getReturnRateInfo,
@@ -21,13 +22,16 @@ export function StockPriceSummary({
   return (
     <div className="flex flex-col gap-1 px-5 pt-2">
       <span className="body-1-semibold text-text-neutral-primary">{name}</span>
-      <span className="title-1">{price.toLocaleString()}원</span>
-      <span className="body-2-medium text-text-neutral-secondary">
-        어제보다{" "}
-        <span className={colorClass}>
-          {changeAmount >= 0 ? "+" : ""}
-          {changeAmount.toLocaleString()}원 ({formatSignedPercent(changeRate)})
-        </span>
+      <AnimatedPriceText
+        className="title-1"
+        text={`${price.toLocaleString()}원`}
+      />
+      <span className="body-2-medium text-text-neutral-secondary flex items-baseline gap-1">
+        어제보다
+        <AnimatedPriceText
+          className={colorClass}
+          text={`${changeAmount >= 0 ? "+" : ""}${changeAmount.toLocaleString()}원 (${formatSignedPercent(changeRate)})`}
+        />
       </span>
     </div>
   );
