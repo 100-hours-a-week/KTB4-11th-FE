@@ -10,8 +10,6 @@ export interface StockTradeQuote {
 }
 
 export interface StockTradeDemo {
-  availableCash: number;
-  availableQuantity: number;
   isRegularMarket: boolean;
   quotes: StockTradeQuote[];
 }
@@ -38,4 +36,35 @@ export interface CancelOrderResponse {
   order_id: number;
   order_status: "cancelled";
   canceled_at: string;
+}
+
+export type OrderType = "limit" | "market";
+
+export interface CreateOrderRequest {
+  stock_code: string;
+  stock_name: string;
+  order_side: StockTradeSide;
+  order_type: OrderType;
+  limit_price: number | null;
+  quantity: number;
+}
+
+export interface CreateOrderExecution {
+  execution_id: number;
+  execution_price: number;
+  execution_quantity: number;
+}
+
+export interface CreateOrderResponse {
+  order_id: number;
+  account_id: number;
+  stock_code: string;
+  order_side: StockTradeSide;
+  order_type: OrderType;
+  limit_price: number | null;
+  quantity: number;
+  order_status: "pending" | "executed";
+  reserved_cash: number;
+  created_at: string;
+  executions: CreateOrderExecution[];
 }

@@ -1,6 +1,12 @@
 import { http, HttpResponse, type HttpHandler } from "msw";
 import type { Order, OrdersResponse } from "@/features/ai/types/aiTrade";
 import type { AiReportResponse } from "@/features/ai/types/aiTradeReasoning";
+import type {
+  CreateOrderRequest,
+  CreateOrderResponse,
+} from "@/features/stock/types/stockTrade";
+import { DEMO_ACCOUNTS } from "@/mocks/handlers/account";
+import { HOLDINGS } from "@/mocks/handlers/holdings";
 
 const AI_REPORTS: Record<number, AiReportResponse> = {
   101: {
@@ -339,6 +345,8 @@ const ORDERS: Order[] = [
   (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
 );
 
+let nextOrderId = 206;
+
 export const aiHandlers: HttpHandler[] = [
   http.get("*/api/v1/accounts/:accountId/orders", async () => {
     return HttpResponse.json<OrdersResponse>({
@@ -358,6 +366,116 @@ export const aiHandlers: HttpHandler[] = [
       }
 
       return HttpResponse.json<AiReportResponse>(report);
+    },
+  ),
+
+  http.post(
+    "*/api/v1/accounts/:accountId/orders",
+    async ({ request, params }) => {
+      const body = (await request.json()) as CreateOrderRequest;
+      const accountId = Number(params.accountId);
+      const account = DEMO_ACCOUNTS.find(
+        (item) => item.account_id === accountId,
+      );
+      const holding = HOLDINGS.find(
+        (item) => item.stock_code === body.stock_code,
+      );
+      const referencePrice = body.limit_price ?? holding?.current_price ?? 0;
+
+      if (body.order_side === "sell") {
+        const availableQuantity = holding?.quantity ?? 0;
+        if (body.quantity > availableQuantity) {
+          return HttpResponse.json(
+            {
+              message: "매도 가능한 수량이 부족합니다.",
+              code: "INSUFFICIENT_AVAILABLE_QUANTITY",
+            },
+            { status: 409 },
+          );
+        }
+      }
+
+      if (body.order_side === "buy") {
+        const cost = referencePrice * body.quantity;
+        if (account && cost > account.cash_balance) {
+          return HttpResponse.json(
+            {
+              message: "주문 가능한 금액이 부족합니다.",
+              code: "INSUFFICIENT_CASH",
+            },
+            { status: 409 },
+          );
+        }
+      }
+
+      const now = new Date().toISOString();
+      const isFilled = body.order_type === "market";
+      const orderId = nextOrderId++;
+
+      const order: Order = {
+        order_id: orderId,
+        stock_code: body.stock_code,
+        stock_name: body.stock_name,
+        order_source: "user",
+        order_side: body.order_side,
+        order_type: body.order_type,
+        order_status: isFilled ? "executed" : "pending",
+        quantity: body.quantity,
+        limit_price: body.limit_price,
+        reserved_cash:
+          body.order_side === "buy" && !isFilled
+            ? referencePrice * body.quantity
+            : 0,
+        created_at: now,
+        canceled_at: null,
+        reason: null,
+        executions: isFilled
+          ? [
+              {
+                execution_id: orderId * 10,
+                execution_price: referencePrice,
+                execution_quantity: body.quantity,
+                realized_pnl: null,
+                realized_return_percent: null,
+                created_at: now,
+              },
+            ]
+          : [],
+        execution_summary: isFilled
+          ? {
+              quantity: body.quantity,
+              average_price: referencePrice,
+              total_amount: referencePrice * body.quantity,
+              executed_at: now,
+              realized_pnl: null,
+              realized_return_percent: null,
+            }
+          : null,
+        can_cancel: !isFilled,
+      };
+
+      ORDERS.unshift(order);
+
+      return HttpResponse.json<CreateOrderResponse>(
+        {
+          order_id: order.order_id,
+          account_id: accountId,
+          stock_code: order.stock_code,
+          order_side: order.order_side,
+          order_type: order.order_type,
+          limit_price: order.limit_price,
+          quantity: order.quantity,
+          order_status: isFilled ? "executed" : "pending",
+          reserved_cash: order.reserved_cash,
+          created_at: order.created_at,
+          executions: order.executions.map((execution) => ({
+            execution_id: execution.execution_id,
+            execution_price: execution.execution_price,
+            execution_quantity: execution.execution_quantity,
+          })),
+        },
+        { status: 201 },
+      );
     },
   ),
 

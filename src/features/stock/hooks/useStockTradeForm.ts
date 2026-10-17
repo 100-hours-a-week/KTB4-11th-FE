@@ -1,9 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { toast } from "sonner";
+import {
+  isInsufficientCashError,
+  isInsufficientSharesError,
+  useCreateOrderMutation,
+} from "@/features/stock/hooks/useCreateOrderMutation";
 import type {
   StockPriceMode,
-  StockTradeDemo,
   StockTradeField,
   StockTradeInputMode,
   StockTradeResult,
@@ -11,17 +16,21 @@ import type {
 } from "@/features/stock/types/stockTrade";
 import {
   appendTradeDigit,
-  getDemoTradeResult,
   getPriceLimits,
 } from "@/features/stock/utils/stockTrade";
 
 const PRICE_ERROR_DURATION_MS = 2000;
 
 export function useStockTradeForm(
+  accountId: number | undefined,
+  stockCode: string,
+  stockName: string,
   side: StockTradeSide,
   currentPrice: number,
   changeRate: number,
-  demo: StockTradeDemo,
+  availableCash: number,
+  availableQuantity: number,
+  isRegularMarket: boolean,
 ) {
   const [priceMode, setPriceMode] = useState<StockPriceMode>("limit");
   const [priceInput, setPriceInput] = useState(String(currentPrice));
@@ -42,10 +51,12 @@ export function useStockTradeForm(
   const maxQuantity =
     side === "buy"
       ? price > 0
-        ? Math.floor(demo.availableCash / price)
+        ? Math.floor(availableCash / price)
         : 0
-      : demo.availableQuantity;
+      : availableQuantity;
   const canSubmit = price > 0 && quantity > 0;
+
+  const createOrderMutation = useCreateOrderMutation(accountId);
 
   function showPriceError(message: string) {
     setPriceError(message);
@@ -114,7 +125,42 @@ export function useStockTradeForm(
   }
   function submit() {
     if (!canSubmit) return;
-    setResult(getDemoTradeResult({ side, priceMode, price, quantity, demo }));
+    createOrderMutation.mutate(
+      {
+        stock_code: stockCode,
+        stock_name: stockName,
+        order_side: side,
+        order_type: priceMode === "market" ? "market" : "limit",
+        limit_price: priceMode === "market" ? null : price,
+        quantity,
+      },
+      {
+        onSuccess: (data) => {
+          const isFilled = data.order_status === "executed";
+          setResult({
+            type: "success",
+            price: isFilled
+              ? (data.executions[0]?.execution_price ?? price)
+              : price,
+            quantity: data.quantity,
+            priceMode,
+            pendingNextSession: !isFilled && !isRegularMarket,
+          });
+        },
+        onError: (error) => {
+          if (isInsufficientCashError(error)) {
+            const shortfall = price * quantity - availableCash;
+            setResult({ type: "insufficient-cash", shortfall });
+            return;
+          }
+          if (isInsufficientSharesError(error)) {
+            setResult({ type: "insufficient-shares" });
+            return;
+          }
+          toast.error("주문을 접수하지 못했어요. 다시 시도해 주세요.");
+        },
+      },
+    );
   }
   return {
     priceMode,

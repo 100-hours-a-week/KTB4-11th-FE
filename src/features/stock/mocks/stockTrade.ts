@@ -8,14 +8,9 @@ function isRegularMarketHours(now = new Date()): boolean {
   return minutes >= 9 * 60 && minutes <= 15 * 60 + 30;
 }
 
-// TODO: 주문 API 연동 시 계좌별 주문 가능 금액·수량 및 실시간 호가로 교체
-export function getStockTradeDemo(
-  price: number,
-  hasHolding: boolean,
-): StockTradeDemo {
+// TODO: 시세/호가 실시간 연동 시 교체 (별도 이슈)
+export function getStockTradeDemo(price: number): StockTradeDemo {
   return {
-    availableCash: 1_240_000,
-    availableQuantity: hasHolding ? 4 : 0,
     isRegularMarket: isRegularMarketHours(),
     quotes: Array.from({ length: 11 }, (_, index) => ({
       price: price + (5 - index) * 500,
