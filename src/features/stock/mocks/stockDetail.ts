@@ -1,9 +1,6 @@
-import type { Trade } from "@/shared/types/trade";
 import type {
   OrderBook,
-  PendingOrder,
   StockDetailInfo,
-  StockHolding,
 } from "@/features/stock/types/stockDetail";
 
 // TODO : 종목 상세 API 연동 시 제거 (별도 이슈)
@@ -25,8 +22,6 @@ export const DEMO_STOCK_INFO: Record<string, StockDetailInfo> = {
     isFavorite: false,
   },
 };
-
-export const DEMO_HOLDING_STOCK_CODES = new Set(["035420"]);
 
 export const DEMO_ORDER_BOOK: OrderBook = {
   asks: [
@@ -53,56 +48,3 @@ export const DEMO_ORDER_BOOK: OrderBook = {
   lowerLimitPrice: 156_500,
   lowerLimitChangeRate: -29.98,
 };
-
-export const DEMO_HOLDING: StockHolding = {
-  valuationAmount: 886_000,
-  returnPercent: -0.7,
-  quantity: 4,
-  avgPrice: 223_000,
-};
-
-export const DEMO_PENDING_ORDERS: PendingOrder[] = [
-  {
-    orderId: 1,
-    side: "구매 예약",
-    date: "2026.08.25 09:41",
-    quantity: 3,
-    price: 220_000,
-  },
-  {
-    orderId: 2,
-    side: "판매 예약",
-    date: "2026.08.25 10:02",
-    quantity: 1,
-    price: 225_000,
-  },
-];
-
-export const DEMO_ORDER_HISTORY: Trade[] = [
-  {
-    tradeId: 101,
-    stockName: "NAVER",
-    tradeDate: "2026.08.26 09:32",
-    tradeSide: "매수",
-    quantity: 2,
-    price: 223_000,
-  },
-  {
-    tradeId: 102,
-    stockName: "NAVER",
-    tradeDate: "2026.08.20 10:15",
-    tradeSide: "매수",
-    quantity: 3,
-    price: 221_000,
-  },
-  {
-    tradeId: 103,
-    stockName: "NAVER",
-    tradeDate: "2026.08.18 13:47",
-    tradeSide: "매도",
-    quantity: 1,
-    price: 219_500,
-    realizedProfit: -1_500,
-    profitRate: -0.7,
-  },
-];
