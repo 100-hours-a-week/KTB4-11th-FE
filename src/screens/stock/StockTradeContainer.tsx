@@ -4,16 +4,16 @@ import { formatKoreanWon } from "@/shared/utils/formatKoreanWon";
 import { useMemo } from "react";
 import { cn } from "@/shared/utils/cn";
 import { useRouter } from "next/navigation";
+import { useAccountDetailQuery } from "@/features/account/hooks/useAccountDetailQuery";
+import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { NumberKeypad } from "@/features/stock/components/trade/NumberKeypad";
 import { StockTradeOrderBook } from "@/features/stock/components/trade/StockTradeOrderBook";
 import { StockTradePriceInput } from "@/features/stock/components/trade/StockTradePriceInput";
 import { StockTradeQuantityInput } from "@/features/stock/components/trade/StockTradeQuantityInput";
 import { StockTradeResultSheet } from "@/features/stock/components/trade/StockTradeResultSheet";
+import { useStockHoldingQuery } from "@/features/stock/hooks/useStockHoldingQuery";
 import { useStockTradeForm } from "@/features/stock/hooks/useStockTradeForm";
-import {
-  DEMO_HOLDING_STOCK_CODES,
-  DEMO_STOCK_INFO,
-} from "@/features/stock/mocks/stockDetail";
+import { DEMO_STOCK_INFO } from "@/features/stock/mocks/stockDetail";
 import { getStockTradeDemo } from "@/features/stock/mocks/stockTrade";
 import type { StockTradeSide } from "@/features/stock/types/stockTrade";
 import { Button } from "@/shared/components/Button";
@@ -31,20 +31,34 @@ interface StockTradeContainerProps {
 export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
   const router = useRouter();
   const stock = DEMO_STOCK_INFO[code] ?? DEMO_STOCK_INFO["035420"];
-  const demo = useMemo(
-    () =>
-      getStockTradeDemo(
-        stock.price,
-        DEMO_HOLDING_STOCK_CODES.has(stock.stockCode),
-      ),
-    [stock.price, stock.stockCode],
+
+  const accountId = useSelectedAccountId();
+  const { data: accountDetail } = useAccountDetailQuery(accountId);
+  const { data: holdingData } = useStockHoldingQuery(
+    accountId,
+    stock.stockCode,
   );
-  const form = useStockTradeForm(side, stock.price, stock.changeRate, demo);
+  const availableCash = accountDetail?.available_cash ?? 0;
+  const availableQuantity = holdingData?.quantity ?? 0;
+
+  // TODO: 시세/호가 실시간 연동 시 교체 (별도 이슈)
+  const demo = useMemo(() => getStockTradeDemo(stock.price), [stock.price]);
+  const form = useStockTradeForm(
+    accountId,
+    stock.stockCode,
+    stock.name,
+    side,
+    stock.price,
+    stock.changeRate,
+    availableCash,
+    availableQuantity,
+    demo.isRegularMarket,
+  );
   const action = side === "buy" ? "구매" : "판매";
   const { colorClass } = getReturnRateInfo(stock.changeRate);
   const availability =
     side === "buy"
-      ? `구매가능 ${demo.availableCash.toLocaleString()}원${form.priceMode === "market" ? "" : ` · 최대 ${form.maxQuantity.toLocaleString()}주`}`
+      ? `구매가능 ${availableCash.toLocaleString()}원${form.priceMode === "market" ? "" : ` · 최대 ${form.maxQuantity.toLocaleString()}주`}`
       : `판매가능 최대 ${form.maxQuantity.toLocaleString()}주`;
   const quantityDescription =
     form.quantity > 0

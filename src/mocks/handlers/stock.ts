@@ -103,9 +103,15 @@ const MAX_BY_TYPE: Record<RankingApiType, number> = {
   POPULAR: 20,
 };
 
-const favoriteItems = new Map<string, WatchlistItem>();
+// 종목 상세 화면에서 쓰는 실제 종목 코드 (랭킹 목록의 합성 코드와 구분)
+const REAL_STOCK_CODES: Record<string, StockPoolEntry> = {
+  "035420": STOCK_POOL[5], // NAVER
+  "005930": STOCK_POOL[0], // 삼성전자
+};
 
 function resolveStockPoolEntry(stockCode: string): StockPoolEntry | null {
+  if (stockCode in REAL_STOCK_CODES) return REAL_STOCK_CODES[stockCode];
+
   const lastDash = stockCode.lastIndexOf("-");
   if (lastDash === -1) return null;
 
@@ -114,6 +120,19 @@ function resolveStockPoolEntry(stockCode: string): StockPoolEntry | null {
 
   return STOCK_POOL[index % STOCK_POOL.length];
 }
+
+const favoriteItems = new Map<string, WatchlistItem>([
+  [
+    "035420",
+    {
+      stock_code: "035420",
+      stock_name: "NAVER",
+      sector: "플랫폼",
+      current_price: 221_500,
+      price_change_percent: -0.8,
+    },
+  ],
+]);
 
 function buildRankingItems(type: RankingApiType): RankingApiItem[] {
   const total = MAX_BY_TYPE[type];

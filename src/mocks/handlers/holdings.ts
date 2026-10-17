@@ -3,8 +3,9 @@ import type {
   HoldingApiItem,
   HoldingsResponse,
 } from "@/features/account/types/holdingStock";
+import type { StockHoldingResponse } from "@/features/stock/types/stockDetail";
 
-const HOLDINGS: HoldingApiItem[] = [
+export const HOLDINGS: HoldingApiItem[] = [
   {
     stock_code: "005930",
     stock_name: "삼성전자",
@@ -65,6 +66,30 @@ export const holdingsHandlers: HttpHandler[] = [
         message: "success",
         account_id: 1,
         holdings: sortHoldings(HOLDINGS, sort),
+      });
+    },
+  ),
+
+  http.get(
+    "*/api/v1/accounts/:accountId/holdings/:stockCode",
+    async ({ params }) => {
+      const stockCode = String(params.stockCode);
+      const holding = HOLDINGS.find((item) => item.stock_code === stockCode);
+
+      return HttpResponse.json<StockHoldingResponse>({
+        message: "success",
+        account_id: Number(params.accountId),
+        stock_code: stockCode,
+        stock_name: holding?.stock_name ?? stockCode,
+        is_held: holding !== undefined,
+        quantity: holding?.quantity ?? 0,
+        total_cost: holding?.total_cost_basis ?? 0,
+        average_purchase_price: holding?.average_purchase_price ?? 0,
+        current_price: holding?.current_price ?? 0,
+        total_value: holding?.total_value ?? 0,
+        unrealized_pnl: holding?.unrealized_pnl ?? 0,
+        return_percent: holding?.return_percent ?? 0,
+        fetched_at: new Date().toISOString(),
       });
     },
   ),
