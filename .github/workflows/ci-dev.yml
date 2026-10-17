@@ -13,18 +13,17 @@ on:
     paths-ignore: # 문서 변경 시에는 CI를 진행하지 않는다
       - "**/*.md"
       - "docs/**"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
-# dev에 새로운 push가 오면 이전 CI는 취소하고 최신 코드만 검사한다
-concurrency:
-  group: fe-dev-ci-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   test-build:
     runs-on: ubuntu-26.04
+    concurrency:
+      group: fe-dev-ci-${{ github.ref }}
+      cancel-in-progress: true
 
     steps:
       # 1. CI Runner에 Repo의 코드를 가져온다
@@ -122,4 +121,14 @@ jobs:
     uses: ./.github/workflows/cd-dev.yml
     with:
       image_tag: ${{ github.sha }}
+    secrets: inherit
+
+  deploy-v2-prod:
+    name: Publish and deploy V2 production frontend
+    needs: test-build
+    if: github.ref == 'refs/heads/dev' && github.event_name != 'pull_request'
+    uses: ./.github/workflows/cd-v2-prod.yml
+    permissions:
+      contents: read
+      id-token: write
     secrets: inherit
