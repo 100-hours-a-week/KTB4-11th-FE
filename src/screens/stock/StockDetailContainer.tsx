@@ -4,9 +4,7 @@ import { toast } from "sonner";
 import { cn } from "@/shared/utils/cn";
 import {
   DEMO_STOCK_INFO,
-  DEMO_HOLDING_STOCK_CODES,
   DEMO_ORDER_BOOK,
-  DEMO_HOLDING,
   DEMO_PENDING_ORDERS,
   DEMO_ORDER_HISTORY,
 } from "@/features/stock/mocks/stockDetail";
@@ -14,6 +12,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
+import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { StockChartPlaceholder } from "@/features/stock/components/StockChartPlaceholder";
 import { StockDetailTabs } from "@/features/stock/components/StockDetailTabs";
 import { StockHoldingSummary } from "@/features/stock/components/StockHoldingSummary";
@@ -23,11 +22,13 @@ import { StockOrderHistoryList } from "@/features/stock/components/StockOrderHis
 import { StockPendingOrderList } from "@/features/stock/components/StockPendingOrderList";
 import { StockPriceSummary } from "@/features/stock/components/StockPriceSummary";
 import { StockTradeButtons } from "@/features/stock/components/StockTradeButtons";
+import { useStockHoldingQuery } from "@/features/stock/hooks/useStockHoldingQuery";
 import {
   STOCK_DETAIL_TABS_WITH_HOLDING,
   STOCK_DETAIL_TABS_WITHOUT_HOLDING,
   type StockDetailTab,
 } from "@/features/stock/types/stockDetail";
+import { toStockHolding } from "@/features/stock/utils/toStockHolding";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 
 interface StockDetailContainerProps {
@@ -41,10 +42,18 @@ export function StockDetailContainer({
 }: StockDetailContainerProps) {
   const router = useRouter();
   const stockInfo = DEMO_STOCK_INFO[code] ?? DEMO_STOCK_INFO["035420"];
-  const hasHolding = DEMO_HOLDING_STOCK_CODES.has(stockInfo.stockCode);
+
+  const accountId = useSelectedAccountId();
+  const { data: holdingData } = useStockHoldingQuery(
+    accountId,
+    stockInfo.stockCode,
+  );
+  const hasHolding = holdingData?.is_held ?? false;
+  const holding = holdingData ? toStockHolding(holdingData) : undefined;
+
+  const [pendingOrders, setPendingOrders] = useState(DEMO_PENDING_ORDERS);
 
   const [isFavorite, setIsFavorite] = useState(stockInfo.isFavorite);
-  const [pendingOrders, setPendingOrders] = useState(DEMO_PENDING_ORDERS);
   const tabs = hasHolding
     ? STOCK_DETAIL_TABS_WITH_HOLDING
     : STOCK_DETAIL_TABS_WITHOUT_HOLDING;
@@ -95,9 +104,9 @@ export function StockDetailContainer({
       >
         {tab === "차트" && <StockChartPlaceholder />}
         {tab === "호가" && <StockOrderBook orderBook={DEMO_ORDER_BOOK} />}
-        {tab === "내 주식" && hasHolding && (
+        {tab === "내 주식" && hasHolding && holding && (
           <div className="flex flex-col gap-4 px-5 pt-4">
-            <StockHoldingSummary holding={DEMO_HOLDING} />
+            <StockHoldingSummary holding={holding} />
             <StockPendingOrderList
               orders={pendingOrders}
               onCancel={(orderId) => {
