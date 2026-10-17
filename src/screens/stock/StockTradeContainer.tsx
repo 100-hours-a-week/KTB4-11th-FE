@@ -17,6 +17,7 @@ import { useStockInfoQuery } from "@/features/stock/hooks/useStockInfoQuery";
 import { useStockTradeForm } from "@/features/stock/hooks/useStockTradeForm";
 import { getStockTradeDemo } from "@/features/stock/mocks/stockTrade";
 import type { StockTradeSide } from "@/features/stock/types/stockTrade";
+import { AnimatedPriceText } from "@/shared/components/AnimatedPriceText";
 import { Button } from "@/shared/components/Button";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import {
@@ -99,9 +100,10 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
           <span className="caption-1-regular text-text-neutral-secondary">
             {stockName}
           </span>
-          <span className={cn("body-2-semibold", colorClass)}>
-            {price.toLocaleString()}원 {formatSignedPercent(changeRate)}
-          </span>
+          <AnimatedPriceText
+            className={cn("body-2-semibold", colorClass)}
+            text={`${price.toLocaleString()}원 ${formatSignedPercent(changeRate)}`}
+          />
         </div>
       </div>
 
