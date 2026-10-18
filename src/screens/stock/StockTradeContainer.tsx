@@ -1,7 +1,6 @@
 "use client";
 
 import { formatKoreanWon } from "@/shared/utils/formatKoreanWon";
-import { useMemo } from "react";
 import { cn } from "@/shared/utils/cn";
 import { useRouter } from "next/navigation";
 import { useAccountDetailQuery } from "@/features/account/hooks/useAccountDetailQuery";
@@ -11,12 +10,14 @@ import { StockTradeOrderBook } from "@/features/stock/components/trade/StockTrad
 import { StockTradePriceInput } from "@/features/stock/components/trade/StockTradePriceInput";
 import { StockTradeQuantityInput } from "@/features/stock/components/trade/StockTradeQuantityInput";
 import { StockTradeResultSheet } from "@/features/stock/components/trade/StockTradeResultSheet";
+import { useMarketOrderBook } from "@/features/stock/hooks/useMarketOrderBook";
 import { useMarketPrice } from "@/features/stock/hooks/useMarketPrice";
 import { useStockHoldingQuery } from "@/features/stock/hooks/useStockHoldingQuery";
 import { useStockInfoQuery } from "@/features/stock/hooks/useStockInfoQuery";
 import { useStockTradeForm } from "@/features/stock/hooks/useStockTradeForm";
-import { getStockTradeDemo } from "@/features/stock/mocks/stockTrade";
 import type { StockTradeSide } from "@/features/stock/types/stockTrade";
+import { isRegularMarketHours } from "@/features/stock/utils/marketHours";
+import { toOrderBook } from "@/features/stock/utils/toOrderBook";
 import { AnimatedPriceText } from "@/shared/components/AnimatedPriceText";
 import { Button } from "@/shared/components/Button";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
@@ -45,8 +46,7 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
   const availableCash = accountDetail?.available_cash ?? 0;
   const availableQuantity = holdingData?.quantity ?? 0;
 
-  // TODO: 호가 실시간 연동 시 교체 (별도 이슈)
-  const demo = useMemo(() => getStockTradeDemo(price), [price]);
+  const isRegularMarket = isRegularMarketHours();
   const form = useStockTradeForm(
     accountId,
     code,
@@ -56,8 +56,14 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
     changeRate,
     availableCash,
     availableQuantity,
-    demo.isRegularMarket,
+    isRegularMarket,
   );
+
+  const { orderBook: marketOrderBook, isLoading: isOrderBookLoading } =
+    useMarketOrderBook(form.inputMode === "orderbook" ? code : undefined);
+  const orderBook =
+    marketOrderBook &&
+    toOrderBook(marketOrderBook, price, changeRate, isRegularMarket);
   const action = side === "buy" ? "구매" : "판매";
   const { colorClass } = getReturnRateInfo(changeRate);
   const availability =
@@ -114,7 +120,7 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
           price={form.price}
           priceError={form.priceError}
           showAdjust={form.field === "price"}
-          isRegularMarket={demo.isRegularMarket}
+          isRegularMarket={isRegularMarket}
           onModeChange={form.selectPriceMode}
           onFocus={() => form.selectField("price")}
           onChange={(value) => form.changeInput("price", value)}
@@ -127,15 +133,22 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
           onFocus={() => form.selectField("quantity")}
           onChange={(value) => form.changeInput("quantity", value)}
         />
-        {form.inputMode === "orderbook" && (
-          <StockTradeOrderBook
-            quotes={demo.quotes}
-            selectedPrice={form.price}
-            currentPrice={price}
-            changeRate={changeRate}
-            onSelect={form.selectQuote}
-          />
-        )}
+        {form.inputMode === "orderbook" &&
+          (orderBook ? (
+            <StockTradeOrderBook
+              orderBook={orderBook}
+              selectedPrice={form.price}
+              onSelect={form.selectQuote}
+            />
+          ) : (
+            <div className="flex min-h-32 flex-1 items-center justify-center">
+              <span className="caption-1-regular text-text-neutral-tertiary">
+                {isOrderBookLoading
+                  ? "호가를 불러오는 중이에요"
+                  : "장이 열리면 호가를 확인할 수 있어요"}
+              </span>
+            </div>
+          ))}
       </div>
       <div className="shrink-0 pt-3 pb-[max(24px,env(safe-area-inset-bottom))]">
         {form.inputMode === "number" && (
