@@ -9,6 +9,19 @@ export const Sheet = Dialog.Root;
 export const SheetTrigger = Dialog.Trigger;
 export const SheetClose = Dialog.Close;
 
+export function SheetHandle({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      aria-hidden="true"
+      className={cn(
+        "bg-bg-neutral-tertiary mx-auto h-1 w-9 rounded-full",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
 function SheetOverlay() {
   return (
     <Dialog.Overlay className="bg-bg-layer-overlay data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 backdrop-blur-overlay absolute inset-0 z-50 ease-out data-[state=closed]:duration-300 data-[state=open]:duration-500" />
