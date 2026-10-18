@@ -49,7 +49,7 @@ function OrderBookLimitRow({
         className={cn(
           "border-border-neutral-muted col-start-2 flex flex-col items-center gap-2 border-x",
           labelBelow && "flex-col-reverse",
-          compact ? "py-4" : labelBelow ? "pt-5 pb-14" : "pt-36 pb-5",
+          "py-4",
         )}
       >
         <span className={cn("caption-1-semibold", colorClass)}>{label}</span>
