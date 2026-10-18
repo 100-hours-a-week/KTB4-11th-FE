@@ -3,7 +3,7 @@ export function appendTradeDigit(value: string, key: string): string {
   return digits.slice(0, 9);
 }
 
-// TODO: 종목 시세 API 연동 시 실제 상·하한가로 교체
+// market 서비스가 상·하한가를 따로 제공하지 않아 KRX 가격제한폭(전일종가 ±30%) 공식으로 직접 계산
 export function getPriceLimits(currentPrice: number, changeRate: number) {
   const previousClose = currentPrice / (1 + changeRate / 100);
   return {
