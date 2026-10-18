@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import type { HoldingStock } from "@/features/account/types/holdingStock";
 import { cn } from "@/shared/utils/cn";
 import {
@@ -5,9 +8,10 @@ import {
   getReturnRateInfo,
 } from "@/shared/utils/getReturnRateInfo";
 
-type HoldingStockItemProps = Omit<HoldingStock, "id">;
+type HoldingStockItemProps = HoldingStock;
 
 export function HoldingStockItem({
+  id,
   name,
   category,
   quantity,
@@ -16,10 +20,14 @@ export function HoldingStockItem({
   profitAmount,
   changeRate,
 }: HoldingStockItemProps) {
+  const router = useRouter();
   const { sign, colorClass } = getReturnRateInfo(changeRate);
 
   return (
-    <div className="bg-bg-layer-default flex items-center justify-between rounded-2xl px-4 py-3">
+    <div
+      onClick={() => router.push(`/stock/${id}`)}
+      className="bg-bg-layer-default flex items-center justify-between rounded-2xl px-4 py-3"
+    >
       <div className="flex items-center gap-3">
         <span className="border-border-neutral-tertiary size-10 rounded-full border border-dashed" />
         <div className="flex flex-col gap-1">
