@@ -5,6 +5,7 @@ import {
 } from "@/shared/utils/getReturnRateInfo";
 
 interface StockPriceSummaryProps {
+  comparisonLabel?: string;
   name: string;
   price: number;
   changeAmount: number;
@@ -12,6 +13,7 @@ interface StockPriceSummaryProps {
 }
 
 export function StockPriceSummary({
+  comparisonLabel = "어제보다",
   name,
   price,
   changeAmount,
@@ -27,7 +29,7 @@ export function StockPriceSummary({
         text={`${price.toLocaleString()}원`}
       />
       <span className="body-2-medium text-text-neutral-secondary flex items-baseline gap-1">
-        어제보다
+        {comparisonLabel}
         <AnimatedPriceText
           className={colorClass}
           text={`${changeAmount >= 0 ? "+" : ""}${changeAmount.toLocaleString()}원 (${formatSignedPercent(changeRate)})`}
