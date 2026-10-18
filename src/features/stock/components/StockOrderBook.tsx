@@ -167,16 +167,16 @@ export function StockOrderBook({
   const scrollRef = useRef<HTMLDivElement>(null);
   const selectable = Boolean(onPriceSelect);
   useEffect(() => {
-    if (!selectable) return;
     const element = scrollRef.current;
     const current = element?.querySelector<HTMLElement>("[data-current-price]");
     if (element && current)
       element.scrollTop =
-        current.offsetTop -
-        element.offsetTop -
+        element.scrollTop +
+        current.getBoundingClientRect().top -
+        element.getBoundingClientRect().top -
         element.clientHeight / 2 +
         current.offsetHeight / 2;
-  }, [orderBook.currentPrice, selectable]);
+  }, [orderBook.currentPrice, orderBook.asks.length, orderBook.bids.length]);
   const maxQuantity = Math.max(
     1,
     currentQuantity,

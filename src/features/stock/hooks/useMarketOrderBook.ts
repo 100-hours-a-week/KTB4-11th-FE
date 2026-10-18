@@ -24,7 +24,13 @@ export function useMarketOrderBook(stockCode?: string) {
     "orderbook",
   );
 
-  const raw = liveOrderBook ?? initialOrderBook;
+  // SSE 훅은 url이 바뀌어도 이전 데이터를 즉시 비우지 않으므로,
+  // 종목 전환 직후 한 프레임 동안 이전 종목 데이터가 섞이지 않도록 code로 직접 검증
+  // 호가가 비어있는 응답(장 마감 등)은 "현재 유효한 데이터 없음"으로 취급
+  const liveForStock = liveOrderBook?.code === stockCode ? liveOrderBook : null;
+  const initialForStock =
+    initialOrderBook?.code === stockCode ? initialOrderBook : null;
+  const raw = liveForStock ?? initialForStock;
   const hasLevels = raw && (raw.asks.length > 0 || raw.bids.length > 0);
   const current = raw?.code === stockCode && hasLevels ? raw : null;
 
