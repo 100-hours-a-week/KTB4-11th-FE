@@ -26,7 +26,7 @@ export function HoldingStockItem({
   return (
     <div
       onClick={() => router.push(`/stock/${id}`)}
-      className="bg-bg-layer-default flex items-center justify-between rounded-2xl px-4 py-3"
+      className="bg-bg-layer-default flex cursor-pointer items-center justify-between rounded-2xl px-4 py-3"
     >
       <div className="flex items-center gap-3">
         <span className="border-border-neutral-tertiary size-10 rounded-full border border-dashed" />

@@ -30,7 +30,7 @@ export function RankingItem({
   return (
     <div
       onClick={() => router.push(`/stock/${stockCode}`)}
-      className="bg-bg-layer-default flex items-center gap-3 rounded-2xl px-3 py-2.5"
+      className="bg-bg-layer-default flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-2.5"
     >
       {rank !== undefined && (
         <span className="body-2-semibold text-text-neutral-primary w-4 text-center">
