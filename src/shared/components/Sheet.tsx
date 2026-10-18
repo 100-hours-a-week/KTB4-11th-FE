@@ -11,7 +11,7 @@ export const SheetClose = Dialog.Close;
 
 function SheetOverlay() {
   return (
-    <Dialog.Overlay className="bg-bg-layer-overlay data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 backdrop-blur-overlay absolute inset-0 ease-out data-[state=closed]:duration-300 data-[state=open]:duration-500" />
+    <Dialog.Overlay className="bg-bg-layer-overlay data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 backdrop-blur-overlay absolute inset-0 z-50 ease-out data-[state=closed]:duration-300 data-[state=open]:duration-500" />
   );
 }
 
@@ -39,7 +39,7 @@ export function SheetContent({
   return (
     <Dialog.Content
       className={cn(
-        "bg-bg-layer-floating data-[state=closed]:animate-out data-[state=open]:animate-in absolute inset-x-0 max-h-[90%] w-full ease-out data-[state=closed]:duration-100 data-[state=open]:duration-500",
+        "bg-bg-layer-floating data-[state=closed]:animate-out data-[state=open]:animate-in absolute inset-x-0 z-50 max-h-[90%] w-full ease-out data-[state=closed]:duration-100 data-[state=open]:duration-500",
         side === "bottom" &&
           "rounded-t-r4 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom bottom-0",
         side === "top" &&
