@@ -9,7 +9,9 @@ import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
 import { useOrdersQuery } from "@/features/ai/hooks/useOrdersQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
-import { StockChartPlaceholder } from "@/features/stock/components/StockChartPlaceholder";
+import { useStockChart } from "@/features/stock/hooks/useStockChart";
+import { StockChartSelectionSummary } from "@/features/stock/components/chart/StockChartSelectionSummary";
+import { StockChart } from "@/features/stock/components/chart/StockChart";
 import { StockDetailTabs } from "@/features/stock/components/StockDetailTabs";
 import { StockHoldingSummary } from "@/features/stock/components/StockHoldingSummary";
 import { StockOrderBook } from "@/features/stock/components/StockOrderBook";
@@ -51,6 +53,8 @@ export function StockDetailContainer({
   const price = marketPrice?.price ?? stockInfo?.current_price ?? 0;
   const changeAmount = marketPrice?.change ?? stockInfo?.price_change ?? 0;
   const changeRate = marketPrice?.rate ?? stockInfo?.price_change_percent ?? 0;
+
+  const chart = useStockChart(code, price, changeAmount);
 
   const accountId = useSelectedAccountId();
   const { data: holdingData } = useStockHoldingQuery(accountId, code);
@@ -122,13 +126,38 @@ export function StockDetailContainer({
         }
       />
 
-      <StockPriceSummary
-        name={name}
-        price={price}
-        changeAmount={changeAmount}
-        changeRate={changeRate}
-      />
-
+      <div className="relative">
+        {tab === "차트" && chart.detailed && chart.selection && (
+          <div className="absolute inset-x-3 top-0 z-20">
+            <StockChartSelectionSummary
+              granularity={chart.granularity}
+              name={name}
+              selection={chart.selection}
+              currentPrice={price}
+              previousClose={price - changeAmount}
+            />
+          </div>
+        )}
+        <StockPriceSummary
+          name={name}
+          price={price}
+          changeAmount={
+            tab === "차트" && !chart.detailed && chart.bars.length
+              ? chart.changeAmount
+              : changeAmount
+          }
+          changeRate={
+            tab === "차트" && !chart.detailed && chart.bars.length
+              ? chart.changeRate
+              : changeRate
+          }
+          comparisonLabel={
+            tab === "차트" && !chart.detailed
+              ? chart.comparisonLabel
+              : "어제보다"
+          }
+        />
+      </div>
       <div className="mt-4">
         <StockDetailTabs tabs={tabs} value={tab} onChange={setTab} />
       </div>
@@ -139,7 +168,7 @@ export function StockDetailContainer({
           tab !== "호가" && "pb-4",
         )}
       >
-        {tab === "차트" && <StockChartPlaceholder />}
+        {tab === "차트" && <StockChart model={chart} />}
         {tab === "호가" && <StockOrderBook orderBook={DEMO_ORDER_BOOK} />}
         {tab === "내 주식" && hasHolding && holding && (
           <div className="flex flex-col gap-4 px-5 pt-4">

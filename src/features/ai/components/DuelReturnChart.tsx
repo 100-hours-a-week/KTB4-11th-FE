@@ -8,13 +8,13 @@ import {
   type MouseEventParams,
   type Time,
 } from "lightweight-charts";
-import { useChartTooltip } from "@/features/ai/hooks/useChartTooltip";
+import { useChartTooltip } from "@/shared/hooks/useChartTooltip";
 import {
   createBaseChartOptions,
   formatTooltipDate,
   resolveCssColor,
   toUnixTime,
-} from "@/features/ai/utils/chartFormat";
+} from "@/shared/utils/chartFormat";
 import { cn } from "@/shared/utils/cn";
 import { formatSignedPercent } from "@/shared/utils/getReturnRateInfo";
 
