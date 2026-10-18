@@ -1,10 +1,6 @@
 import { useCallback, useRef } from "react";
 
-/**
- * 크로스헤어로 움직일 때 커스텀 차트 툴팁의 표시/위치 계산을 담당.
- * 스냅된 지점(time)이 바뀔 때만 updateContent + 위치 재계산을 하고,
- * 같은 지점 안에서는 캐시된 위치만 재사용해 강제 리플로우를 피한다.
- */
+// 차트 툴팁 표시와 위치 관리. 선택 지점이 같으면 기존 위치 재사용
 export function useChartTooltip<T>() {
   const tooltipRef = useRef<HTMLDivElement>(null);
   const lastTimeRef = useRef<T | null>(null);

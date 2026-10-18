@@ -24,10 +24,7 @@ export function resolveCssColor(cssVar: string) {
   return resolved || cssVar;
 }
 
-/**
- * 두 대결 차트(DuelReturnChart, DuelCompareReturnChart)가 공통으로 쓰는
- * 차트 기본 옵션. crosshair는 차트마다 달라서 호출하는 쪽에서 직접 추가한다.
- */
+// 공통 차트 기본 설정 (십자선 옵션은 사용하는 차트에서 지정)
 export function createBaseChartOptions(
   tertiaryColor: string,
 ): Omit<DeepPartial<ChartOptions>, "crosshair"> {
