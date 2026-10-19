@@ -16,7 +16,9 @@ export default async function StockDetailPage({
     <StockDetailContainer
       key={`${code}-${tab ?? "chart"}`}
       code={code}
-      initialTab={tab === "holding" ? "내 주식" : "차트"}
+      initialTab={
+        tab === "holding" ? "내 주식" : tab === "orderbook" ? "호가" : "차트"
+      }
     />
   );
 }
