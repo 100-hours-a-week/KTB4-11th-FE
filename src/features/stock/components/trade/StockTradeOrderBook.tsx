@@ -1,61 +1,26 @@
 import { StockOrderBook } from "@/features/stock/components/StockOrderBook";
 import type { OrderBook } from "@/features/stock/types/stockDetail";
-import type { StockTradeQuote } from "@/features/stock/types/stockTrade";
-import { getPriceLimits } from "@/features/stock/utils/stockTrade";
 
 interface StockTradeOrderBookProps {
-  quotes: StockTradeQuote[];
+  orderBook: OrderBook;
   selectedPrice: number;
-  currentPrice: number;
-  changeRate: number;
   onSelect: (price: number) => void;
 }
 
-/** 매매 화면의 호가 데이터를 기존 호가창의 입력 형태로 전달 */
+// 매매 화면의 호가 선택기 — 종목 상세의 호가창과 동일한 데이터·컴포넌트를 재사용
 export function StockTradeOrderBook({
-  quotes,
+  orderBook,
   selectedPrice,
-  currentPrice,
-  changeRate,
   onSelect,
 }: StockTradeOrderBookProps) {
-  const previousClose = currentPrice / (1 + changeRate / 100);
-  const { upperLimitPrice, lowerLimitPrice } = getPriceLimits(
-    currentPrice,
-    changeRate,
+  const currentLevel = [...orderBook.asks, ...orderBook.bids].find(
+    (level) => level.price === orderBook.currentPrice,
   );
-  const toLevel = (quote: StockTradeQuote) => ({
-    price: quote.price,
-    quantity: quote.quantity,
-    changeRate: (quote.price / previousClose - 1) * 100,
-  });
-  const asks = quotes
-    .filter((quote) => quote.side === "ask" && quote.price !== currentPrice)
-    .map(toLevel)
-    .sort((a, b) => a.price - b.price);
-  const bids = quotes
-    .filter((quote) => quote.side === "bid" && quote.price !== currentPrice)
-    .map(toLevel)
-    .sort((a, b) => b.price - a.price);
-  const orderBook: OrderBook = {
-    asks,
-    bids,
-    currentPrice,
-    currentChangeRate: changeRate,
-    totalAskQuantity: 0,
-    totalBidQuantity: 0,
-    isRegularMarket: true,
-    upperLimitPrice,
-    upperLimitChangeRate: (upperLimitPrice / previousClose - 1) * 100,
-    lowerLimitPrice,
-    lowerLimitChangeRate: (lowerLimitPrice / previousClose - 1) * 100,
-  };
+
   return (
     <StockOrderBook
       orderBook={orderBook}
-      currentQuantity={
-        quotes.find((quote) => quote.price === currentPrice)?.quantity
-      }
+      currentQuantity={currentLevel?.quantity}
       selectedPrice={selectedPrice}
       onPriceSelect={onSelect}
       showChangeRate={false}

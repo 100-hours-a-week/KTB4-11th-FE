@@ -49,7 +49,7 @@ function OrderBookLimitRow({
         className={cn(
           "border-border-neutral-muted col-start-2 flex flex-col items-center gap-2 border-x",
           labelBelow && "flex-col-reverse",
-          compact ? "py-4" : labelBelow ? "pt-5 pb-14" : "pt-36 pb-5",
+          "py-4",
         )}
       >
         <span className={cn("caption-1-semibold", colorClass)}>{label}</span>
@@ -167,16 +167,16 @@ export function StockOrderBook({
   const scrollRef = useRef<HTMLDivElement>(null);
   const selectable = Boolean(onPriceSelect);
   useEffect(() => {
-    if (!selectable) return;
     const element = scrollRef.current;
     const current = element?.querySelector<HTMLElement>("[data-current-price]");
     if (element && current)
       element.scrollTop =
-        current.offsetTop -
-        element.offsetTop -
+        element.scrollTop +
+        current.getBoundingClientRect().top -
+        element.getBoundingClientRect().top -
         element.clientHeight / 2 +
         current.offsetHeight / 2;
-  }, [orderBook.currentPrice, selectable]);
+  }, [orderBook.currentPrice, orderBook.asks.length, orderBook.bids.length]);
   const maxQuantity = Math.max(
     1,
     currentQuantity,
@@ -190,12 +190,12 @@ export function StockOrderBook({
         ref={scrollRef}
         className="relative max-h-full overflow-y-auto px-5 pt-3"
       >
-        {showLimits && (
+        {showLimits && orderBook.upperLimitPrice !== undefined && (
           <OrderBookLimitRow
             label="상한가"
             compact={selectable}
             price={orderBook.upperLimitPrice}
-            changeRate={orderBook.upperLimitChangeRate}
+            changeRate={orderBook.upperLimitChangeRate ?? 0}
             showChangeRate={showChangeRate}
           />
         )}
@@ -238,13 +238,13 @@ export function StockOrderBook({
           />
         ))}
 
-        {showLimits && (
+        {showLimits && orderBook.lowerLimitPrice !== undefined && (
           <OrderBookLimitRow
             label="하한가"
             compact={selectable}
             labelBelow
             price={orderBook.lowerLimitPrice}
-            changeRate={orderBook.lowerLimitChangeRate}
+            changeRate={orderBook.lowerLimitChangeRate ?? 0}
             showChangeRate={showChangeRate}
           />
         )}

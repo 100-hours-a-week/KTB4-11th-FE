@@ -14,6 +14,7 @@ interface UseEventSourceResult<T> {
 export function useEventSource<T>(
   url: string | null,
   eventName: string,
+  merge?: (previous: T | null, incoming: T) => T,
 ): UseEventSourceResult<T> {
   const [data, setData] = useState<T | null>(null);
   const [connectionStatus, setConnectionStatus] =
@@ -34,7 +35,8 @@ export function useEventSource<T>(
 
     source.addEventListener(eventName, (event) => {
       try {
-        setData(JSON.parse((event as MessageEvent<string>).data) as T);
+        const incoming = JSON.parse((event as MessageEvent<string>).data) as T;
+        setData((previous) => (merge ? merge(previous, incoming) : incoming));
       } catch {
         // JSON이 아닌 메시지가 오면 무시하고 이전 data 그대로 유지 (앱이 죽지 않게)
       }
@@ -43,7 +45,7 @@ export function useEventSource<T>(
     return () => {
       source.close();
     };
-  }, [url, eventName]);
+  }, [url, eventName, merge]);
 
   const status: EventSourceStatus = url === null ? "idle" : connectionStatus;
 

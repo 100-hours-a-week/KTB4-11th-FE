@@ -2,7 +2,6 @@
 
 import { toast } from "sonner";
 import { cn } from "@/shared/utils/cn";
-import { DEMO_ORDER_BOOK } from "@/features/stock/mocks/stockDetail";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
@@ -21,6 +20,7 @@ import { StockPendingOrderList } from "@/features/stock/components/StockPendingO
 import { StockPriceSummary } from "@/features/stock/components/StockPriceSummary";
 import { StockTradeButtons } from "@/features/stock/components/StockTradeButtons";
 import { useCancelOrderMutation } from "@/features/stock/hooks/useCancelOrderMutation";
+import { useMarketOrderBook } from "@/features/stock/hooks/useMarketOrderBook";
 import { useMarketPrice } from "@/features/stock/hooks/useMarketPrice";
 import { useStockHoldingQuery } from "@/features/stock/hooks/useStockHoldingQuery";
 import { useStockInfoQuery } from "@/features/stock/hooks/useStockInfoQuery";
@@ -31,6 +31,8 @@ import {
   STOCK_DETAIL_TABS_WITHOUT_HOLDING,
   type StockDetailTab,
 } from "@/features/stock/types/stockDetail";
+import { isRegularMarketHours } from "@/features/stock/utils/marketHours";
+import { toOrderBook } from "@/features/stock/utils/toOrderBook";
 import { toPendingOrder } from "@/features/stock/utils/toPendingOrder";
 import { toStockHolding } from "@/features/stock/utils/toStockHolding";
 import { toStockTrade } from "@/features/stock/utils/toStockTrade";
@@ -89,6 +91,18 @@ export function StockDetailContainer({
   const [tab, setTab] = useState<StockDetailTab>(
     initialTab === "내 주식" && !hasHolding ? "차트" : initialTab,
   );
+
+  const { orderBook: marketOrderBook, isLoading: isOrderBookLoading } =
+    useMarketOrderBook(tab === "호가" ? code : undefined);
+  const orderBook =
+    marketOrderBook &&
+    toOrderBook(
+      marketOrderBook,
+      price,
+      changeRate,
+      isRegularMarketHours(),
+      marketPrice,
+    );
 
   const HeartIcon = isFavorite ? HeartFilledIcon : HeartOutlineIcon;
 
@@ -169,7 +183,18 @@ export function StockDetailContainer({
         )}
       >
         {tab === "차트" && <StockChart model={chart} />}
-        {tab === "호가" && <StockOrderBook orderBook={DEMO_ORDER_BOOK} />}
+        {tab === "호가" &&
+          (orderBook ? (
+            <StockOrderBook orderBook={orderBook} />
+          ) : (
+            <div className="flex h-70 items-center justify-center">
+              <span className="caption-1-regular text-text-neutral-tertiary">
+                {isOrderBookLoading
+                  ? "호가를 불러오는 중이에요"
+                  : "장이 열리면 호가를 확인할 수 있어요"}
+              </span>
+            </div>
+          ))}
         {tab === "내 주식" && hasHolding && holding && (
           <div className="flex flex-col gap-4 px-5 pt-4">
             <StockHoldingSummary holding={holding} />
@@ -200,8 +225,8 @@ export function StockDetailContainer({
             }}
           />
         )}
-        {tab === "호가" && (
-          <StockOrderBookWaitingBar orderBook={DEMO_ORDER_BOOK} />
+        {tab === "호가" && orderBook && (
+          <StockOrderBookWaitingBar orderBook={orderBook} />
         )}
         <StockTradeButtons
           showSell={hasHolding}

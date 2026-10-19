@@ -14,10 +14,7 @@ import type {
   StockTradeResult,
   StockTradeSide,
 } from "@/features/stock/types/stockTrade";
-import {
-  appendTradeDigit,
-  getPriceLimits,
-} from "@/features/stock/utils/stockTrade";
+import { appendTradeDigit } from "@/features/stock/utils/stockTrade";
 
 const PRICE_ERROR_DURATION_MS = 2000;
 
@@ -27,7 +24,8 @@ export function useStockTradeForm(
   stockName: string,
   side: StockTradeSide,
   currentPrice: number,
-  changeRate: number,
+  upperLimitPrice: number | undefined,
+  lowerLimitPrice: number | undefined,
   availableCash: number,
   availableQuantity: number,
   isRegularMarket: boolean,
@@ -47,10 +45,6 @@ export function useStockTradeForm(
   const [priceError, setPriceError] = useState<string | null>(null);
   const priceErrorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
-  );
-  const { upperLimitPrice, lowerLimitPrice } = getPriceLimits(
-    currentPrice,
-    changeRate,
   );
   const price = priceMode === "limit" ? Number(priceInput) : currentPrice;
   const quantity = Number(quantityInput);
@@ -74,13 +68,13 @@ export function useStockTradeForm(
     );
   }
   function clampPriceToLimits(value: number): number {
-    if (value > upperLimitPrice) {
+    if (upperLimitPrice !== undefined && value > upperLimitPrice) {
       showPriceError(
         `이 주식의 최대 가격은 ${upperLimitPrice.toLocaleString()}원이에요`,
       );
       return upperLimitPrice;
     }
-    if (value < lowerLimitPrice) {
+    if (lowerLimitPrice !== undefined && value < lowerLimitPrice) {
       showPriceError(
         `이 주식의 최소 가격은 ${lowerLimitPrice.toLocaleString()}원이에요`,
       );
@@ -136,6 +130,14 @@ export function useStockTradeForm(
   }
   function submit() {
     if (!canSubmit) return;
+    if (priceMode !== "market") {
+      const validatedPrice = clampPriceToLimits(price);
+      if (validatedPrice !== price) {
+        setPriceInput(String(validatedPrice));
+        setField("price");
+        return;
+      }
+    }
     createOrderMutation.mutate(
       {
         stock_code: stockCode,

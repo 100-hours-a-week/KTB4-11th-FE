@@ -3,17 +3,6 @@ export type StockPriceMode = "limit" | "current" | "market";
 export type StockTradeField = "price" | "quantity";
 export type StockTradeInputMode = "number" | "orderbook";
 
-export interface StockTradeQuote {
-  price: number;
-  quantity: number;
-  side: "ask" | "bid";
-}
-
-export interface StockTradeDemo {
-  isRegularMarket: boolean;
-  quotes: StockTradeQuote[];
-}
-
 export type StockTradeResult =
   | {
       type: "success";
