@@ -39,8 +39,17 @@ export interface Order {
   can_cancel: boolean;
 }
 
+export interface OrdersPagination {
+  page: number;
+  limit: number;
+  total_elements: number;
+  total_pages: number;
+  has_next: boolean;
+}
+
 export interface OrdersResponse {
   message: string;
   account_id: number;
+  pagination: OrdersPagination;
   orders: Order[];
 }
