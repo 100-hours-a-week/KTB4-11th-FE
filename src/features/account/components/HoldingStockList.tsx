@@ -38,7 +38,7 @@ export function HoldingStockList({
           <EmptyState
             icon={BasketFlusteredIcon}
             message="아직 보유한 종목이 없어요"
-            description="AI 매매가 체결되면 보유 종목이 여기 표시돼요"
+            description="매매가 체결되면 보유 종목이 여기 표시돼요"
           />
         </div>
       ) : (

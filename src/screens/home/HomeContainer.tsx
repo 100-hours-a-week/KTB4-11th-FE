@@ -15,10 +15,10 @@ import { useAccountDetailQuery } from "@/features/account/hooks/useAccountDetail
 import { useHoldingsQuery } from "@/features/account/hooks/useHoldingsQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { toHoldingStock } from "@/features/account/utils/toHoldingStock";
-import { RecentAiTradeSection } from "@/features/ai/components/RecentAiTradeSection";
+import { RecentTradeSection } from "@/features/stock/components/trade/RecentTradeSection";
 import { useOrdersQuery } from "@/features/ai/hooks/useOrdersQuery";
-import { toAiTrade } from "@/features/ai/utils/toAiTrade";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
+import { toStockTrade } from "@/features/stock/utils/toStockTrade";
 import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
 import { trackEvent } from "@/shared/utils/analytics";
@@ -47,7 +47,7 @@ export function HomeContainer() {
     isPending: isOrdersPending,
     refetch: refetchOrders,
   } = useOrdersQuery(accountId);
-  const trades = (ordersResponse?.orders ?? []).map(toAiTrade);
+  const trades = (ordersResponse?.orders ?? []).map(toStockTrade);
 
   useEffect(() => {
     if (isHoldingsError) {
@@ -70,7 +70,7 @@ export function HomeContainer() {
   useEffect(() => {
     if (isOrdersError) {
       trackEvent("error_view", {
-        screen: "home_ai_trades",
+        screen: "home_trades",
         api_name: "orders",
       });
     }
@@ -79,7 +79,7 @@ export function HomeContainer() {
   useEffect(() => {
     if (!isOrdersError && ordersResponse && trades.length === 0) {
       trackEvent("empty_state_view", {
-        screen: "home_ai_trades",
+        screen: "home_trades",
         empty_type: "no_trades",
       });
     }
@@ -127,7 +127,7 @@ export function HomeContainer() {
             cashBalance={account?.cash_balance ?? 0}
             valuation={account?.holdings_market_value ?? 0}
           />
-          <MenuRow label="주문내역" onClick={() => router.push("/ai/trades")} />
+          <MenuRow label="주문내역" onClick={() => router.push("/trades")} />
         </div>
         <div className="mt-4">
           <HoldingStockList
@@ -144,13 +144,13 @@ export function HomeContainer() {
           />
         </div>
         <div className="mt-4">
-          <RecentAiTradeSection
+          <RecentTradeSection
             trades={trades}
             isPending={isOrdersPending}
             isError={isOrdersError}
             onRetry={() => {
               trackEvent("retry_click", {
-                screen: "home_ai_trades",
+                screen: "home_trades",
                 api_name: "orders",
               });
               refetchOrders();

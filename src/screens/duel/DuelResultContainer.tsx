@@ -11,7 +11,6 @@ import CrownIcon from "@/assets/icons/fill/crown.svg";
 import RobotIcon from "@/assets/icons/fill/robot.svg";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
 import RobotFlusteredIcon from "@/assets/icons/stockspoon/robot-flustered.svg";
-import { AiTradeCardSkeleton } from "@/features/ai/components/AiTradeCardSkeleton";
 import { DuelCompareReturnChart } from "@/features/ai/components/DuelCompareReturnChart";
 import { TradeCard } from "@/shared/components/TradeCard";
 import { DuelAiTradeCard } from "@/features/ai/components/DuelAiTradeCard";
@@ -21,6 +20,7 @@ import { toDuelTrade } from "@/features/ai/utils/toDuelTrade";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { FilterChips } from "@/shared/components/FilterChips";
+import { TradeCardSkeleton } from "@/shared/components/TradeCardSkeleton";
 import { cn } from "@/shared/utils/cn";
 import { formatSignedPercent } from "@/shared/utils/getReturnRateInfo";
 
@@ -165,8 +165,8 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
           <div className="flex flex-col gap-2">
             {isTradesPending ? (
               <>
-                <AiTradeCardSkeleton />
-                <AiTradeCardSkeleton />
+                <TradeCardSkeleton />
+                <TradeCardSkeleton />
               </>
             ) : trades.length === 0 ? (
               <div className="bg-bg-layer-default rounded-2xl">

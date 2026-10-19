@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { AiTradeCard } from "@/features/ai/components/AiTradeCard";
-import { AiTradeCardSkeleton } from "@/features/ai/components/AiTradeCardSkeleton";
-import type { AiTrade } from "@/features/ai/types/aiTrade";
+import { HomeTradeCard } from "@/features/stock/components/trade/HomeTradeCard";
+import { HomeTradeCardSkeleton } from "@/features/stock/components/trade/HomeTradeCardSkeleton";
+import type { Trade } from "@/shared/types/trade";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
-import RobotFlusteredIcon from "@/assets/icons/stockspoon/robot-flustered.svg";
+import CartFlusteredIcon from "@/assets/icons/stockspoon/cart-flustered.svg";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { useCarousel } from "@/shared/hooks/useCarousel";
@@ -13,31 +13,31 @@ import { cn } from "@/shared/utils/cn";
 
 const MAX_TRADES = 3;
 
-interface RecentAiTradeSectionProps {
-  trades: AiTrade[];
+interface RecentTradeSectionProps {
+  trades: Trade[];
   isPending?: boolean;
   isError?: boolean;
   onRetry?: () => void;
 }
 
-export function RecentAiTradeSection({
+export function RecentTradeSection({
   trades,
   isPending,
   isError,
   onRetry,
-}: RecentAiTradeSectionProps) {
+}: RecentTradeSectionProps) {
   const displayedTrades = trades.slice(0, MAX_TRADES);
   const { emblaRef, selectedIndex, scrollTo } = useCarousel();
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <span className="body-1-bold">최근 AI 매매</span>
+        <span className="body-1-bold">최근 매매</span>
         {displayedTrades.length > 1 && (
           <div className="flex items-center gap-1">
             {displayedTrades.map((trade, index) => (
               <button
-                key={trade.orderId}
+                key={trade.tradeId}
                 type="button"
                 aria-label={`${index + 1}번째 매매로 이동`}
                 onClick={() => scrollTo(index)}
@@ -57,13 +57,13 @@ export function RecentAiTradeSection({
           <ErrorState onRetry={onRetry} />
         </div>
       ) : isPending ? (
-        <AiTradeCardSkeleton />
+        <HomeTradeCardSkeleton />
       ) : displayedTrades.length === 0 ? (
         <div className="bg-bg-layer-default rounded-2xl">
           <EmptyState
-            icon={RobotFlusteredIcon}
+            icon={CartFlusteredIcon}
             message="매매 내역이 없어요"
-            description="AI가 매매를 진행하면 여기에 표시돼요"
+            description="매매를 진행하면 여기에 표시돼요"
           />
         </div>
       ) : (
@@ -72,19 +72,19 @@ export function RecentAiTradeSection({
             <div className="flex">
               {displayedTrades.map((trade) => (
                 <div
-                  key={trade.orderId}
+                  key={trade.tradeId}
                   className="min-w-0 flex-[0_0_100%] pl-3"
                 >
-                  <AiTradeCard {...trade} />
+                  <HomeTradeCard {...trade} />
                 </div>
               ))}
             </div>
           </div>
           <Link
-            href="/ai/trades"
+            href="/trades"
             className="text-text-neutral-secondary caption-1-regular flex items-center justify-center gap-0.5 py-1"
           >
-            AI 매매 내역 보기
+            매매 내역 전체 보기
             <ChevronForwardIcon width={12} height={12} />
           </Link>
         </>

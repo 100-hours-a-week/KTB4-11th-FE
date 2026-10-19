@@ -48,10 +48,7 @@ export function MyPageContainer() {
         </div>
 
         <div>
-          <MenuRow
-            label="주문 내역"
-            onClick={() => router.push("/ai/trades")}
-          />
+          <MenuRow label="주문 내역" onClick={() => router.push("/trades")} />
         </div>
 
         <div className="mt-4 flex flex-col gap-2">

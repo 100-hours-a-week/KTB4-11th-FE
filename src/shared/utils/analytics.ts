@@ -9,9 +9,9 @@ export type ElapsedBucket = "within_1h" | "1h_6h" | "6h_24h" | "over_24h";
 
 export type AnalyticsScreen =
   | "home_holdings"
-  | "home_ai_trades"
+  | "home_trades"
   | "holdings_list"
-  | "ai_trade_history"
+  | "trade_history"
   | "ai_reasoning";
 
 export type EmptyType = "no_holdings" | "no_holdings_category" | "no_trades";
@@ -27,7 +27,7 @@ interface AnalyticsEventMap {
   account_delete: { account_count_after: number };
   account_rename: Record<string, never>;
   account_switch: { account_count: number };
-  ai_trade_list_view: { trade_count: number; account_count: number };
+  trade_list_view: { trade_count: number; account_count: number };
   ai_reason_view: {
     stock_code: string;
     trade_type: TradeType;
