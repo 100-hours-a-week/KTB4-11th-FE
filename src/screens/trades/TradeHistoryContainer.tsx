@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useOrdersQuery } from "@/features/ai/hooks/useOrdersQuery";
+import { useOrdersInfiniteQuery } from "@/features/stock/hooks/useOrdersInfiniteQuery";
+import type { OrderSide } from "@/features/ai/types/aiTrade";
 import {
   TradeFilterChips,
   type TradeFilterValue,
@@ -15,36 +16,48 @@ import { ErrorState } from "@/shared/components/ErrorState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { TradeCard } from "@/shared/components/TradeCard";
 import { TradeCardSkeleton } from "@/shared/components/TradeCardSkeleton";
+import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
 import { trackEvent } from "@/shared/utils/analytics";
+
+const FILTER_TO_ORDER_SIDE: Record<TradeFilterValue, OrderSide | undefined> = {
+  전체: undefined,
+  매수: "buy",
+  매도: "sell",
+};
 
 export function TradeHistoryContainer() {
   const accountId = useSelectedAccountId();
   const [filter, setFilter] = useState<TradeFilterValue>("전체");
 
   const {
-    data: ordersResponse,
+    data,
     isError,
     isPending,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
     refetch,
-  } = useOrdersQuery(accountId);
+  } = useOrdersInfiniteQuery(accountId, FILTER_TO_ORDER_SIDE[filter]);
   const { data: accounts } = useAccountListQuery();
 
-  const trades = (ordersResponse?.orders ?? []).map(toStockTrade);
-
-  const filteredTrades = trades.filter(
-    (trade) => filter === "전체" || trade.tradeSide === filter,
+  const trades = (data?.pages ?? []).flatMap((page) =>
+    page.orders.map(toStockTrade),
   );
+  const sentinelRef = useInfiniteScroll({
+    hasMore: hasNextPage && !isFetchingNextPage,
+    onLoadMore: () => fetchNextPage(),
+  });
 
   const hasTrackedView = useRef(false);
   useEffect(() => {
-    if (ordersResponse && !hasTrackedView.current) {
+    if (data && !hasTrackedView.current) {
       hasTrackedView.current = true;
       trackEvent("trade_list_view", {
         trade_count: trades.length,
         account_count: accounts?.length ?? 0,
       });
     }
-  }, [ordersResponse, trades.length, accounts?.length]);
+  }, [data, trades.length, accounts?.length]);
 
   useEffect(() => {
     if (isError) {
@@ -56,18 +69,13 @@ export function TradeHistoryContainer() {
   }, [isError]);
 
   useEffect(() => {
-    if (
-      !isError &&
-      ordersResponse &&
-      filter === "전체" &&
-      trades.length === 0
-    ) {
+    if (!isError && data && filter === "전체" && trades.length === 0) {
       trackEvent("empty_state_view", {
         screen: "trade_history",
         empty_type: "no_trades",
       });
     }
-  }, [isError, ordersResponse, filter, trades.length]);
+  }, [isError, data, filter, trades.length]);
 
   return (
     <div className="pt-screen-top flex h-full flex-col">
@@ -98,7 +106,7 @@ export function TradeHistoryContainer() {
               <TradeCardSkeleton key={index} />
             ))}
           </div>
-        ) : filteredTrades.length === 0 ? (
+        ) : trades.length === 0 ? (
           <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
             <EmptyState
               icon={CartFlusteredIcon}
@@ -112,9 +120,10 @@ export function TradeHistoryContainer() {
           </div>
         ) : (
           <div className="flex flex-col gap-2">
-            {filteredTrades.map((trade) => (
+            {trades.map((trade) => (
               <TradeCard key={trade.tradeId} {...trade} />
             ))}
+            {hasNextPage && <div ref={sentinelRef} className="h-1" />}
           </div>
         )}
       </div>
