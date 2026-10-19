@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
-import { useOrdersQuery } from "@/features/ai/hooks/useOrdersQuery";
+import { useOrdersQuery } from "@/features/stock/hooks/useOrdersQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { useStockChart } from "@/features/stock/hooks/useStockChart";
 import { StockChartSelectionSummary } from "@/features/stock/components/chart/StockChartSelectionSummary";

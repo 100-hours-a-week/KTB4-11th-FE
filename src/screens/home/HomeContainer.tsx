@@ -16,7 +16,7 @@ import { useHoldingsQuery } from "@/features/account/hooks/useHoldingsQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { toHoldingStock } from "@/features/account/utils/toHoldingStock";
 import { RecentTradeSection } from "@/features/stock/components/trade/RecentTradeSection";
-import { useOrdersQuery } from "@/features/ai/hooks/useOrdersQuery";
+import { useOrdersQuery } from "@/features/stock/hooks/useOrdersQuery";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
 import { toStockTrade } from "@/features/stock/utils/toStockTrade";
 import SearchIcon from "@/assets/icons/fill/search.svg";
@@ -46,7 +46,7 @@ export function HomeContainer() {
     isError: isOrdersError,
     isPending: isOrdersPending,
     refetch: refetchOrders,
-  } = useOrdersQuery(accountId);
+  } = useOrdersQuery(accountId, { limit: 3 });
   const trades = (ordersResponse?.orders ?? []).map(toStockTrade);
 
   useEffect(() => {
