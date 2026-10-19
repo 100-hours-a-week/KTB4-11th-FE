@@ -15,7 +15,6 @@ interface StockOrderBookProps {
   selectedPrice?: number;
   showLimits?: boolean;
   showChangeRate?: boolean;
-  currentQuantity?: number;
   className?: string;
 }
 
@@ -161,7 +160,6 @@ export function StockOrderBook({
   selectedPrice,
   showLimits = true,
   showChangeRate = true,
-  currentQuantity = 0,
   className,
 }: StockOrderBookProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -179,7 +177,6 @@ export function StockOrderBook({
   }, [orderBook.currentPrice, orderBook.asks.length, orderBook.bids.length]);
   const maxQuantity = Math.max(
     1,
-    currentQuantity,
     ...orderBook.asks.map((level) => level.quantity),
     ...orderBook.bids.map((level) => level.quantity),
   );

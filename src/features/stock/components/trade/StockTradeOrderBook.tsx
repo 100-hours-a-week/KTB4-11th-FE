@@ -13,14 +13,9 @@ export function StockTradeOrderBook({
   selectedPrice,
   onSelect,
 }: StockTradeOrderBookProps) {
-  const currentLevel = [...orderBook.asks, ...orderBook.bids].find(
-    (level) => level.price === orderBook.currentPrice,
-  );
-
   return (
     <StockOrderBook
       orderBook={orderBook}
-      currentQuantity={currentLevel?.quantity}
       selectedPrice={selectedPrice}
       onPriceSelect={onSelect}
       showChangeRate={false}
