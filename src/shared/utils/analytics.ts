@@ -9,7 +9,7 @@ export type ElapsedBucket = "within_1h" | "1h_6h" | "6h_24h" | "over_24h";
 
 export type AnalyticsScreen =
   | "home_holdings"
-  | "home_ai_trades"
+  | "home_trades"
   | "holdings_list"
   | "ai_trade_history"
   | "ai_reasoning";
