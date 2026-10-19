@@ -13,9 +13,11 @@ import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg"
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
+import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
 import { trackEvent } from "@/shared/utils/analytics";
 
 const ALL_CATEGORY = "전체";
+const PAGE_SIZE = 10;
 
 export function HoldingsContainer() {
   const accountId = useSelectedAccountId();
@@ -36,6 +38,21 @@ export function HoldingsContainer() {
     category === ALL_CATEGORY
       ? stocks
       : stocks.filter((stock) => stock.category === category);
+
+  // 업종 필터가 바뀌면 보여줄 개수도 처음부터 다시 셈
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [lastCategory, setLastCategory] = useState(category);
+  if (category !== lastCategory) {
+    setLastCategory(category);
+    setVisibleCount(PAGE_SIZE);
+  }
+
+  const visibleStocks = filteredStocks.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredStocks.length;
+  const sentinelRef = useInfiniteScroll({
+    hasMore,
+    onLoadMore: () => setVisibleCount((count) => count + PAGE_SIZE),
+  });
 
   useEffect(() => {
     if (isError) {
@@ -115,9 +132,10 @@ export function HoldingsContainer() {
           </div>
         ) : (
           <div className="flex flex-col gap-2">
-            {filteredStocks.map((stock) => (
+            {visibleStocks.map((stock) => (
               <HoldingStockItem key={stock.id} {...stock} />
             ))}
+            {hasMore && <div ref={sentinelRef} className="h-1" />}
           </div>
         )}
       </div>
