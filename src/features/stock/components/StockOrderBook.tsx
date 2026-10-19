@@ -205,6 +205,7 @@ export function StockOrderBook({
             key={level.price}
             level={level}
             side="ask"
+            highlighted={level.price === orderBook.currentPrice}
             maxQuantity={maxQuantity}
             onPriceSelect={onPriceSelect}
             selected={selectedPrice === level.price}
@@ -212,25 +213,12 @@ export function StockOrderBook({
           />
         ))}
 
-        <OrderBookRow
-          level={{
-            price: orderBook.currentPrice,
-            changeRate: orderBook.currentChangeRate,
-            quantity: currentQuantity,
-          }}
-          side="ask"
-          maxQuantity={maxQuantity}
-          highlighted
-          onPriceSelect={onPriceSelect}
-          selected={selectedPrice === orderBook.currentPrice}
-          showChangeRate={showChangeRate}
-        />
-
         {orderBook.bids.map((level) => (
           <OrderBookRow
             key={level.price}
             level={level}
             side="bid"
+            highlighted={level.price === orderBook.currentPrice}
             maxQuantity={maxQuantity}
             onPriceSelect={onPriceSelect}
             selected={selectedPrice === level.price}
