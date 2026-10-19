@@ -2,7 +2,7 @@
 
 import { toast } from "sonner";
 import { cn } from "@/shared/utils/cn";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
@@ -26,11 +26,8 @@ import { useStockHoldingQuery } from "@/features/stock/hooks/useStockHoldingQuer
 import { useStockInfoQuery } from "@/features/stock/hooks/useStockInfoQuery";
 import { useToggleWatchlistMutation } from "@/features/stock/hooks/useToggleWatchlistMutation";
 import { useWatchlistQuery } from "@/features/stock/hooks/useWatchlistQuery";
-import {
-  STOCK_DETAIL_TABS_WITH_HOLDING,
-  STOCK_DETAIL_TABS_WITHOUT_HOLDING,
-  type StockDetailTab,
-} from "@/features/stock/types/stockDetail";
+import type { StockDetailTab } from "@/features/stock/types/stockDetail";
+import { useStockDetailTab } from "@/features/stock/hooks/useStockDetailTab";
 import { isRegularMarketHours } from "@/features/stock/utils/marketHours";
 import { toOrderBook } from "@/features/stock/utils/toOrderBook";
 import { toPendingOrder } from "@/features/stock/utils/toPendingOrder";
@@ -85,11 +82,9 @@ export function StockDetailContainer({
     watchlistData?.watchlists.some((item) => item.stock_code === code) ?? false;
   const toggleWatchlistMutation = useToggleWatchlistMutation();
 
-  const tabs = hasHolding
-    ? STOCK_DETAIL_TABS_WITH_HOLDING
-    : STOCK_DETAIL_TABS_WITHOUT_HOLDING;
-  const [tab, setTab] = useState<StockDetailTab>(
-    initialTab === "내 주식" && !hasHolding ? "차트" : initialTab,
+  const { tab, tabs, selectTab } = useStockDetailTab(
+    initialTab,
+    holdingData?.is_held,
   );
 
   const { orderBook: marketOrderBook, isLoading: isOrderBookLoading } =
@@ -173,7 +168,7 @@ export function StockDetailContainer({
         />
       </div>
       <div className="mt-4">
-        <StockDetailTabs tabs={tabs} value={tab} onChange={setTab} />
+        <StockDetailTabs tabs={tabs} value={tab} onChange={selectTab} />
       </div>
 
       <div

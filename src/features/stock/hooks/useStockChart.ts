@@ -3,6 +3,7 @@
 // 차트 모드·기간·선택 상태와 조회 데이터 연결
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useStockBarsQuery } from "@/features/stock/hooks/useStockBarsQuery";
 import type { ChartPeriod } from "@/features/stock/types/stockDetail";
 import {
@@ -17,7 +18,14 @@ import { selectPeriodBars } from "@/features/stock/utils/chart/stockChart";
 
 export function useStockChart(code: string, price: number, dayChange: number) {
   const [selection, setSelection] = useState<ChartSelection | null>(null);
-  const [detailed, setDetailed] = useState(false);
+  const searchParams = useSearchParams();
+  const detailed = searchParams.get("chart") === "detailed";
+  function setDetailed(value: boolean) {
+    const url = new URL(window.location.href);
+    if (value) url.searchParams.set("chart", "detailed");
+    else url.searchParams.delete("chart");
+    window.history.replaceState(null, "", url);
+  }
   const [period, setPeriod] = useState<ChartPeriod>("1일");
   const [granularity, setGranularity] = useState<ChartGranularity>("일");
   const [minute, setMinute] = useState<ChartMinute>("60분");

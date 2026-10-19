@@ -10,7 +10,10 @@ export function AnimatedPriceText({ text, className }: AnimatedPriceTextProps) {
   return (
     <span className={cn("inline-flex", className)}>
       {text.split("").map((char, index) => (
-        <span key={index} className="inline-block overflow-hidden">
+        <span
+          key={index}
+          className="inline-block overflow-hidden whitespace-pre"
+        >
           <span
             key={char}
             className="animate-in slide-in-from-bottom-2 fade-in inline-block duration-300"
