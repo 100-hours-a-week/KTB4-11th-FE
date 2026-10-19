@@ -108,7 +108,7 @@ export function HoldingsContainer() {
               }
               description={
                 category === ALL_CATEGORY
-                  ? "AI 매매가 체결되면 보유 종목이 여기 표시돼요"
+                  ? "매매가 체결되면 보유 종목이 여기 표시돼요"
                   : undefined
               }
             />
