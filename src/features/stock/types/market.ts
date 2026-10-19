@@ -5,6 +5,8 @@ export interface MarketPrice {
   rate: number;
   volume: number;
   timestamp: string;
+  upper_limit_price: number;
+  lower_limit_price: number;
 }
 
 export interface MarketOrderBookLevel {
@@ -18,3 +20,9 @@ export interface MarketOrderBook {
   bids: MarketOrderBookLevel[];
   timestamp: string;
 }
+
+export type MarketPriceTick = Omit<
+  MarketPrice,
+  "upper_limit_price" | "lower_limit_price"
+> &
+  Partial<Pick<MarketPrice, "upper_limit_price" | "lower_limit_price">>;
