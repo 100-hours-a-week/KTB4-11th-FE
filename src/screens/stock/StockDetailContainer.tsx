@@ -96,7 +96,13 @@ export function StockDetailContainer({
     useMarketOrderBook(tab === "호가" ? code : undefined);
   const orderBook =
     marketOrderBook &&
-    toOrderBook(marketOrderBook, price, changeRate, isRegularMarketHours());
+    toOrderBook(
+      marketOrderBook,
+      price,
+      changeRate,
+      isRegularMarketHours(),
+      marketPrice,
+    );
 
   const HeartIcon = isFavorite ? HeartFilledIcon : HeartOutlineIcon;
 

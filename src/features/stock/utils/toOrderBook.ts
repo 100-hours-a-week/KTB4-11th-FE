@@ -1,18 +1,19 @@
 import type {
   MarketOrderBook,
   MarketOrderBookLevel,
+  MarketPriceTick,
 } from "@/features/stock/types/market";
 import type {
   OrderBook,
   OrderBookLevel,
 } from "@/features/stock/types/stockDetail";
-import { getPriceLimits } from "@/features/stock/utils/stockTrade";
 
 export function toOrderBook(
   marketOrderBook: MarketOrderBook,
   currentPrice: number,
   currentChangeRate: number,
   isRegularMarket: boolean,
+  marketPrice: MarketPriceTick | null,
 ): OrderBook {
   const previousClose = currentPrice / (1 + currentChangeRate / 100);
   const toChangeRate = (price: number) => (price / previousClose - 1) * 100;
@@ -22,10 +23,8 @@ export function toOrderBook(
     quantity: level.qty,
   });
 
-  const { upperLimitPrice, lowerLimitPrice } = getPriceLimits(
-    currentPrice,
-    currentChangeRate,
-  );
+  const upperLimitPrice = marketPrice?.upper_limit_price;
+  const lowerLimitPrice = marketPrice?.lower_limit_price;
 
   return {
     asks: marketOrderBook.asks.map(toLevel),
@@ -42,8 +41,12 @@ export function toOrderBook(
     ),
     isRegularMarket,
     upperLimitPrice,
-    upperLimitChangeRate: toChangeRate(upperLimitPrice),
+    upperLimitChangeRate: upperLimitPrice
+      ? toChangeRate(upperLimitPrice)
+      : undefined,
     lowerLimitPrice,
-    lowerLimitChangeRate: toChangeRate(lowerLimitPrice),
+    lowerLimitChangeRate: lowerLimitPrice
+      ? toChangeRate(lowerLimitPrice)
+      : undefined,
   };
 }

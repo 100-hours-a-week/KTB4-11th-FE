@@ -190,12 +190,12 @@ export function StockOrderBook({
         ref={scrollRef}
         className="relative max-h-full overflow-y-auto px-5 pt-3"
       >
-        {showLimits && (
+        {showLimits && orderBook.upperLimitPrice !== undefined && (
           <OrderBookLimitRow
             label="상한가"
             compact={selectable}
             price={orderBook.upperLimitPrice}
-            changeRate={orderBook.upperLimitChangeRate}
+            changeRate={orderBook.upperLimitChangeRate ?? 0}
             showChangeRate={showChangeRate}
           />
         )}
@@ -238,13 +238,13 @@ export function StockOrderBook({
           />
         ))}
 
-        {showLimits && (
+        {showLimits && orderBook.lowerLimitPrice !== undefined && (
           <OrderBookLimitRow
             label="하한가"
             compact={selectable}
             labelBelow
             price={orderBook.lowerLimitPrice}
-            changeRate={orderBook.lowerLimitChangeRate}
+            changeRate={orderBook.lowerLimitChangeRate ?? 0}
             showChangeRate={showChangeRate}
           />
         )}

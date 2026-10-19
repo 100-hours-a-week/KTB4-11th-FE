@@ -63,7 +63,13 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
     useMarketOrderBook(form.inputMode === "orderbook" ? code : undefined);
   const orderBook =
     marketOrderBook &&
-    toOrderBook(marketOrderBook, price, changeRate, isRegularMarket);
+    toOrderBook(
+      marketOrderBook,
+      price,
+      changeRate,
+      isRegularMarket,
+      marketPrice,
+    );
   const action = side === "buy" ? "구매" : "판매";
   const { colorClass } = getReturnRateInfo(changeRate);
   const availability =

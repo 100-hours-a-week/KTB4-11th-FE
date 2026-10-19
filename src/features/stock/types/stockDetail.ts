@@ -40,10 +40,10 @@ export interface OrderBook {
   totalAskQuantity: number;
   totalBidQuantity: number;
   isRegularMarket: boolean;
-  upperLimitPrice: number;
-  upperLimitChangeRate: number;
-  lowerLimitPrice: number;
-  lowerLimitChangeRate: number;
+  upperLimitPrice?: number;
+  upperLimitChangeRate?: number;
+  lowerLimitPrice?: number;
+  lowerLimitChangeRate?: number;
 }
 
 export interface StockHolding {
