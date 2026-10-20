@@ -54,6 +54,7 @@ jobs:
           tags: ${{ steps.login-ecr.outputs.registry }}/stockspoon-v2-prod-frontend:${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           build-args: |
             NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+            NEXT_PUBLIC_MARKET_API_BASE_URL=${{ vars.NEXT_PUBLIC_MARKET_API_BASE_URL || '/market' }}
             NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.NEXT_PUBLIC_KAKAO_CLIENT_ID }}
             NEXT_PUBLIC_KAKAO_REDIRECT_URI=${{ vars.NEXT_PUBLIC_KAKAO_REDIRECT_URI }}
             NEXT_PUBLIC_SENTRY_DSN=${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
