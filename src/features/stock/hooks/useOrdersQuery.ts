@@ -1,16 +1,12 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { getOrders } from "@/features/stock/api/getOrders";
+import {
+  getOrders,
+  type GetOrdersParams,
+} from "@/features/stock/api/getOrders";
 
-interface UseOrdersQueryParams {
-  limit?: number;
-}
-
-export function useOrdersQuery(
-  accountId?: number,
-  params?: UseOrdersQueryParams,
-) {
+export function useOrdersQuery(accountId?: number, params?: GetOrdersParams) {
   return useQuery({
     queryKey: ["orders", accountId, params],
     queryFn: () => getOrders(accountId!, params),

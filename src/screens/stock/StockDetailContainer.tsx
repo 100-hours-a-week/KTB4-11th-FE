@@ -2,7 +2,6 @@
 
 import { toast } from "sonner";
 import { cn } from "@/shared/utils/cn";
-import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
@@ -60,19 +59,19 @@ export function StockDetailContainer({
   const hasHolding = holdingData?.is_held ?? false;
   const holding = holdingData ? toStockHolding(holdingData) : undefined;
 
-  const { data: ordersData } = useOrdersQuery(accountId);
-  const stockOrders = useMemo(
-    () =>
-      (ordersData?.orders ?? []).filter(
-        (order) => order.stock_code === code && order.order_source === "user",
-      ),
-    [ordersData, code],
-  );
-  const pendingOrders = stockOrders
-    .filter((order) => order.order_status === "pending")
+  const { data: pendingOrdersData } = useOrdersQuery(accountId, {
+    stockCode: code,
+    orderStatus: "pending",
+  });
+  const { data: orderHistoryData } = useOrdersQuery(accountId, {
+    stockCode: code,
+    orderStatus: "executed",
+  });
+  const pendingOrders = (pendingOrdersData?.orders ?? [])
+    .filter((order) => order.order_source === "user")
     .map(toPendingOrder);
-  const orderHistory = stockOrders
-    .filter((order) => order.order_status === "executed")
+  const orderHistory = (orderHistoryData?.orders ?? [])
+    .filter((order) => order.order_source === "user")
     .map(toStockTrade);
 
   const cancelOrderMutation = useCancelOrderMutation(accountId);

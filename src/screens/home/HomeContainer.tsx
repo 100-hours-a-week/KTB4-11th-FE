@@ -46,7 +46,7 @@ export function HomeContainer() {
     isError: isOrdersError,
     isPending: isOrdersPending,
     refetch: refetchOrders,
-  } = useOrdersQuery(accountId, { limit: 3 });
+  } = useOrdersQuery(accountId, { limit: 3, orderStatus: "executed" });
   const trades = (ordersResponse?.orders ?? []).map(toStockTrade);
 
   useEffect(() => {
