@@ -37,7 +37,10 @@ export function TradeHistoryContainer() {
     hasNextPage,
     fetchNextPage,
     refetch,
-  } = useOrdersInfiniteQuery(accountId, FILTER_TO_ORDER_SIDE[filter]);
+  } = useOrdersInfiniteQuery(accountId, {
+    orderSide: FILTER_TO_ORDER_SIDE[filter],
+    orderStatus: "executed",
+  });
   const { data: accounts } = useAccountListQuery();
 
   const trades = (data?.pages ?? []).flatMap((page) =>
