@@ -2,11 +2,6 @@ import { http, HttpResponse, type HttpHandler } from "msw";
 import type { StockInfoResponse } from "@/features/stock/types/stockDetail";
 import type { KospiIndexResponse } from "@/features/stock/types/kospiIndex";
 import type {
-  RankingApiItem,
-  RankingApiResponse,
-  RankingApiType,
-} from "@/features/stock/types/ranking";
-import type {
   WatchlistItem,
   WatchlistResponse,
 } from "@/features/stock/types/watchlist";
@@ -95,15 +90,6 @@ const STOCK_POOL: StockPoolEntry[] = [
   },
 ];
 
-// 인기 종목은 20개, 그 외는 100개까지 제공
-const MAX_BY_TYPE: Record<RankingApiType, number> = {
-  TRADING_VALUE: 100,
-  VOLUME: 100,
-  RISE: 100,
-  FALL: 100,
-  POPULAR: 20,
-};
-
 // 종목 상세 화면에서 쓰는 실제 종목 코드 (랭킹 목록의 합성 코드와 구분)
 const REAL_STOCK_CODES: Record<string, StockPoolEntry> = {
   "035420": STOCK_POOL[5], // NAVER
@@ -134,22 +120,6 @@ const favoriteItems = new Map<string, WatchlistItem>([
     },
   ],
 ]);
-
-function buildRankingItems(type: RankingApiType): RankingApiItem[] {
-  const total = MAX_BY_TYPE[type];
-
-  return Array.from({ length: total }, (_, index) => {
-    const base = STOCK_POOL[index % STOCK_POOL.length];
-    const stockCode = `${type}-${index}`;
-
-    return {
-      ...base,
-      rank: index + 1,
-      stock_code: stockCode,
-      is_favorite: favoriteItems.has(stockCode),
-    };
-  });
-}
 
 export const stockHandlers: HttpHandler[] = [
   http.get("*/api/v1/stocks/:stockCode", async ({ params }) => {
@@ -191,32 +161,6 @@ export const stockHandlers: HttpHandler[] = [
       change: Math.round(change * 100) / 100,
       changeRate: Math.round(changeRate * 100) / 100,
       fetchedAt: new Date().toISOString(),
-    });
-  }),
-
-  http.get("*/api/v2/stocks/rankings", async ({ request }) => {
-    const url = new URL(request.url);
-    const type = (url.searchParams.get("type") ??
-      "TRADING_VALUE") as RankingApiType;
-    const page = Number(url.searchParams.get("page") ?? "1");
-    const size = Number(url.searchParams.get("size") ?? "20");
-
-    const allItems = buildRankingItems(type);
-    const totalElements = allItems.length;
-    const totalPages = Math.ceil(totalElements / size);
-    const start = (page - 1) * size;
-    const items = allItems.slice(start, start + size);
-
-    return HttpResponse.json<RankingApiResponse>({
-      ranking_type: type,
-      updated_at: new Date().toISOString(),
-      page,
-      size,
-      total_elements: totalElements,
-      total_pages: totalPages,
-      has_previous: page > 1,
-      has_next: page < totalPages,
-      items,
     });
   }),
 
