@@ -8,11 +8,12 @@ import { DuelCard } from "@/features/ai/components/DuelCard";
 import { DuelCardSkeleton } from "@/features/ai/components/DuelCardSkeleton";
 import { DuelTypeSheet } from "@/features/ai/components/DuelTypeSheet";
 import { OngoingDuelCarousel } from "@/features/ai/components/OngoingDuelCarousel";
-import { useCompetitionsQuery } from "@/features/ai/hooks/useCompetitionsQuery";
+import { useCompetitionsInfiniteQuery } from "@/features/ai/hooks/useCompetitionsInfiniteQuery";
 import {
   DUEL_STATUS_FILTERS,
   type DuelStatusFilter,
 } from "@/features/ai/types/duel";
+import { toDuel } from "@/features/ai/utils/toDuel";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
 import PlusIcon from "@/assets/icons/fill/plus.svg";
 import SearchIcon from "@/assets/icons/fill/search.svg";
@@ -23,19 +24,32 @@ import { EmptyState } from "@/shared/components/EmptyState";
 import { FilterChips } from "@/shared/components/FilterChips";
 import { Header } from "@/shared/components/Header";
 import { StockTickerBar } from "@/shared/components/StockTickerBar";
+import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
 import { trackEvent } from "@/shared/utils/analytics";
 
 const ALL_FILTER: DuelStatusFilter = "전체";
 
 export function DuelContainer() {
   const { data: kospi } = useKospiIndexQuery();
-  const { data: duels, isPending: isDuelsPending } = useCompetitionsQuery();
+  const {
+    data,
+    isPending: isDuelsPending,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useCompetitionsInfiniteQuery();
   const [statusFilter, setStatusFilter] =
     useState<DuelStatusFilter>(ALL_FILTER);
   const [isTypeSheetOpen, setIsTypeSheetOpen] = useState(false);
   const [isAlreadyExistsOpen, setIsAlreadyExistsOpen] = useState(false);
 
-  const allDuels = duels ?? [];
+  const allDuels = (data?.pages ?? []).flatMap((page) =>
+    page.competitions.map(toDuel),
+  );
+  const sentinelRef = useInfiniteScroll({
+    hasMore: hasNextPage && !isFetchingNextPage,
+    onLoadMore: () => fetchNextPage(),
+  });
 
   const ongoingUserVsAiDuel = allDuels.find(
     (duel) => duel.type === "나 vs AI" && duel.status === "진행 중",
@@ -148,6 +162,7 @@ export function DuelContainer() {
                 {filteredDuels.map((duel) => (
                   <DuelCard key={duel.id} {...duel} />
                 ))}
+                {hasNextPage && <div ref={sentinelRef} className="h-1" />}
               </div>
             )}
           </div>
