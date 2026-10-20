@@ -86,7 +86,7 @@ export function DuelContainer() {
       <StockTickerBar
         title="대결"
         logo={false}
-        kospi={kospi && { value: kospi.value, changeRate: kospi.changeRate }}
+        kospi={kospi && { value: kospi.value, changeRate: kospi.rate }}
       />
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-28">
         {isDuelsPending ? (

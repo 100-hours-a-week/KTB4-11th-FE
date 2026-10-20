@@ -100,7 +100,7 @@ export function DiscoverContainer() {
       <StockTickerBar
         title="발견"
         logo={false}
-        kospi={kospi && { value: kospi.value, changeRate: kospi.changeRate }}
+        kospi={kospi && { value: kospi.value, changeRate: kospi.rate }}
       />
       <div className="flex flex-col gap-4 px-5">
         <SearchInput placeholder="종목 검색" />

@@ -1,6 +1,7 @@
 export interface KospiIndexResponse {
+  name: "KOSPI" | "KOSPI200";
   value: number;
   change: number;
-  changeRate: number;
-  fetchedAt: string;
+  rate: number;
+  timestamp: string;
 }
