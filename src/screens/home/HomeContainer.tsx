@@ -46,12 +46,8 @@ export function HomeContainer() {
     isError: isOrdersError,
     isPending: isOrdersPending,
     refetch: refetchOrders,
-  } = useOrdersQuery(accountId, { limit: 10, orderStatus: "executed" });
-  // order_source 필터가 API에 없어서 넉넉히 받아온 뒤 사용자 주문만 걸러 3개로 자름
-  const trades = (ordersResponse?.orders ?? [])
-    .filter((order) => order.order_source === "user")
-    .slice(0, 3)
-    .map(toStockTrade);
+  } = useOrdersQuery(accountId, { limit: 3, orderStatus: "executed" });
+  const trades = (ordersResponse?.orders ?? []).map(toStockTrade);
 
   useEffect(() => {
     if (isHoldingsError) {
