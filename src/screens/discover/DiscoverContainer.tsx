@@ -107,7 +107,7 @@ export function DiscoverContainer() {
         <span className="heading-2-semibold">실시간 차트</span>
         <RankingTypeTabs value={rankingType} onChange={setRankingType} />
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 pt-4 pb-28">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-4 pb-28">
         {isError && !data ? (
           <ErrorState onRetry={() => refetch()} />
         ) : isPending ? (
@@ -117,7 +117,13 @@ export function DiscoverContainer() {
             ))}
           </div>
         ) : ranking.length === 0 ? (
-          <EmptyState icon={BasketFlusteredIcon} message="종목 정보가 없어요" />
+          <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
+            <EmptyState
+              icon={BasketFlusteredIcon}
+              message="랭킹 정보가 없어요"
+              description="잠시 후 다시 확인해 주세요"
+            />
+          </div>
         ) : (
           <>
             {isError && (
