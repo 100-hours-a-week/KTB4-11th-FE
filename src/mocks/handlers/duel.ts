@@ -2,6 +2,7 @@ import { http, HttpResponse, type HttpHandler } from "msw";
 import type {
   CompetitionApiItem,
   CompetitionDetailResponse,
+  CompetitionExecution,
   CompetitionExecutionsResponse,
   CompetitionReportResponse,
   CompetitionResultResponse,
@@ -230,132 +231,143 @@ const DEMO_COMPETITION_REPORTS: Record<number, CompetitionReportResponse> = {
   },
 };
 
-const DEMO_EXECUTIONS: Record<number, CompetitionExecutionsResponse> = {
-  5: {
-    account_id: 5,
-    executions: [
-      {
-        execution_id: 101,
-        order_id: 1001,
-        stock_code: "000660",
-        stock_name: "SK하이닉스",
-        order_side: "sell",
-        executed_at: "2026-09-03T14:20:00+09:00",
-        execution_quantity: 2,
-        execution_amount: 392_000,
-        realized_profit_amount: 18_400,
-        realized_return_percent: 4.9,
-      },
-      {
-        execution_id: 102,
-        order_id: 1002,
-        stock_code: "005930",
-        stock_name: "삼성전자",
-        order_side: "buy",
-        executed_at: "2026-08-20T10:05:00+09:00",
-        execution_quantity: 12,
-        execution_amount: 858_000,
-        realized_profit_amount: null,
-        realized_return_percent: null,
-      },
-    ],
-  },
-  6: {
-    account_id: 6,
-    executions: [
-      {
-        execution_id: 201,
-        order_id: 2001,
-        stock_code: "035720",
-        stock_name: "카카오",
-        order_side: "sell",
-        executed_at: "2026-08-25T09:40:00+09:00",
-        execution_quantity: 120,
-        execution_amount: 4_860_000,
-        realized_profit_amount: 102_000,
-        realized_return_percent: 2.1,
-      },
-      {
-        execution_id: 202,
-        order_id: 2002,
-        stock_code: "035720",
-        stock_name: "카카오",
-        order_side: "buy",
-        executed_at: "2026-08-24T10:12:00+09:00",
-        execution_quantity: 30,
-        execution_amount: 1_245_000,
-        realized_profit_amount: null,
-        realized_return_percent: null,
-      },
-      {
-        execution_id: 203,
-        order_id: 2003,
-        stock_code: "035720",
-        stock_name: "카카오",
-        order_side: "buy",
-        executed_at: "2026-08-23T10:03:00+09:00",
-        execution_quantity: 30,
-        execution_amount: 1_230_000,
-        realized_profit_amount: null,
-        realized_return_percent: null,
-      },
-    ],
-  },
-  7: {
-    account_id: 7,
-    executions: [
-      {
-        execution_id: 301,
-        order_id: 3001,
-        stock_code: "035420",
-        stock_name: "NAVER",
-        order_side: "sell",
-        executed_at: "2026-04-25T13:10:00+09:00",
-        execution_quantity: 3,
-        execution_amount: 664_500,
-        realized_profit_amount: -6_000,
-        realized_return_percent: -0.9,
-      },
-      {
-        execution_id: 302,
-        order_id: 3002,
-        stock_code: "035420",
-        stock_name: "NAVER",
-        order_side: "buy",
-        executed_at: "2026-04-10T10:30:00+09:00",
-        execution_quantity: 3,
-        execution_amount: 670_500,
-        realized_profit_amount: null,
-        realized_return_percent: null,
-      },
-    ],
-  },
-  8: {
-    account_id: 8,
-    executions: [
-      {
-        execution_id: 401,
-        order_id: 4001,
-        stock_code: "005380",
-        stock_name: "현대차",
-        order_side: "buy",
-        executed_at: "2026-04-12T09:50:00+09:00",
-        execution_quantity: 5,
-        execution_amount: 1_225_000,
-        realized_profit_amount: null,
-        realized_return_percent: null,
-      },
-    ],
-  },
+const DEMO_EXECUTIONS: Record<number, CompetitionExecution[]> = {
+  5: [
+    {
+      execution_id: 101,
+      order_id: 1001,
+      stock_code: "000660",
+      stock_name: "SK하이닉스",
+      order_side: "sell",
+      executed_at: "2026-09-03T14:20:00+09:00",
+      execution_quantity: 2,
+      execution_amount: 392_000,
+      realized_profit_amount: 18_400,
+      realized_return_percent: 4.9,
+    },
+    {
+      execution_id: 102,
+      order_id: 1002,
+      stock_code: "005930",
+      stock_name: "삼성전자",
+      order_side: "buy",
+      executed_at: "2026-08-20T10:05:00+09:00",
+      execution_quantity: 12,
+      execution_amount: 858_000,
+      realized_profit_amount: null,
+      realized_return_percent: null,
+    },
+  ],
+  6: [
+    {
+      execution_id: 201,
+      order_id: 2001,
+      stock_code: "035720",
+      stock_name: "카카오",
+      order_side: "sell",
+      executed_at: "2026-08-25T09:40:00+09:00",
+      execution_quantity: 120,
+      execution_amount: 4_860_000,
+      realized_profit_amount: 102_000,
+      realized_return_percent: 2.1,
+    },
+    {
+      execution_id: 202,
+      order_id: 2002,
+      stock_code: "035720",
+      stock_name: "카카오",
+      order_side: "buy",
+      executed_at: "2026-08-24T10:12:00+09:00",
+      execution_quantity: 30,
+      execution_amount: 1_245_000,
+      realized_profit_amount: null,
+      realized_return_percent: null,
+    },
+    {
+      execution_id: 203,
+      order_id: 2003,
+      stock_code: "035720",
+      stock_name: "카카오",
+      order_side: "buy",
+      executed_at: "2026-08-23T10:03:00+09:00",
+      execution_quantity: 30,
+      execution_amount: 1_230_000,
+      realized_profit_amount: null,
+      realized_return_percent: null,
+    },
+  ],
+  7: [
+    {
+      execution_id: 301,
+      order_id: 3001,
+      stock_code: "035420",
+      stock_name: "NAVER",
+      order_side: "sell",
+      executed_at: "2026-04-25T13:10:00+09:00",
+      execution_quantity: 3,
+      execution_amount: 664_500,
+      realized_profit_amount: -6_000,
+      realized_return_percent: -0.9,
+    },
+    {
+      execution_id: 302,
+      order_id: 3002,
+      stock_code: "035420",
+      stock_name: "NAVER",
+      order_side: "buy",
+      executed_at: "2026-04-10T10:30:00+09:00",
+      execution_quantity: 3,
+      execution_amount: 670_500,
+      realized_profit_amount: null,
+      realized_return_percent: null,
+    },
+  ],
+  8: [
+    {
+      execution_id: 401,
+      order_id: 4001,
+      stock_code: "005380",
+      stock_name: "현대차",
+      order_side: "buy",
+      executed_at: "2026-04-12T09:50:00+09:00",
+      execution_quantity: 5,
+      execution_amount: 1_225_000,
+      realized_profit_amount: null,
+      realized_return_percent: null,
+    },
+  ],
 };
 
+function paginate<T>(items: T[], page: number, limit: number) {
+  const totalElements = items.length;
+  const totalPages = Math.ceil(totalElements / limit) || 1;
+  const start = (page - 1) * limit;
+
+  return {
+    items: items.slice(start, start + limit),
+    pagination: {
+      page,
+      limit,
+      total_elements: totalElements,
+      total_pages: totalPages,
+      has_next: page < totalPages,
+    },
+  };
+}
+
 export const duelHandlers: HttpHandler[] = [
-  http.get("*/api/v2/users/me/competitions", async () => {
+  http.get("*/api/v2/users/me/competitions", async ({ request }) => {
+    const url = new URL(request.url);
+    const page = Number(url.searchParams.get("page") ?? "1");
+    const limit = Number(url.searchParams.get("limit") ?? "10");
+    const { items, pagination } = paginate(DEMO_COMPETITIONS, page, limit);
+
     return HttpResponse.json<CompetitionsResponse>({
       ongoing_competition_count: DEMO_COMPETITIONS.filter(
         (competition) => competition.state === "in_progress",
       ).length,
-      competitions: DEMO_COMPETITIONS,
+      pagination,
+      competitions: items,
     });
   }),
 
@@ -475,14 +487,20 @@ export const duelHandlers: HttpHandler[] = [
     return HttpResponse.json<CompetitionReportResponse>(report);
   }),
 
-  http.get("*/api/v2/accounts/:accountId/executions", async ({ params }) => {
-    const executions = DEMO_EXECUTIONS[Number(params.accountId)];
-    if (!executions) {
+  http.get(
+    "*/api/v2/accounts/:accountId/executions",
+    async ({ params, request }) => {
+      const url = new URL(request.url);
+      const page = Number(url.searchParams.get("page") ?? "1");
+      const limit = Number(url.searchParams.get("limit") ?? "10");
+      const allExecutions = DEMO_EXECUTIONS[Number(params.accountId)] ?? [];
+      const { items, pagination } = paginate(allExecutions, page, limit);
+
       return HttpResponse.json<CompetitionExecutionsResponse>({
         account_id: Number(params.accountId),
-        executions: [],
+        pagination,
+        executions: items,
       });
-    }
-    return HttpResponse.json<CompetitionExecutionsResponse>(executions);
-  }),
+    },
+  ),
 ];
