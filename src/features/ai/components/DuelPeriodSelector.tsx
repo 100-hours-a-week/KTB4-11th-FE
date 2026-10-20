@@ -1,6 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
+import {
+  DUEL_MIN_PERIOD_DAYS,
+  DUEL_MAX_PERIOD_DAYS,
+} from "@/features/ai/schemas/duelCreationFormSchema";
 import {
   DUEL_PERIOD_OPTIONS,
   type DuelPeriodOption,
@@ -63,6 +68,23 @@ export function DuelPeriodSelector({
   );
 
   const hasPeriod = !!startDate && !!endDate;
+  function isValidPeriod(value: string | undefined) {
+    if (!startDate || !value) return false;
+    const days =
+      (new Date(value).getTime() - new Date(startDate).getTime()) /
+      (1000 * 60 * 60 * 24);
+    return days >= DUEL_MIN_PERIOD_DAYS && days <= DUEL_MAX_PERIOD_DAYS;
+  }
+
+  function handleSelect(value: string) {
+    setDraftEnd(value);
+    if (!isValidPeriod(value)) {
+      toast.error(
+        `대결 기간은 최소 ${DUEL_MIN_PERIOD_DAYS}일, 최대 ${DUEL_MAX_PERIOD_DAYS}일입니다`,
+      );
+    }
+  }
+
   const totalDays =
     startDate && endDate
       ? Math.round(
@@ -92,7 +114,7 @@ export function DuelPeriodSelector({
   }
 
   function handleConfirm() {
-    if (!draftEnd) return;
+    if (!draftEnd || !isValidPeriod(draftEnd)) return;
     setPeriodOption(RESET_OPTION);
     onEndDateChange(draftEnd);
     setIsSheetOpen(false);
@@ -195,9 +217,12 @@ export function DuelPeriodSelector({
                 rangeStart={startDate}
                 rangeEnd={draftEnd}
                 minDate={toDateOnly(addDays(today, 1))}
-                onSelect={(value) => setDraftEnd(value)}
+                onSelect={handleSelect}
               />
-              <Button disabled={!draftEnd} onClick={handleConfirm}>
+              <Button
+                disabled={!isValidPeriod(draftEnd)}
+                onClick={handleConfirm}
+              >
                 선택 완료
               </Button>
             </div>
