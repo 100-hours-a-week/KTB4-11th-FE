@@ -350,7 +350,7 @@ let nextOrderId = 206;
 export const aiHandlers: HttpHandler[] = [
   http.get("*/api/v1/accounts/:accountId/orders", async ({ request }) => {
     const url = new URL(request.url);
-    const page = Number(url.searchParams.get("page") ?? "1");
+    const page = Number(url.searchParams.get("page") ?? "0");
     const limit = Number(url.searchParams.get("limit") ?? "10");
     const orderSide = url.searchParams.get("order_side");
 
@@ -359,7 +359,7 @@ export const aiHandlers: HttpHandler[] = [
       : ORDERS;
     const totalElements = filteredOrders.length;
     const totalPages = Math.ceil(totalElements / limit);
-    const start = (page - 1) * limit;
+    const start = page * limit;
     const orders = filteredOrders.slice(start, start + limit);
 
     return HttpResponse.json<OrdersResponse>({
@@ -370,7 +370,7 @@ export const aiHandlers: HttpHandler[] = [
         limit,
         total_elements: totalElements,
         total_pages: totalPages,
-        has_next: page < totalPages,
+        has_next: page + 1 < totalPages,
       },
       orders,
     });
