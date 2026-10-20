@@ -1,4 +1,4 @@
-import { apiClient } from "@/shared/lib/axios";
+import { marketApiClient } from "@/shared/lib/marketApiClient";
 import type {
   RankingApiResponse,
   RankingApiType,
@@ -6,15 +6,14 @@ import type {
 
 interface GetRankingParams {
   type: RankingApiType;
-  page: number;
-  size?: number;
+  limit: number;
+  signal?: AbortSignal;
 }
 
-export async function getRanking({ type, page, size = 20 }: GetRankingParams) {
-  const { data: rankingResponse } = await apiClient.get<RankingApiResponse>(
-    "/api/v2/stocks/rankings",
-    { params: { type, page, size } },
+export async function getRanking({ type, limit, signal }: GetRankingParams) {
+  const { data } = await marketApiClient.get<RankingApiResponse>(
+    `/rankings/${type}`,
+    { params: { limit }, signal },
   );
-
-  return rankingResponse;
+  return data;
 }
