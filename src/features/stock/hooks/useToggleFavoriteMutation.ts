@@ -1,70 +1,54 @@
 "use client";
 
-import {
-  useMutation,
-  useQueryClient,
-  type InfiniteData,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteWatchlistItem } from "@/features/stock/api/deleteWatchlistItem";
 import { postWatchlistItem } from "@/features/stock/api/postWatchlistItem";
-import type { RankingApiResponse } from "@/features/stock/types/ranking";
+import type {
+  WatchlistItem,
+  WatchlistResponse,
+} from "@/features/stock/types/watchlist";
 
 interface ToggleFavoriteParams {
   stockCode: string;
   isFavorite: boolean;
+  stock?: WatchlistItem;
 }
 
-function toggleInCache(
-  data: InfiniteData<RankingApiResponse> | undefined,
-  stockCode: string,
-  nextIsFavorite: boolean,
-) {
-  if (!data) return data;
-
-  return {
-    ...data,
-    pages: data.pages.map((page) => ({
-      ...page,
-      items: page.items.map((item) =>
-        item.stock_code === stockCode
-          ? { ...item, is_favorite: nextIsFavorite }
-          : item,
-      ),
-    })),
-  };
-}
-
+// 관심 목록 캐시를 갱신해 랭킹·관심 화면에서 동일한 좋아요 상태 사용
 export function useToggleFavoriteMutation() {
   const queryClient = useQueryClient();
-
   return useMutation({
+    mutationKey: ["toggleFavorite"],
     mutationFn: ({ stockCode, isFavorite }: ToggleFavoriteParams) =>
       isFavorite
         ? deleteWatchlistItem(stockCode)
         : postWatchlistItem(stockCode),
-    onMutate: async ({ stockCode, isFavorite }) => {
-      await queryClient.cancelQueries({ queryKey: ["ranking"] });
-
-      const previous = queryClient.getQueriesData<
-        InfiniteData<RankingApiResponse>
-      >({ queryKey: ["ranking"] });
-
-      previous.forEach(([queryKey, data]) => {
-        queryClient.setQueryData(
-          queryKey,
-          toggleInCache(data, stockCode, !isFavorite),
-        );
-      });
-
+    onMutate: async ({ stockCode, isFavorite, stock }) => {
+      await queryClient.cancelQueries({ queryKey: ["watchlist"] });
+      const previous = queryClient.getQueryData<WatchlistResponse>([
+        "watchlist",
+      ]);
+      if (previous) {
+        queryClient.setQueryData<WatchlistResponse>(["watchlist"], {
+          ...previous,
+          watchlists: isFavorite
+            ? previous.watchlists.filter(
+                (item) => item.stock_code !== stockCode,
+              )
+            : stock &&
+                !previous.watchlists.some(
+                  (item) => item.stock_code === stockCode,
+                )
+              ? [...previous.watchlists, stock]
+              : previous.watchlists,
+        });
+      }
       return { previous };
     },
     onError: (_error, _variables, context) => {
-      context?.previous.forEach(([queryKey, data]) => {
-        queryClient.setQueryData(queryKey, data);
-      });
+      if (context?.previous)
+        queryClient.setQueryData(["watchlist"], context.previous);
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["watchlist"] });
-    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["watchlist"] }),
   });
 }

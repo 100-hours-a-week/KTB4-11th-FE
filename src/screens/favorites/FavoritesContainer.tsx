@@ -40,7 +40,8 @@ export function FavoritesContainer() {
 
   function handleToggleFavorite(stockCode: string) {
     const target = stocks.find((item) => item.stockCode === stockCode);
-    if (!target) return;
+    if (!target || target.isFavorite === undefined || toggleFavorite.isPending)
+      return;
 
     toggleFavorite.mutate({
       stockCode,
@@ -116,6 +117,7 @@ export function FavoritesContainer() {
                 <RankingItem
                   key={stock.stockCode}
                   {...stock}
+                  favoriteDisabled={toggleFavorite.isPending}
                   onToggleFavorite={handleToggleFavorite}
                 />
               ))}
