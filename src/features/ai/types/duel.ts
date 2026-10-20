@@ -1,3 +1,4 @@
+import type { Pagination } from "@/shared/types/pagination";
 import type { Trade } from "@/shared/types/trade";
 
 export const DUEL_TYPES = ["나 vs AI", "AI끼리"] as const;
@@ -59,6 +60,7 @@ export interface CompetitionApiItem {
 
 export interface CompetitionsResponse {
   ongoing_competition_count: number;
+  pagination: Pagination;
   competitions: CompetitionApiItem[];
 }
 
@@ -189,6 +191,7 @@ export interface CompetitionExecution {
 
 export interface CompetitionExecutionsResponse {
   account_id: number;
+  pagination: Pagination;
   executions: CompetitionExecution[];
 }
 
