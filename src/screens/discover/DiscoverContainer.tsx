@@ -78,7 +78,7 @@ export function DiscoverContainer() {
                 trackEvent("unsupported_feature_click", {
                   feature_name: "search",
                 });
-                toast.info("검색 기능은 v2에서 이용할 수 있어요");
+                toast.info("검색 기능은 v3에서 이용할 수 있어요");
               }}
             >
               <SearchIcon
