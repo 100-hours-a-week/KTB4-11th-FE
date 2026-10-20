@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useInputFeedback } from "@/shared/hooks/useInputFeedback";
 import {
   MAX_AMOUNT,
   MIN_AMOUNT,
@@ -20,41 +20,24 @@ export function InitialAmountInput({
   onChange,
   error,
 }: InitialAmountInputProps) {
-  const fieldRef = useRef<HTMLDivElement>(null);
-  const [hasExceededAmount, setHasExceededAmount] = useState(false);
+  const { feedbackRef, errorMessage, isErrorFading, showError, clearError } =
+    useInputFeedback();
 
   function updateAmount(next: number) {
-    const exceedsLimit = next > MAX_AMOUNT;
-    setHasExceededAmount(exceedsLimit);
-    if (
-      exceedsLimit &&
-      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      const field = fieldRef.current;
-      field?.getAnimations().forEach((animation) => animation.cancel());
-      field?.animate(
-        [
-          { transform: "translateX(0)" },
-          { transform: "translateX(-6px)" },
-          { transform: "translateX(6px)" },
-          { transform: "translateX(-4px)" },
-          { transform: "translateX(4px)" },
-          { transform: "translateX(0)" },
-        ],
-        { duration: 300, easing: "ease-out" },
-      );
-    }
+    if (next > MAX_AMOUNT) showError("최대 1억 원까지 입력할 수 있어요");
+    else clearError();
     onChange(Math.min(next, MAX_AMOUNT));
   }
 
   return (
     <div className="flex flex-col gap-3">
-      <div ref={fieldRef} aria-live="polite">
+      <div ref={feedbackRef} aria-live="polite">
         <InitialAmountField
           value={value.toLocaleString()}
           onChange={(next) => updateAmount(Number(next.replace(/,/g, "")) || 0)}
-          aria-invalid={hasExceededAmount || !!error}
-          error={hasExceededAmount ? "최대 1억 원까지 입력할 수 있어요" : error}
+          aria-invalid={!!errorMessage || !!error}
+          error={errorMessage ?? error}
+          errorFading={isErrorFading && !error}
         />
       </div>
       <QuickAmountChips
