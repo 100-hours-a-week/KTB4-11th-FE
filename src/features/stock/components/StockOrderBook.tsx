@@ -163,18 +163,30 @@ export function StockOrderBook({
   className,
 }: StockOrderBookProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const initialPositionSet = useRef(false);
   const selectable = Boolean(onPriceSelect);
   useEffect(() => {
+    if (
+      initialPositionSet.current ||
+      orderBook.currentPrice <= 0 ||
+      (!orderBook.asks.some((level) => level.price > 0) &&
+        !orderBook.bids.some((level) => level.price > 0))
+    )
+      return;
+
     const element = scrollRef.current;
-    const current = element?.querySelector<HTMLElement>("[data-current-price]");
-    if (element && current)
-      element.scrollTop =
-        element.scrollTop +
+    if (!element) return;
+    initialPositionSet.current = true;
+
+    // 첫 유효 데이터에서만 중앙 정렬하고 이후 갱신은 강조만 변경
+    const current = element.querySelector<HTMLElement>("[data-current-price]");
+    if (current)
+      element.scrollTop +=
         current.getBoundingClientRect().top -
         element.getBoundingClientRect().top -
         element.clientHeight / 2 +
         current.offsetHeight / 2;
-  }, [orderBook.currentPrice, orderBook.asks.length, orderBook.bids.length]);
+  }, [orderBook]);
   const maxQuantity = Math.max(
     1,
     ...orderBook.asks.map((level) => level.quantity),
@@ -185,7 +197,7 @@ export function StockOrderBook({
     <div className={cn("bg-bg-layer-default h-full", className)}>
       <div
         ref={scrollRef}
-        className="relative max-h-full overflow-y-auto px-5 pt-3"
+        className="relative max-h-full overflow-y-auto px-5 pt-3 [overflow-anchor:none]"
       >
         {showLimits && orderBook.upperLimitPrice !== undefined && (
           <OrderBookLimitRow
