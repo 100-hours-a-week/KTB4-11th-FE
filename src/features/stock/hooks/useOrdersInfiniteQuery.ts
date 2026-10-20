@@ -18,7 +18,8 @@ export function useOrdersInfiniteQuery(
         limit: ORDERS_PAGE_SIZE,
         orderSide,
       }),
-    initialPageParam: 1,
+    // 주문 내역 API는 page가 0부터 시작
+    initialPageParam: 0,
     getNextPageParam: (lastPage) =>
       lastPage.pagination.has_next ? lastPage.pagination.page + 1 : undefined,
     enabled: accountId !== undefined,
