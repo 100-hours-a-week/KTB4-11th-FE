@@ -26,7 +26,7 @@ export function ProfileCard({ nickname, profileImage }: ProfileCardProps) {
       </div>
       <button
         type="button"
-        onClick={() => toast.info("프로필 수정은 v2에서 이용할 수 있어요")}
+        onClick={() => toast.info("프로필 수정은 v3에서 이용할 수 있어요")}
       >
         <EditIcon
           width={24}

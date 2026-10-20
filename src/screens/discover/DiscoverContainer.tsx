@@ -78,7 +78,7 @@ export function DiscoverContainer() {
                 trackEvent("unsupported_feature_click", {
                   feature_name: "search",
                 });
-                toast.info("검색 기능은 v2에서 이용할 수 있어요");
+                toast.info("검색 기능은 v3에서 이용할 수 있어요");
               }}
             >
               <SearchIcon
@@ -103,7 +103,14 @@ export function DiscoverContainer() {
         kospi={kospi && { value: kospi.value, changeRate: kospi.rate }}
       />
       <div className="flex flex-col gap-4 px-5">
-        <SearchInput placeholder="종목 검색" />
+        <SearchInput
+          placeholder="종목 검색"
+          onFocus={(event) => {
+            trackEvent("unsupported_feature_click", { feature_name: "search" });
+            toast.info("검색 기능은 v3에서 이용할 수 있어요");
+            event.currentTarget.blur();
+          }}
+        />
         <span className="heading-2-semibold">실시간 차트</span>
         <RankingTypeTabs value={rankingType} onChange={setRankingType} />
       </div>
