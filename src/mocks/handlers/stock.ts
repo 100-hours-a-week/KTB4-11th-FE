@@ -1,13 +1,9 @@
 import { http, HttpResponse, type HttpHandler } from "msw";
 import type { StockInfoResponse } from "@/features/stock/types/stockDetail";
-import type { KospiIndexResponse } from "@/features/stock/types/kospiIndex";
 import type {
   WatchlistItem,
   WatchlistResponse,
 } from "@/features/stock/types/watchlist";
-
-const BASE_VALUE = 2817.42;
-const BASE_CHANGE = -12.5;
 
 interface StockPoolEntry {
   stock_name: string;
@@ -147,20 +143,6 @@ export const stockHandlers: HttpHandler[] = [
       low_price: Math.round(entry.price * 0.99),
       volume: 1_250_000,
       fetched_at: new Date().toISOString(),
-    });
-  }),
-
-  http.get("*/api/v1/market/indices/kospi", async () => {
-    const fluctuation = (Math.random() - 0.5) * 10;
-    const value = BASE_VALUE + fluctuation;
-    const change = BASE_CHANGE + fluctuation;
-    const changeRate = (change / (value - change)) * 100;
-
-    return HttpResponse.json<KospiIndexResponse>({
-      value: Math.round(value * 100) / 100,
-      change: Math.round(change * 100) / 100,
-      changeRate: Math.round(changeRate * 100) / 100,
-      fetchedAt: new Date().toISOString(),
     });
   }),
 

@@ -118,7 +118,7 @@ export function HomeContainer() {
       />
       <StockTickerBar
         title="스톡스푼"
-        kospi={kospi && { value: kospi.value, changeRate: kospi.changeRate }}
+        kospi={kospi && { value: kospi.value, changeRate: kospi.rate }}
       />
       <div className="flex flex-col gap-1 px-5 pb-24">
         <AccountSelector />

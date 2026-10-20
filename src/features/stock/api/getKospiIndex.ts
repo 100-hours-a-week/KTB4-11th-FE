@@ -1,10 +1,9 @@
-import { apiClient } from "@/shared/lib/axios";
+import { marketApiClient } from "@/shared/lib/marketApiClient";
 import type { KospiIndexResponse } from "@/features/stock/types/kospiIndex";
 
 export async function getKospiIndex() {
-  const { data: kospiIndexResponse } = await apiClient.get<KospiIndexResponse>(
-    "/api/v1/market/indices/kospi",
-  );
+  const { data: kospiIndexResponse } =
+    await marketApiClient.get<KospiIndexResponse>("/indices/KOSPI");
 
   return kospiIndexResponse;
 }
