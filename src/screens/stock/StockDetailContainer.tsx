@@ -5,7 +5,7 @@ import { cn } from "@/shared/utils/cn";
 import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
-import { useOrdersQuery } from "@/features/stock/hooks/useOrdersQuery";
+import { useOrdersInfiniteQuery } from "@/features/stock/hooks/useOrdersInfiniteQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { useStockChart } from "@/features/stock/hooks/useStockChart";
 import { StockChartSelectionSummary } from "@/features/stock/components/chart/StockChartSelectionSummary";
@@ -33,6 +33,7 @@ import { toPendingOrder } from "@/features/stock/utils/toPendingOrder";
 import { toStockHolding } from "@/features/stock/utils/toStockHolding";
 import { toStockTrade } from "@/features/stock/utils/toStockTrade";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
+import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
 
 interface StockDetailContainerProps {
   code: string;
@@ -59,20 +60,41 @@ export function StockDetailContainer({
   const hasHolding = holdingData?.is_held ?? false;
   const holding = holdingData ? toStockHolding(holdingData) : undefined;
 
-  const { data: pendingOrdersData } = useOrdersQuery(accountId, {
+  const {
+    data: pendingOrdersData,
+    hasNextPage: hasMorePendingOrders,
+    isFetchingNextPage: isFetchingNextPendingOrders,
+    fetchNextPage: fetchNextPendingOrdersPage,
+  } = useOrdersInfiniteQuery(accountId, {
     stockCode: code,
     orderStatus: "pending",
   });
-  const { data: orderHistoryData } = useOrdersQuery(accountId, {
+  const {
+    data: orderHistoryData,
+    hasNextPage: hasMoreOrderHistory,
+    isFetchingNextPage: isFetchingNextOrderHistory,
+    fetchNextPage: fetchNextOrderHistoryPage,
+  } = useOrdersInfiniteQuery(accountId, {
     stockCode: code,
     orderStatus: "executed",
   });
-  const pendingOrders = (pendingOrdersData?.orders ?? [])
+  const pendingOrders = (pendingOrdersData?.pages ?? [])
+    .flatMap((page) => page.orders)
     .filter((order) => order.order_source === "user")
     .map(toPendingOrder);
-  const orderHistory = (orderHistoryData?.orders ?? [])
+  const orderHistory = (orderHistoryData?.pages ?? [])
+    .flatMap((page) => page.orders)
     .filter((order) => order.order_source === "user")
     .map(toStockTrade);
+
+  const pendingOrdersSentinelRef = useInfiniteScroll({
+    hasMore: hasMorePendingOrders && !isFetchingNextPendingOrders,
+    onLoadMore: () => fetchNextPendingOrdersPage(),
+  });
+  const orderHistorySentinelRef = useInfiniteScroll({
+    hasMore: hasMoreOrderHistory && !isFetchingNextOrderHistory,
+    onLoadMore: () => fetchNextOrderHistoryPage(),
+  });
 
   const cancelOrderMutation = useCancelOrderMutation(accountId);
 
@@ -204,7 +226,13 @@ export function StockDetailContainer({
                 });
               }}
             />
+            {hasMorePendingOrders && (
+              <div ref={pendingOrdersSentinelRef} className="h-1" />
+            )}
             <StockOrderHistoryList items={orderHistory} />
+            {hasMoreOrderHistory && (
+              <div ref={orderHistorySentinelRef} className="h-1" />
+            )}
           </div>
         )}
       </div>
