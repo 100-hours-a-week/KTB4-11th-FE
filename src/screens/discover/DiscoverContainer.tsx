@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 import { RankingList } from "@/features/stock/components/RankingList";
 import { RankingItemSkeleton } from "@/features/stock/components/RankingItemSkeleton";
@@ -10,7 +10,7 @@ import { SearchInput } from "@/features/stock/components/SearchInput";
 import { useRankingQuery } from "@/features/stock/hooks/useRankingQuery";
 import { useWatchlistQuery } from "@/features/stock/hooks/useWatchlistQuery";
 import { useToggleFavoriteMutation } from "@/features/stock/hooks/useToggleFavoriteMutation";
-import type { RankingType } from "@/features/stock/types/ranking";
+import { useRankingTab } from "@/features/stock/hooks/useRankingTab";
 import { toRankingStock } from "@/features/stock/utils/toRankingStock";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
@@ -25,7 +25,7 @@ import { trackEvent } from "@/shared/utils/analytics";
 
 export function DiscoverContainer() {
   const { data: kospi } = useKospiIndexQuery();
-  const [rankingType, setRankingType] = useState<RankingType>("거래대금");
+  const { rankingType, setRankingType } = useRankingTab();
 
   const { data, isPending, isError, refetch, loadMore, hasMore, isFetching } =
     useRankingQuery(rankingType);
