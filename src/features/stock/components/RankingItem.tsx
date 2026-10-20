@@ -11,6 +11,7 @@ import {
 } from "@/shared/utils/getReturnRateInfo";
 
 interface RankingItemProps extends RankingStock {
+  favoriteDisabled?: boolean;
   onToggleFavorite: (stockCode: string) => void;
 }
 
@@ -22,9 +23,10 @@ export function RankingItem({
   changeRate,
   isFavorite,
   onToggleFavorite,
+  favoriteDisabled = false,
 }: RankingItemProps) {
   const router = useRouter();
-  const { colorClass } = getReturnRateInfo(changeRate);
+  const { colorClass } = getReturnRateInfo(changeRate ?? 0);
   const HeartIcon = isFavorite ? HeartFilledIcon : HeartOutlineIcon;
 
   return (
@@ -42,20 +44,27 @@ export function RankingItem({
         <span className="body-2-semibold truncate">{name}</span>
         <span className="flex items-center gap-1">
           <span className="caption-1-regular text-text-neutral-secondary">
-            {price.toLocaleString()}원
+            {price === null ? "—" : `${price.toLocaleString()}원`}
           </span>
           <span className={cn("caption-1-semibold", colorClass)}>
-            {formatSignedPercent(changeRate)}
+            {changeRate === null ? "—" : formatSignedPercent(changeRate)}
           </span>
         </span>
       </div>
       <button
         type="button"
+        disabled={favoriteDisabled || isFavorite === undefined}
         onClick={(event) => {
           event.stopPropagation();
           onToggleFavorite(stockCode);
         }}
-        aria-label={isFavorite ? "관심 종목 해제" : "관심 종목 등록"}
+        aria-label={
+          isFavorite === undefined
+            ? undefined
+            : isFavorite
+              ? "관심 종목 해제"
+              : "관심 종목 등록"
+        }
       >
         <HeartIcon
           width={21}
