@@ -353,10 +353,15 @@ export const aiHandlers: HttpHandler[] = [
     const page = Number(url.searchParams.get("page") ?? "0");
     const limit = Number(url.searchParams.get("limit") ?? "10");
     const orderSide = url.searchParams.get("order_side");
+    const orderStatus = url.searchParams.get("order_status");
+    const stockCode = url.searchParams.get("stock_code");
 
-    const filteredOrders = orderSide
-      ? ORDERS.filter((order) => order.order_side === orderSide)
-      : ORDERS;
+    const filteredOrders = ORDERS.filter(
+      (order) =>
+        (!orderSide || order.order_side === orderSide) &&
+        (!orderStatus || order.order_status === orderStatus) &&
+        (!stockCode || order.stock_code === stockCode),
+    );
     const totalElements = filteredOrders.length;
     const totalPages = Math.ceil(totalElements / limit);
     const start = page * limit;

@@ -13,10 +13,12 @@ export function useOrdersInfiniteQuery(
   return useInfiniteQuery({
     queryKey: ["orders", "infinite", accountId, orderSide],
     queryFn: ({ pageParam }) =>
+      // 매매 내역 화면은 체결된 거래만 보여주므로 executed로 고정
       getOrders(accountId!, {
         page: pageParam,
         limit: ORDERS_PAGE_SIZE,
         orderSide,
+        orderStatus: "executed",
       }),
     // 주문 내역 API는 page가 0부터 시작
     initialPageParam: 0,
