@@ -105,9 +105,7 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
       <div className="relative shrink-0">
         <Header
           className="h-16 px-4"
-          left={
-            <HeaderBackButton onClick={() => router.push(`/stock/${code}`)} />
-          }
+          left={<HeaderBackButton fallbackHref={`/stock/${code}`} />}
         />
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
           <span className="caption-1-regular text-text-neutral-secondary">
