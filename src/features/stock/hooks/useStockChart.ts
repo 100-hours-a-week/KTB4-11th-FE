@@ -5,13 +5,17 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useStockBarsQuery } from "@/features/stock/hooks/useStockBarsQuery";
-import type { ChartPeriod } from "@/features/stock/types/stockDetail";
+import {
+  CHART_PERIODS,
+  type ChartPeriod,
+} from "@/features/stock/types/stockDetail";
 import {
   getDetailedChartConfig,
   getSimpleChartConfig,
   type ChartGranularity,
   type ChartMinute,
   isMinuteChart,
+  CHART_GRANULARITIES,
 } from "@/features/stock/utils/chart/chartPeriod";
 import type { ChartSelection } from "@/features/stock/utils/chart/chartSelection";
 import { selectPeriodBars } from "@/features/stock/utils/chart/stockChart";
@@ -26,12 +30,27 @@ export function useStockChart(code: string, price: number, dayChange: number) {
     else url.searchParams.delete("chart");
     window.history.replaceState(null, "", url);
   }
-  const [period, setPeriod] = useState<ChartPeriod>("1일");
-  const [granularity, setGranularity] = useState<ChartGranularity>("일");
-  const [minute, setMinute] = useState<ChartMinute>("60분");
+  const period =
+    CHART_PERIODS.find((value) => value === searchParams.get("period")) ??
+    "1일";
+  const intervalParam = searchParams.get("interval") ?? "";
+  const granularity: ChartGranularity = isMinuteChart(intervalParam)
+    ? intervalParam
+    : (CHART_GRANULARITIES.find((value) => value === intervalParam) ?? "일");
+  const minuteParam = searchParams.get("minute") ?? "";
+  const minute: ChartMinute = isMinuteChart(minuteParam) ? minuteParam : "60분";
+
+  function setPeriod(value: ChartPeriod) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("period", value);
+    window.history.replaceState(null, "", url);
+  }
+
   const changeGranularity = (value: ChartGranularity) => {
-    setGranularity(value);
-    if (isMinuteChart(value)) setMinute(value);
+    const url = new URL(window.location.href);
+    url.searchParams.set("interval", value);
+    if (isMinuteChart(value)) url.searchParams.set("minute", value);
+    window.history.replaceState(null, "", url);
   };
   const config = detailed
     ? getDetailedChartConfig(granularity)
