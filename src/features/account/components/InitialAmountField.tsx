@@ -9,19 +9,21 @@ interface InitialAmountFieldProps extends Omit<
 > {
   onChange?: (value: string) => void;
   error?: string;
+  errorFading?: boolean;
 }
 
 export function InitialAmountField({
   className,
   error,
+  errorFading = false,
   onChange,
   ...props
 }: InitialAmountFieldProps) {
   return (
     <div
       className={cn(
-        "bg-bg-layer-default flex flex-col gap-2 rounded-2xl border-[1.4px] p-4",
-        error ? "border-border-error" : "border-transparent",
+        "bg-bg-layer-default flex flex-col gap-2 rounded-2xl border-[1.4px] p-4 transition-colors duration-200 motion-reduce:transition-none",
+        error && !errorFading ? "border-border-error" : "border-transparent",
         className,
       )}
     >
@@ -39,7 +41,12 @@ export function InitialAmountField({
         <span className="body-1-medium text-text-neutral-primary">원</span>
       </div>
       {error ? (
-        <p className="caption-1-regular text-text-error flex items-center gap-1">
+        <p
+          className={cn(
+            "caption-1-regular text-text-error flex items-center gap-1 transition-opacity duration-200 motion-reduce:transition-none",
+            errorFading ? "opacity-0" : "opacity-100",
+          )}
+        >
           {error}
         </p>
       ) : (
