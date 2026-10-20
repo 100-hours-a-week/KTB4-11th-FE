@@ -7,6 +7,7 @@ import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
 interface RankingListProps {
   items: RankingStock[];
   hasMore: boolean;
+  favoriteDisabled?: boolean;
   onLoadMore: () => void;
   onToggleFavorite: (stockCode: string) => void;
 }
@@ -14,6 +15,7 @@ interface RankingListProps {
 export function RankingList({
   items,
   hasMore,
+  favoriteDisabled,
   onLoadMore,
   onToggleFavorite,
 }: RankingListProps) {
@@ -25,6 +27,7 @@ export function RankingList({
         <RankingItem
           key={item.stockCode}
           {...item}
+          favoriteDisabled={favoriteDisabled}
           onToggleFavorite={onToggleFavorite}
         />
       ))}

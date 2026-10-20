@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 import { RankingList } from "@/features/stock/components/RankingList";
 import { RankingItemSkeleton } from "@/features/stock/components/RankingItemSkeleton";
 import { RankingTypeTabs } from "@/features/stock/components/RankingTypeTabs";
 import { SearchInput } from "@/features/stock/components/SearchInput";
 import { useRankingQuery } from "@/features/stock/hooks/useRankingQuery";
+import { useWatchlistQuery } from "@/features/stock/hooks/useWatchlistQuery";
 import { useToggleFavoriteMutation } from "@/features/stock/hooks/useToggleFavoriteMutation";
-import type { RankingType } from "@/features/stock/types/ranking";
+import { useRankingTab } from "@/features/stock/hooks/useRankingTab";
 import { toRankingStock } from "@/features/stock/utils/toRankingStock";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
@@ -24,31 +25,45 @@ import { trackEvent } from "@/shared/utils/analytics";
 
 export function DiscoverContainer() {
   const { data: kospi } = useKospiIndexQuery();
-  const [rankingType, setRankingType] = useState<RankingType>("거래대금");
+  const { rankingType, setRankingType } = useRankingTab();
 
-  const {
-    data,
-    isPending,
-    isError,
-    refetch,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useRankingQuery(rankingType);
+  const { data, isPending, isError, refetch, loadMore, hasMore, isFetching } =
+    useRankingQuery(rankingType);
+  const watchlist = useWatchlistQuery();
   const toggleFavorite = useToggleFavoriteMutation();
-
-  const ranking = (data?.pages ?? []).flatMap((page) =>
-    page.items.map(toRankingStock),
+  const favoriteCodes = useMemo(
+    () =>
+      watchlist.data
+        ? new Set(watchlist.data.watchlists.map((item) => item.stock_code))
+        : undefined,
+    [watchlist.data],
+  );
+  const ranking = (data?.items ?? []).map((item) =>
+    toRankingStock(item, favoriteCodes),
   );
 
   function handleToggleFavorite(stockCode: string) {
     const target = ranking.find((item) => item.stockCode === stockCode);
-    if (!target) return;
+    if (!target || target.isFavorite === undefined || toggleFavorite.isPending)
+      return;
 
-    toggleFavorite.mutate({
-      stockCode,
-      isFavorite: target.isFavorite,
-    });
+    toggleFavorite.mutate(
+      {
+        stockCode,
+        isFavorite: target.isFavorite,
+        stock:
+          target.price !== null && target.changeRate !== null
+            ? {
+                stock_code: stockCode,
+                stock_name: target.name,
+                sector: target.sector,
+                current_price: target.price,
+                price_change_percent: target.changeRate,
+              }
+            : undefined,
+      },
+      { onError: () => toast.error("관심 종목을 변경하지 못했어요") },
+    );
   }
 
   return (
@@ -92,8 +107,8 @@ export function DiscoverContainer() {
         <span className="heading-2-semibold">실시간 차트</span>
         <RankingTypeTabs value={rankingType} onChange={setRankingType} />
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 pt-4 pb-28">
-        {isError ? (
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-4 pb-28">
+        {isError && !data ? (
           <ErrorState onRetry={() => refetch()} />
         ) : isPending ? (
           <div className="flex flex-col gap-2">
@@ -102,14 +117,41 @@ export function DiscoverContainer() {
             ))}
           </div>
         ) : ranking.length === 0 ? (
-          <EmptyState icon={BasketFlusteredIcon} message="종목 정보가 없어요" />
+          <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
+            <EmptyState
+              icon={BasketFlusteredIcon}
+              message="랭킹 정보가 없어요"
+              description="잠시 후 다시 확인해 주세요"
+            />
+          </div>
         ) : (
-          <RankingList
-            items={ranking}
-            hasMore={hasNextPage && !isFetchingNextPage}
-            onLoadMore={() => fetchNextPage()}
-            onToggleFavorite={handleToggleFavorite}
-          />
+          <>
+            {isError && (
+              <button
+                type="button"
+                className="caption-1-regular text-text-neutral-secondary mb-2"
+                onClick={() => void refetch()}
+              >
+                목록을 갱신하지 못했어요. 다시 시도
+              </button>
+            )}
+            {watchlist.isError && (
+              <button
+                type="button"
+                className="caption-1-regular text-text-neutral-secondary mb-2"
+                onClick={() => void watchlist.refetch()}
+              >
+                관심 목록을 불러오지 못했어요. 다시 시도
+              </button>
+            )}
+            <RankingList
+              items={ranking}
+              hasMore={hasMore && !isFetching && !isError}
+              onLoadMore={loadMore}
+              favoriteDisabled={toggleFavorite.isPending}
+              onToggleFavorite={handleToggleFavorite}
+            />
+          </>
         )}
       </div>
       <BottomTabBar />
