@@ -6,8 +6,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
-  MAX_AMOUNT,
-  MIN_AMOUNT,
   duelCreationFormSchema,
   type DuelCreationFormValues,
 } from "@/features/ai/schemas/duelCreationFormSchema";
@@ -18,10 +16,8 @@ import {
   useCreateCompetitionMutation,
 } from "@/features/ai/hooks/useCreateCompetitionMutation";
 import { useCompetitionsQuery } from "@/features/ai/hooks/useCompetitionsQuery";
+import { InitialAmountInput } from "@/features/account/components/InitialAmountInput";
 import InfoIcon from "@/assets/icons/fill/info.svg";
-import { InitialAmountField } from "@/features/account/components/InitialAmountField";
-import { InitialAmountSlider } from "@/features/account/components/InitialAmountSlider";
-import { QuickAmountChips } from "@/features/account/components/QuickAmountChips";
 import { Button } from "@/shared/components/Button";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { Input } from "@/shared/components/Input";
@@ -60,7 +56,6 @@ export function DuelCreateFormContainer() {
   const startDate = watch("startDate");
   const endDate = watch("endDate");
   const amount = watch("amount");
-
   const updateAmount = (value: number) =>
     setValue("amount", value, { shouldValidate: true });
 
@@ -132,27 +127,11 @@ export function DuelCreateFormContainer() {
         />
 
         <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-2">
-            <span className="body-1-bold">대결 자금</span>
-            <InitialAmountField
-              value={amount.toLocaleString()}
-              onChange={(value) =>
-                updateAmount(Number(value.replace(/,/g, "")) || 0)
-              }
-              error={errors.amount?.message}
-            />
-          </div>
-          <QuickAmountChips
-            onAdd={(value) => updateAmount(amount + value)}
-            onManualInput={() => updateAmount(0)}
-          />
-          <InitialAmountSlider
+          <span className="body-1-bold">대결 자금</span>
+          <InitialAmountInput
             value={amount}
-            onValueChange={updateAmount}
-            min={MIN_AMOUNT}
-            max={MAX_AMOUNT}
-            minLabel="100만"
-            maxLabel="1억"
+            onChange={updateAmount}
+            error={errors.amount?.message}
           />
           <span className="flex items-center gap-1">
             <InfoIcon

@@ -6,11 +6,9 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { InitialAmountInput } from "@/features/account/components/InitialAmountInput";
 import { Button } from "@/shared/components/Button";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
-import { InitialAmountField } from "@/features/account/components/InitialAmountField";
-import { InitialAmountSlider } from "@/features/account/components/InitialAmountSlider";
-import { QuickAmountChips } from "@/features/account/components/QuickAmountChips";
 import {
   isAccountNameAlreadyExistsError,
   useCreateAccountMutation,
@@ -19,8 +17,6 @@ import { useOnboardingMutation } from "@/features/account/hooks/useOnboardingMut
 import {
   ACCOUNT_NAME_MAX_LENGTH,
   accountCreationFormSchema,
-  MAX_AMOUNT,
-  MIN_AMOUNT,
   type AccountCreationFormValues,
 } from "@/features/account/schemas/accountCreationFormSchema";
 import { Input } from "@/shared/components/Input";
@@ -141,24 +137,10 @@ export function AccountCreationContainer({
 
         <div className="flex flex-col gap-3">
           <span className="body-1-bold">시작 자금</span>
-          <InitialAmountField
-            value={amount.toLocaleString()}
-            onChange={(value) =>
-              updateAmount(Number(value.replace(/,/g, "")) || 0)
-            }
-            error={errors.amount?.message}
-          />
-          <QuickAmountChips
-            onAdd={(value) => updateAmount(amount + value)}
-            onManualInput={() => updateAmount(0)}
-          />
-          <InitialAmountSlider
+          <InitialAmountInput
             value={amount}
-            onValueChange={updateAmount}
-            min={MIN_AMOUNT}
-            max={MAX_AMOUNT}
-            minLabel="100만"
-            maxLabel="1억"
+            onChange={updateAmount}
+            error={errors.amount?.message}
           />
           <p className="caption-1-regular text-text-neutral-tertiary">
             한 번 설정한 시작 금액은 나중에 바꿀 수 없어요
