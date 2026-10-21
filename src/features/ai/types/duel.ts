@@ -59,8 +59,15 @@ export interface CompetitionApiItem {
   winner: DuelWinner;
 }
 
+export interface CompetitionsPagination {
+  limit: number;
+  has_next: boolean;
+  next_cursor: string | null;
+}
+
 export interface CompetitionsResponse {
   ongoing_competition_count: number;
+  pagination: CompetitionsPagination;
   competitions: CompetitionApiItem[];
 }
 

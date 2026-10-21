@@ -386,12 +386,35 @@ const DEMO_EXECUTIONS: Record<number, CompetitionExecutionsResponse> = {
 };
 
 export const duelHandlers: HttpHandler[] = [
-  http.get("*/api/v2/users/me/competitions", async () => {
+  http.get("*/api/v2/users/me/competitions", async ({ request }) => {
+    const url = new URL(request.url);
+    const state = url.searchParams.get("state");
+    const limit = Number(url.searchParams.get("limit") ?? "10");
+    const cursor = url.searchParams.get("cursor");
+
+    const filtered = DEMO_COMPETITIONS.filter(
+      (competition) => !state || competition.state === state,
+    );
+    const startIndex = cursor
+      ? filtered.findIndex(
+          (competition) => String(competition.competition_id) === cursor,
+        ) + 1
+      : 0;
+    const page = filtered.slice(startIndex, startIndex + limit);
+    const hasNext = startIndex + limit < filtered.length;
+
     return HttpResponse.json<CompetitionsResponse>({
       ongoing_competition_count: DEMO_COMPETITIONS.filter(
         (competition) => competition.state === "in_progress",
       ).length,
-      competitions: DEMO_COMPETITIONS,
+      pagination: {
+        limit,
+        has_next: hasNext,
+        next_cursor: hasNext
+          ? String(page[page.length - 1].competition_id)
+          : null,
+      },
+      competitions: page,
     });
   }),
 
