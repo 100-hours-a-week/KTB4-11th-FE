@@ -7,6 +7,7 @@ export function toStockTrade(order: Order): Trade {
 
   return {
     tradeId: order.order_id,
+    stockCode: order.stock_code,
     stockName: order.stock_name,
     tradeSide: order.order_side === "buy" ? "매수" : "매도",
     tradeDate: formatDateTime(summary?.executed_at ?? order.created_at),

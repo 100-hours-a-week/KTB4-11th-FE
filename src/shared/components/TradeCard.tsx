@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { Trade } from "@/shared/types/trade";
+import { StockLogo } from "@/shared/components/StockLogo";
 import { cn } from "@/shared/utils/cn";
 import {
   formatSignedPercent,
@@ -11,6 +12,7 @@ interface TradeCardProps extends Trade {
 }
 
 export function TradeCard({
+  stockCode,
   stockName,
   tradeSide,
   tradeDate,
@@ -29,7 +31,7 @@ export function TradeCard({
     <div className="bg-bg-layer-default flex flex-col gap-2 rounded-2xl px-4 py-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="border-border-neutral-tertiary size-10 shrink-0 rounded-full border border-dashed" />
+          <StockLogo code={stockCode} className="size-10" />
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-1.5">
               <span className="body-1-semibold">{stockName}</span>
