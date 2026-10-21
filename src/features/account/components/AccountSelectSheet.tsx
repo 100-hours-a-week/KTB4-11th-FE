@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
+import { AccountAvatar } from "@/shared/components/AccountAvatar";
 import { trackEvent } from "@/shared/utils/analytics";
 import { useAccountStore } from "@/store/accountStore";
 import CheckCircleIcon from "@/assets/icons/fill/check-circle.svg";
@@ -65,7 +66,10 @@ export function AccountSelectSheet({ trigger }: AccountSelectSheetProps) {
                     className="flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="border-border-neutral-tertiary size-10 rounded-full border border-dashed" />
+                      <AccountAvatar
+                        accountId={account.account_id}
+                        className="size-10"
+                      />
                       <div className="flex flex-col items-start">
                         <span className="flex items-center gap-2">
                           <span className="body-1-semibold">
