@@ -9,6 +9,7 @@ export function toDuelDetail(detail: CompetitionDetailResponse): DuelDetail {
   )!.account_id;
 
   return {
+    state: detail.state,
     name: detail.competition_name,
     dDay: detail.d_day,
     accountId: myAccountId,
