@@ -1,6 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/shared/utils/cn";
 import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
@@ -45,6 +46,7 @@ export function StockDetailContainer({
   initialTab = "차트",
 }: StockDetailContainerProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { data: stockInfo } = useStockInfoQuery(code);
   const { price: marketPrice } = useMarketPrice(code);
@@ -252,7 +254,12 @@ export function StockDetailContainer({
         )}
         <StockTradeButtons
           showSell={hasHolding}
-          onBuyClick={() => router.push(`/stock/${code}/buy`)}
+          onBuyClick={() => {
+            // 구매 화면이 이전 REST 캐시 대신 진입 순간의 시세로 초기화
+            if (marketPrice)
+              queryClient.setQueryData(["marketPrice", code], marketPrice);
+            router.push(`/stock/${code}/buy`);
+          }}
           onSellClick={() => router.push(`/stock/${code}/sell`)}
         />
       </div>
