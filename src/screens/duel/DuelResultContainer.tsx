@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { isAxiosError } from "axios";
 import confetti from "canvas-confetti";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,7 @@ import CrownIcon from "@/assets/icons/fill/crown.svg";
 import RobotIcon from "@/assets/icons/fill/robot.svg";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
 import RobotFlusteredIcon from "@/assets/icons/stockspoon/robot-flustered.svg";
+import TrophyHappyIcon from "@/assets/icons/stockspoon/trophy-happy.svg";
 import { DuelCompareReturnChart } from "@/features/ai/components/DuelCompareReturnChart";
 import { TradeCard } from "@/shared/components/TradeCard";
 import { DuelAiTradeCard } from "@/features/ai/components/DuelAiTradeCard";
@@ -36,7 +38,7 @@ interface DuelResultContainerProps {
 export function DuelResultContainer({ id }: DuelResultContainerProps) {
   const router = useRouter();
   const [tradeFilter, setTradeFilter] = useState<TradeFilter>(MY_TRADES_FILTER);
-  const { data: result } = useCompetitionResultQuery(id);
+  const { data: result, error } = useCompetitionResultQuery(id);
   const { data: myExecutionsData, isPending: isMyTradesPending } =
     useCompetitionExecutionsQuery(result?.accountId);
   const { data: aiExecutionsData, isPending: isAiTradesPending } =
@@ -59,6 +61,31 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
       origin: { y: 0.3 },
     });
   }, [isWin]);
+
+  if (
+    isAxiosError(error) &&
+    error.response?.data?.code === "COMPETITION_NOT_COMPLETED"
+  ) {
+    return (
+      <div className="pt-screen-top flex h-full flex-col">
+        <Header
+          className="px-5 py-3"
+          title="대결 결과"
+          left={<HeaderBackButton fallbackHref="/duel" />}
+        />
+        <div className="bg-bg-layer-default mx-5 mt-4 mb-5 flex flex-1 flex-col items-center rounded-2xl px-5 pt-32 break-keep">
+          <EmptyState
+            icon={TrophyHappyIcon}
+            textClassName="gap-2"
+            message="아직 완료되지 않은 대결이에요"
+            description="대결 상세에서 현재 상태를 확인해 주세요"
+            actionLabel="대결 상세 보기"
+            onAction={() => router.replace(`/duel/${id}`)}
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (!result) return null;
 
