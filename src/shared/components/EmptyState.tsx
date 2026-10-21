@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import { cn } from "@/shared/utils/cn";
 
 interface EmptyStateProps {
   icon: ComponentType<{ width?: number; height?: number }>;
@@ -6,6 +7,7 @@ interface EmptyStateProps {
   description?: string;
   actionLabel?: string;
   onAction?: () => void;
+  textClassName?: string;
 }
 
 export function EmptyState({
@@ -14,11 +16,12 @@ export function EmptyState({
   description,
   actionLabel,
   onAction,
+  textClassName,
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-8">
       <Icon width={48} height={48} />
-      <div className="flex flex-col items-center gap-1">
+      <div className={cn("flex flex-col items-center gap-1", textClassName)}>
         <span className="body-1-semibold text-text-neutral-primary">
           {message}
         </span>
