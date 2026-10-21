@@ -45,7 +45,12 @@ export function aggregateMinuteBars(bars: Bar[], minutes: number): Bar[] {
   for (const bar of bars) {
     const bucket = Math.floor((Date.parse(bar.timestamp) + offset) / interval);
     const group = groups.get(bucket);
-    if (!group) groups.set(bucket, { ...bar });
+    if (!group)
+      groups.set(bucket, {
+        ...bar,
+        // 구간 중간부터 데이터가 있어도 봉 시간은 해당 구간의 시작 시각으로 표시
+        timestamp: new Date(bucket * interval - offset).toISOString(),
+      });
     else {
       group.high = Math.max(group.high, bar.high);
       group.low = Math.min(group.low, bar.low);

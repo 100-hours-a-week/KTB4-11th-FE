@@ -9,7 +9,10 @@ import { createDetailedViewport } from "@/features/stock/utils/chart/chartViewpo
 import type { ChartSelection } from "@/features/stock/utils/chart/chartSelection";
 import type { Bar, ChartExtreme } from "@/features/stock/types/chart";
 import type { ChartGranularity } from "@/features/stock/utils/chart/chartPeriod";
-import { detailedChartOptions } from "@/features/stock/utils/chart/chartOptions";
+import {
+  chartDayStarts,
+  detailedChartOptions,
+} from "@/features/stock/utils/chart/chartOptions";
 import { resolveCssColor } from "@/shared/utils/chartFormat";
 import { createDetailedSeries } from "@/features/stock/utils/chart/chartSeries";
 
@@ -55,6 +58,7 @@ export function useStockDetailedChart({
     const container = containerRef.current;
     if (!container || !inputRef.current.bars.length) return;
     const { bars, currentPrice, previousClose } = inputRef.current;
+    const dayStarts = chartDayStarts(bars);
     const muted = resolveCssColor("var(--color-text-neutral-tertiary)");
     const rise = resolveCssColor("var(--color-text-price-rise)");
     const fall = resolveCssColor("var(--color-text-price-fall)");
@@ -65,6 +69,7 @@ export function useStockDetailedChart({
         granularity,
         container.clientWidth,
         container.clientHeight,
+        dayStarts,
       ),
     );
     const chartSeries = createDetailedSeries(chart, {
@@ -124,6 +129,9 @@ export function useStockDetailedChart({
       },
       updateBars: () => {
         const range = chart.timeScale().getVisibleLogicalRange();
+        dayStarts.clear();
+        for (const time of chartDayStarts(inputRef.current.bars))
+          dayStarts.add(time);
         chartSeries.updateBars(inputRef.current.bars);
         if (rangeInitialized && range)
           chart.timeScale().setVisibleLogicalRange(range);
