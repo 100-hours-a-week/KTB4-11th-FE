@@ -2,6 +2,7 @@ export type TradeSide = "매도" | "매수";
 
 export interface Trade {
   tradeId: number;
+  stockCode: string;
   stockName: string;
   tradeSide: TradeSide;
   tradeDate: string;

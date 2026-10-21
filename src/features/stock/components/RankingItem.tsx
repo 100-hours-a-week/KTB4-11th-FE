@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
 import type { RankingStock } from "@/features/stock/types/ranking";
+import { StockLogo } from "@/shared/components/StockLogo";
 import { cn } from "@/shared/utils/cn";
 import {
   formatSignedPercent,
@@ -39,7 +40,7 @@ export function RankingItem({
           {rank}
         </span>
       )}
-      <span className="border-border-neutral-tertiary size-9 shrink-0 rounded-full border border-dashed" />
+      <StockLogo code={stockCode} className="size-9" />
       <div className="flex min-w-0 flex-1 flex-col gap-0">
         <span className="body-2-semibold truncate">{name}</span>
         <span className="flex items-center gap-1">
