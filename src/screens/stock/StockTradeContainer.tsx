@@ -52,7 +52,7 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
     code,
     stockName,
     side,
-    price,
+    side === "buy" ? (marketPrice?.price ?? 0) : price,
     marketPrice?.upper_limit_price,
     marketPrice?.lower_limit_price,
     availableCash,

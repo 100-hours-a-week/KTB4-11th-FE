@@ -34,7 +34,12 @@ export function useStockTradeForm(
   const [priceInput, setPriceInput] = useState(String(currentPrice));
   const [hasEditedPrice, setHasEditedPrice] = useState(false);
   const [lastSyncedPrice, setLastSyncedPrice] = useState(currentPrice);
-  if (!hasEditedPrice && currentPrice !== lastSyncedPrice) {
+  // 구매 지정가는 첫 유효 현재가로만 초기화하고 이후 갱신은 사용자가 직접 입력한 값만 유지
+  const shouldSyncPrice =
+    side === "buy"
+      ? lastSyncedPrice <= 0 && currentPrice > 0
+      : currentPrice !== lastSyncedPrice;
+  if (!hasEditedPrice && shouldSyncPrice) {
     setLastSyncedPrice(currentPrice);
     setPriceInput(String(currentPrice));
   }
