@@ -12,6 +12,18 @@ import {
   seoulDate,
 } from "@/features/stock/utils/chart/stockChart";
 import { isMinuteChart } from "@/features/stock/utils/chart/chartPeriod";
+import type { Bar } from "@/features/stock/types/chart";
+
+export function chartDayStarts(bars: readonly Bar[]): Set<number> {
+  const starts = new Set<number>();
+  let previousDay = "";
+  for (const bar of bars) {
+    const day = seoulDate(bar.timestamp).toISOString().slice(0, 10);
+    if (day !== previousDay) starts.add(Date.parse(bar.timestamp) / 1000);
+    previousDay = day;
+  }
+  return starts;
+}
 
 export function stockChartOptions(
   textColor: string,
@@ -62,8 +74,13 @@ export function stockAxisTick(
   time: Time,
   granularity: string,
   tickType: TickMarkType,
+  dayStarts?: ReadonlySet<number>,
 ) {
   const date = seoulDate(new Date(Number(time) * 1000).toISOString());
+  if (isMinuteChart(granularity) && dayStarts) {
+    if (dayStarts.has(Number(time))) return `${date.getUTCDate()}일`;
+    return `${String(date.getUTCHours()).padStart(2, "0")}:${String(date.getUTCMinutes()).padStart(2, "0")}`;
+  }
   if (granularity === "년" || tickType === TickMarkType.Year)
     return String(date.getUTCFullYear());
   if (granularity === "월" || tickType === TickMarkType.Month)
@@ -81,6 +98,7 @@ export function detailedChartOptions(
   granularity: string,
   width: number,
   height: number,
+  dayStarts?: ReadonlySet<number>,
 ): DeepPartial<ChartOptions> {
   return {
     ...stockChartOptions(muted),
@@ -88,8 +106,10 @@ export function detailedChartOptions(
     width: width,
     height: height,
     timeScale: {
+      timeVisible: isMinuteChart(granularity),
+      secondsVisible: false,
       tickMarkFormatter: (time: Time, tickType: TickMarkType) =>
-        stockAxisTick(time, granularity, tickType),
+        stockAxisTick(time, granularity, tickType, dayStarts),
       rightOffset: 1,
       barSpacing: 14,
       // 최대 확대는 라이브러리 기본값: 봉 간격이 차트 너비의 절반
