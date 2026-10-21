@@ -15,6 +15,9 @@ import {
 } from "@/features/stock/utils/chart/chartOptions";
 import { resolveCssColor } from "@/shared/utils/chartFormat";
 import { createDetailedSeries } from "@/features/stock/utils/chart/chartSeries";
+import { restoreChartViewport } from "@/features/stock/utils/chart/chartPreferences";
+import { createChartViewportPersistence } from "@/features/stock/utils/chart/chartViewportPersistence";
+import { useStockChartStore } from "@/store/stockChartStore";
 
 export interface StockDetailedChartOptions {
   bars: Bar[];
@@ -104,11 +107,18 @@ export function useStockDetailedChart({
         : granularity === "월"
           ? 18
           : 20;
-    const initialRange = rangeRef.current ?? {
-      from: Math.max(-1, bars.length - initialCount) - 0.5,
-      to: bars.length + 1,
-    };
-    let rangeInitialized = false;
+    const savedViewport = useStockChartStore.getState().viewports[granularity];
+    const initialRange = rangeRef.current ??
+      (savedViewport && restoreChartViewport(savedViewport, bars.length)) ?? {
+        from: Math.max(-1, bars.length - initialCount) - 0.5,
+        to: bars.length + 1,
+      };
+    const viewportPersistence = createChartViewportPersistence({
+      chart,
+      getBarCount: () => inputRef.current.bars.length,
+      onSave: (viewport) =>
+        useStockChartStore.getState().setViewport(granularity, viewport),
+    });
     const updateViewport = () => {
       const { bars, currentPrice } = inputRef.current;
       const price = currentPrice > 0 ? currentPrice : (bars.at(-1)?.close ?? 0);
@@ -133,7 +143,7 @@ export function useStockDetailedChart({
         for (const time of chartDayStarts(inputRef.current.bars))
           dayStarts.add(time);
         chartSeries.updateBars(inputRef.current.bars);
-        if (rangeInitialized && range)
+        if (viewportPersistence.initialized && range)
           chart.timeScale().setVisibleLogicalRange(range);
         updateViewport();
         controller.refresh();
@@ -142,18 +152,16 @@ export function useStockDetailedChart({
     chart.timeScale().subscribeVisibleLogicalRangeChange(updateViewport);
     const observer = new ResizeObserver(() => {
       chart.resize(container.clientWidth, container.clientHeight);
-      if (!rangeInitialized) {
-        chart.timeScale().setVisibleLogicalRange(initialRange);
-        rangeInitialized = true;
-      }
+      viewportPersistence.initialize(initialRange);
       updateViewport();
       controller.refresh();
     });
     observer.observe(container);
     updateViewport();
     return () => {
-      if (rangeInitialized)
+      if (viewportPersistence.initialized)
         rangeRef.current = chart.timeScale().getVisibleLogicalRange();
+      viewportPersistence.dispose();
       observer.disconnect();
       runtimeRef.current = null;
       controller.detach();
