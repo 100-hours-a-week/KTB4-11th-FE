@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "pretendard/dist/web/variable/pretendardvariable.css";
+@import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 @import "./typography.css";
 @plugin "tailwindcss-animate";
 
