@@ -348,38 +348,43 @@ const ORDERS: Order[] = [
 let nextOrderId = 206;
 
 export const aiHandlers: HttpHandler[] = [
-  http.get("*/api/v1/accounts/:accountId/orders", async ({ request }) => {
-    const url = new URL(request.url);
-    const page = Number(url.searchParams.get("page") ?? "0");
-    const limit = Number(url.searchParams.get("limit") ?? "10");
-    const orderSide = url.searchParams.get("order_side");
-    const orderStatus = url.searchParams.get("order_status");
-    const stockCode = url.searchParams.get("stock_code");
+  http.get(
+    "*/api/v1/accounts/:accountId/orders",
+    async ({ request, params }) => {
+      const url = new URL(request.url);
+      const isPaginated = url.searchParams.has("page");
+      const page = Number(url.searchParams.get("page") ?? "0");
+      const limit = Number(url.searchParams.get("limit") ?? "10");
+      const orderSide = url.searchParams.get("order_side");
+      const orderStatus = url.searchParams.get("order_status");
+      const stockCode = url.searchParams.get("stock_code");
 
-    const filteredOrders = ORDERS.filter(
-      (order) =>
-        (!orderSide || order.order_side === orderSide) &&
-        (!orderStatus || order.order_status === orderStatus) &&
-        (!stockCode || order.stock_code === stockCode),
-    );
-    const totalElements = filteredOrders.length;
-    const totalPages = Math.ceil(totalElements / limit);
-    const start = page * limit;
-    const orders = filteredOrders.slice(start, start + limit);
+      const filteredOrders = ORDERS.filter(
+        (order) =>
+          (!orderSide || order.order_side === orderSide) &&
+          (!orderStatus || order.order_status === orderStatus) &&
+          (!stockCode || order.stock_code === stockCode),
+      );
+      const totalElements = filteredOrders.length;
+      const totalPages = Math.ceil(totalElements / limit);
+      const start = isPaginated ? page * limit : 0;
+      const orders = filteredOrders.slice(start, start + limit);
 
-    return HttpResponse.json<OrdersResponse>({
-      message: "success",
-      account_id: 1,
-      pagination: {
-        page,
-        limit,
-        total_elements: totalElements,
-        total_pages: totalPages,
-        has_next: page + 1 < totalPages,
-      },
-      orders,
-    });
-  }),
+      return HttpResponse.json<OrdersResponse>({
+        account_id: Number(params.accountId),
+        ...(isPaginated && {
+          pagination: {
+            page,
+            limit,
+            total_elements: totalElements,
+            total_pages: totalPages,
+            has_next: page + 1 < totalPages,
+          },
+        }),
+        orders,
+      });
+    },
+  ),
   http.get(
     "*/api/v1/accounts/:accountId/orders/:orderId/ai-report",
     async ({ params }) => {
