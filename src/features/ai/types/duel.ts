@@ -185,7 +185,6 @@ export interface DuelReportData {
 }
 
 export interface CompetitionExecution {
-  execution_id: number;
   order_id: number;
   stock_code: string;
   stock_name: string;
@@ -197,8 +196,15 @@ export interface CompetitionExecution {
   realized_return_percent: number | null;
 }
 
+export interface CompetitionExecutionsPagination {
+  limit: number;
+  has_next: boolean;
+  next_cursor: string | null;
+}
+
 export interface CompetitionExecutionsResponse {
   account_id: number;
+  pagination: CompetitionExecutionsPagination;
   executions: CompetitionExecution[];
 }
 
