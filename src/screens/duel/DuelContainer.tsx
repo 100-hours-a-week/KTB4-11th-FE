@@ -8,6 +8,7 @@ import { DuelCard } from "@/features/ai/components/DuelCard";
 import { DuelCardSkeleton } from "@/features/ai/components/DuelCardSkeleton";
 import { DuelTypeSheet } from "@/features/ai/components/DuelTypeSheet";
 import { OngoingDuelCarousel } from "@/features/ai/components/OngoingDuelCarousel";
+import { useCompetitionsInfiniteQuery } from "@/features/ai/hooks/useCompetitionsInfiniteQuery";
 import { useCompetitionsQuery } from "@/features/ai/hooks/useCompetitionsQuery";
 import {
   DUEL_STATUS_FILTERS,
@@ -23,29 +24,45 @@ import { EmptyState } from "@/shared/components/EmptyState";
 import { FilterChips } from "@/shared/components/FilterChips";
 import { Header } from "@/shared/components/Header";
 import { StockTickerBar } from "@/shared/components/StockTickerBar";
+import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
 import { trackEvent } from "@/shared/utils/analytics";
 
 const ALL_FILTER: DuelStatusFilter = "전체";
 
+const STATUS_FILTER_TO_STATE: Record<
+  DuelStatusFilter,
+  "in_progress" | "completed" | undefined
+> = {
+  전체: undefined,
+  "진행 중": "in_progress",
+  "지난 대결": "completed",
+};
+
 export function DuelContainer() {
   const { data: kospi } = useKospiIndexQuery();
-  const { data: duels, isPending: isDuelsPending } = useCompetitionsQuery();
   const [statusFilter, setStatusFilter] =
     useState<DuelStatusFilter>(ALL_FILTER);
   const [isTypeSheetOpen, setIsTypeSheetOpen] = useState(false);
   const [isAlreadyExistsOpen, setIsAlreadyExistsOpen] = useState(false);
 
-  const allDuels = duels ?? [];
-
-  const ongoingUserVsAiDuel = allDuels.find(
-    (duel) => duel.type === "나 vs AI" && duel.status === "진행 중",
+  const { data: ongoingDuels } = useCompetitionsQuery({
+    state: "in_progress",
+  });
+  const ongoingUserVsAiDuel = (ongoingDuels ?? []).find(
+    (duel) => duel.type === "나 vs AI",
   );
-  const ongoingDuels = allDuels.filter((duel) => duel.status === "진행 중");
 
-  const filteredDuels = allDuels.filter((duel) => {
-    if (statusFilter === "전체") return true;
-    if (statusFilter === "진행 중") return duel.status === "진행 중";
-    return duel.status === "종료";
+  const {
+    data: duelsPages,
+    isPending: isDuelsPending,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useCompetitionsInfiniteQuery(STATUS_FILTER_TO_STATE[statusFilter]);
+  const filteredDuels = (duelsPages?.pages ?? []).flatMap((page) => page.duels);
+  const sentinelRef = useInfiniteScroll({
+    hasMore: hasNextPage && !isFetchingNextPage,
+    onLoadMore: () => fetchNextPage(),
   });
 
   function handleCreateClick() {
@@ -95,7 +112,7 @@ export function DuelContainer() {
             <DuelCardSkeleton />
             <DuelCardSkeleton />
           </div>
-        ) : allDuels.length === 0 ? (
+        ) : filteredDuels.length === 0 && statusFilter === "전체" ? (
           <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
             <EmptyState
               icon={TrophyHappyIcon}
@@ -108,7 +125,7 @@ export function DuelContainer() {
         ) : (
           <div className="flex min-h-0 flex-1 flex-col gap-2 pt-4">
             <div className="flex flex-col gap-4">
-              <OngoingDuelCarousel duels={ongoingDuels} />
+              <OngoingDuelCarousel duels={ongoingDuels ?? []} />
 
               <div className="flex items-center justify-between">
                 <FilterChips
@@ -148,6 +165,7 @@ export function DuelContainer() {
                 {filteredDuels.map((duel) => (
                   <DuelCard key={duel.id} {...duel} />
                 ))}
+                {hasNextPage && <div ref={sentinelRef} className="h-1" />}
               </div>
             )}
           </div>
