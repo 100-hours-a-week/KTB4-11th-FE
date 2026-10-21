@@ -1,6 +1,7 @@
 "use client";
 
 import type { Duel } from "@/features/ai/types/duel";
+import Link from "next/link";
 import CalendarIcon from "@/assets/icons/fill/calendar.svg";
 import FireIcon from "@/assets/icons/fill/fire.svg";
 import InfoIcon from "@/assets/icons/fill/info.svg";
@@ -31,7 +32,9 @@ interface OngoingDuelCarouselProps {
 }
 
 export function OngoingDuelCarousel({ duels }: OngoingDuelCarouselProps) {
-  const displayedDuels = duels.slice(0, MAX_ONGOING);
+  const displayedDuels = duels
+    .filter((duel) => duel.status === "진행 중")
+    .slice(0, MAX_ONGOING);
   const { emblaRef, selectedIndex, scrollTo } = useCarousel();
 
   if (displayedDuels.length === 0) return null;
@@ -79,7 +82,10 @@ export function OngoingDuelCarousel({ duels }: OngoingDuelCarouselProps) {
 
             return (
               <div key={duel.id} className="min-w-0 flex-[0_0_100%] pl-3">
-                <div className="bg-bg-layer-default relative flex flex-col gap-1 rounded-2xl p-4">
+                <Link
+                  href={`/duel/${duel.id}`}
+                  className="bg-bg-layer-default relative flex flex-col gap-1 rounded-2xl p-4"
+                >
                   <span className="text-text-neutral-secondary body-2-semibold absolute top-4 right-4 flex items-center gap-0.5">
                     <FireIcon width={16} height={16} />
                     D-{duel.dDay}
@@ -139,7 +145,7 @@ export function OngoingDuelCarousel({ duels }: OngoingDuelCarouselProps) {
                       />
                     </div>
                   </div>
-                </div>
+                </Link>
               </div>
             );
           })}

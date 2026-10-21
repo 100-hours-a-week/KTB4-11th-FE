@@ -6,7 +6,9 @@ export type DuelType = (typeof DUEL_TYPES)[number];
 export const DUEL_STATUS_FILTERS = ["전체", "진행 중", "지난 대결"] as const;
 export type DuelStatusFilter = (typeof DUEL_STATUS_FILTERS)[number];
 
-export type DuelStatus = "진행 중" | "종료";
+export type DuelStatus = "시작 대기" | "진행 중" | "종료" | "취소";
+export type CompetitionState =
+  "ready" | "in_progress" | "completed" | "cancelled";
 
 export type DuelResult = "WIN" | "LOSE";
 
@@ -47,7 +49,7 @@ export type DuelWinner = "user" | "ai" | null;
 
 export interface CompetitionApiItem {
   competition_id: number;
-  state: "in_progress" | "completed";
+  state: CompetitionState;
   competition_name: string;
   competition_type: "user_vs_ai";
   start_date: string;
@@ -73,7 +75,7 @@ export interface CreateCompetitionRequest {
 export interface CreateCompetitionResponse {
   message: string;
   competition_id: number;
-  d_day: number;
+  state: CompetitionState;
 }
 
 export interface CompetitionDailyPerformance {
@@ -92,7 +94,7 @@ export interface CompetitionDetailResponse {
   competition_id: number;
   competition_name: string;
   competition_type: "user_vs_ai";
-  state: "in_progress" | "completed";
+  state: CompetitionState;
   start_date: string;
   end_date: string;
   /** 잔여일 (목록 조회와 동일한 의미) */
@@ -103,6 +105,7 @@ export interface CompetitionDetailResponse {
 }
 
 export interface DuelDetail {
+  state: CompetitionState;
   name: string;
   dDay: number;
   accountId: number;

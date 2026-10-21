@@ -13,6 +13,17 @@ import { addDemoAccount } from "@/mocks/handlers/account";
 
 const DEMO_COMPETITIONS: CompetitionApiItem[] = [
   {
+    competition_id: 4,
+    state: "ready",
+    competition_name: "다음 장 시작 대기",
+    competition_type: "user_vs_ai",
+    start_date: "2026-10-21",
+    end_date: "2026-11-04",
+    d_day: 14,
+    cumulative_return_percent: 0,
+    winner: null,
+  },
+  {
     competition_id: 1,
     state: "in_progress",
     competition_name: "8월 반도체 집중",
@@ -48,6 +59,31 @@ const DEMO_COMPETITIONS: CompetitionApiItem[] = [
 ];
 
 const DEMO_COMPETITION_DETAILS: Record<number, CompetitionDetailResponse> = {
+  4: {
+    competition_id: 4,
+    competition_name: "다음 장 시작 대기",
+    competition_type: "user_vs_ai",
+    state: "ready",
+    start_date: "2026-10-21",
+    end_date: "2026-11-04",
+    d_day: 14,
+    participants: [
+      {
+        participant_id: 7,
+        account_id: 104,
+        participant_type: "user",
+        display_name: "나",
+      },
+      {
+        participant_id: 8,
+        account_id: 105,
+        participant_type: "ai",
+        display_name: "AI",
+      },
+    ],
+    cumulative_return_percent: 0,
+    daily_performances: [],
+  },
   1: {
     competition_id: 1,
     competition_name: "8월 반도체 집중",
@@ -409,7 +445,10 @@ export const duelHandlers: HttpHandler[] = [
         (1000 * 60 * 60 * 24),
     );
 
-    const competitionId = DEMO_COMPETITIONS.length + 1;
+    const competitionId =
+      Math.max(
+        ...DEMO_COMPETITIONS.map((competition) => competition.competition_id),
+      ) + 1;
 
     DEMO_COMPETITIONS.push({
       competition_id: competitionId,
@@ -436,7 +475,7 @@ export const duelHandlers: HttpHandler[] = [
       {
         message: "success",
         competition_id: competitionId,
-        d_day: dDay,
+        state: "in_progress",
       },
       { status: 201 },
     );
@@ -454,6 +493,18 @@ export const duelHandlers: HttpHandler[] = [
   }),
 
   http.get("*/api/v2/users/me/competitions/:id/result", async ({ params }) => {
+    const competition = DEMO_COMPETITIONS.find(
+      (item) => item.competition_id === Number(params.id),
+    );
+    if (competition && competition.state !== "completed") {
+      return HttpResponse.json(
+        {
+          code: "COMPETITION_NOT_COMPLETED",
+          message: "아직 완료되지 않은 대결입니다.",
+        },
+        { status: 409 },
+      );
+    }
     const result = DEMO_COMPETITION_RESULTS[Number(params.id)];
     if (!result) {
       return HttpResponse.json(
