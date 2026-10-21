@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import type { HoldingStock } from "@/features/account/types/holdingStock";
+import { StockLogo } from "@/shared/components/StockLogo";
 import { cn } from "@/shared/utils/cn";
 import {
   formatSignedPercent,
@@ -29,7 +30,7 @@ export function HoldingStockItem({
       className="bg-bg-layer-default flex cursor-pointer items-center justify-between rounded-2xl px-4 py-3"
     >
       <div className="flex items-center gap-3">
-        <span className="border-border-neutral-tertiary size-10 rounded-full border border-dashed" />
+        <StockLogo code={id} className="size-10" />
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1">
             <span className="body-1-semibold">{name}</span>
