@@ -48,8 +48,11 @@ export interface OrdersPagination {
 }
 
 export interface OrdersResponse {
-  message: string;
   account_id: number;
-  pagination: OrdersPagination;
+  pagination?: OrdersPagination;
   orders: Order[];
+}
+
+export interface PaginatedOrdersResponse extends OrdersResponse {
+  pagination: OrdersPagination;
 }

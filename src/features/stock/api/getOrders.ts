@@ -3,6 +3,7 @@ import type {
   OrderSide,
   OrderStatus,
   OrdersResponse,
+  PaginatedOrdersResponse,
 } from "@/features/ai/types/aiTrade";
 
 export interface GetOrdersParams {
@@ -13,6 +14,14 @@ export interface GetOrdersParams {
   stockCode?: string;
 }
 
+export function getOrders(
+  accountId: number,
+  params: GetOrdersParams & { page: number },
+): Promise<PaginatedOrdersResponse>;
+export function getOrders(
+  accountId: number,
+  params?: GetOrdersParams,
+): Promise<OrdersResponse>;
 export async function getOrders(
   accountId: number,
   { page, limit, orderSide, orderStatus, stockCode }: GetOrdersParams = {},
