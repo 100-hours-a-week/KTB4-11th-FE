@@ -34,13 +34,13 @@ export function StockChartIntervalChips({
   const [open, setOpen] = useState(false);
   const chipClass = (selected: boolean) =>
     cn(
-      "body-2-semibold rounded-full border px-2 py-1 transition-colors",
+      "body-2-semibold rounded-full border px-2 py-1 whitespace-nowrap transition-colors",
       selected
         ? "bg-bg-neutral-primary border-bg-neutral-primary text-text-neutral-inverse"
         : "bg-bg-layer-default border-border-neutral-muted text-text-neutral-secondary",
     );
   return (
-    <div className="grid grid-cols-5 gap-1.5">
+    <div className="grid grid-cols-[minmax(max-content,1fr)_repeat(4,minmax(0,1fr))] gap-1.5">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <button
@@ -51,7 +51,7 @@ export function StockChartIntervalChips({
             )}
           >
             {minute}
-            <ChevronDownIcon width={8} height={8} />
+            <ChevronDownIcon width={8} height={8} className="shrink-0" />
           </button>
         </SheetTrigger>
         <SheetPortal>
