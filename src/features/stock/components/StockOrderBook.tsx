@@ -23,6 +23,10 @@ const SIDE_COLUMN_CLASS =
 
 const TRADE_COLUMN_CLASS = "grid-cols-[1fr_126px_1fr]";
 
+function formatOrderBookPercent(value: number): string {
+  return formatSignedPercent(Math.trunc(value * 100) / 100, 2);
+}
+
 function OrderBookLimitRow({
   label,
   price,
@@ -58,7 +62,7 @@ function OrderBookLimitRow({
           </span>
           {showChangeRate && (
             <span className={cn("caption-1-regular", colorClass)}>
-              {formatSignedPercent(changeRate)}
+              {formatOrderBookPercent(changeRate)}
             </span>
           )}
         </span>
@@ -132,7 +136,7 @@ function OrderBookRow({
         </span>
         {showChangeRate && (
           <span className={cn("caption-1-regular", colorClass)}>
-            {formatSignedPercent(level.changeRate)}
+            {formatOrderBookPercent(level.changeRate)}
           </span>
         )}
       </span>
