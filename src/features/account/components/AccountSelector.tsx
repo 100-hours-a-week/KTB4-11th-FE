@@ -6,6 +6,7 @@ import { AccountMinimumGuardModal } from "@/features/account/components/AccountM
 import { AccountNameEditModal } from "@/features/account/components/AccountNameEditModal";
 import { AccountSelectSheet } from "@/features/account/components/AccountSelectSheet";
 import { AccountSettingsSheet } from "@/features/account/components/AccountSettingsSheet";
+import { AccountAvatar } from "@/shared/components/AccountAvatar";
 import { useAccountDetailQuery } from "@/features/account/hooks/useAccountDetailQuery";
 import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
@@ -28,7 +29,12 @@ export function AccountSelector() {
       <AccountSelectSheet
         trigger={
           <button type="button" className="flex items-center">
-            <span className="border-border-neutral-tertiary mr-2 size-6 rounded-lg border border-dashed" />
+            {accountId !== undefined && (
+              <AccountAvatar
+                accountId={accountId}
+                className="mr-2 size-8 rounded-lg"
+              />
+            )}
             <span className="heading-2-semibold mr-1">
               {account?.account_name ?? "기본계좌"}
             </span>
