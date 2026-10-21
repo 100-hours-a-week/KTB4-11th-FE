@@ -21,11 +21,13 @@ export function useStockBarsQuery(
     aggregateMinutes,
     period,
   }: BarsRequestConfig,
+  enabled = true,
 ) {
   const client = useQueryClient();
   const queryKey = ["bars", stockCode, timeframe, minCount, period];
   const query = useQuery({
     queryKey,
+    enabled,
     refetchInterval: 60_000,
     queryFn: async ({ signal }) => {
       const cached = client.getQueryData<Bar[]>(queryKey);
