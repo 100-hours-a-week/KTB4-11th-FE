@@ -16,13 +16,13 @@ import TrophyHappyIcon from "@/assets/icons/stockspoon/trophy-happy.svg";
 import { DuelCompareReturnChart } from "@/features/ai/components/DuelCompareReturnChart";
 import { TradeCard } from "@/shared/components/TradeCard";
 import { DuelAiTradeCard } from "@/features/ai/components/DuelAiTradeCard";
-import { useCompetitionExecutionsQuery } from "@/features/ai/hooks/useCompetitionExecutionsQuery";
+import { useCompetitionExecutionsInfiniteQuery } from "@/features/ai/hooks/useCompetitionExecutionsInfiniteQuery";
 import { useCompetitionResultQuery } from "@/features/ai/hooks/useCompetitionResultQuery";
-import { toDuelTrade } from "@/features/ai/utils/toDuelTrade";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { FilterChips } from "@/shared/components/FilterChips";
 import { TradeCardSkeleton } from "@/shared/components/TradeCardSkeleton";
+import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
 import { cn } from "@/shared/utils/cn";
 import { formatSignedPercent } from "@/shared/utils/getReturnRateInfo";
 
@@ -39,18 +39,30 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
   const router = useRouter();
   const [tradeFilter, setTradeFilter] = useState<TradeFilter>(MY_TRADES_FILTER);
   const { data: result, error } = useCompetitionResultQuery(id);
-  const { data: myExecutionsData, isPending: isMyTradesPending } =
-    useCompetitionExecutionsQuery(result?.accountId);
-  const { data: aiExecutionsData, isPending: isAiTradesPending } =
-    useCompetitionExecutionsQuery(result?.aiAccountId);
+  const myExecutions = useCompetitionExecutionsInfiniteQuery(
+    result?.accountId,
+  );
+  const aiExecutions = useCompetitionExecutionsInfiniteQuery(
+    result?.aiAccountId,
+  );
 
   const isWin = result?.result === "WIN";
   const ResultIcon = isWin ? CrownIcon : RobotIcon;
-  const myTrades = (myExecutionsData?.executions ?? []).map(toDuelTrade);
-  const aiTrades = (aiExecutionsData?.executions ?? []).map(toDuelTrade);
-  const trades = tradeFilter === MY_TRADES_FILTER ? myTrades : aiTrades;
-  const isTradesPending =
-    tradeFilter === MY_TRADES_FILTER ? isMyTradesPending : isAiTradesPending;
+  const myTrades = (myExecutions.data?.pages ?? []).flatMap(
+    (page) => page.trades,
+  );
+  const aiTrades = (aiExecutions.data?.pages ?? []).flatMap(
+    (page) => page.trades,
+  );
+  const isMyTab = tradeFilter === MY_TRADES_FILTER;
+  const trades = isMyTab ? myTrades : aiTrades;
+  const activeExecutions = isMyTab ? myExecutions : aiExecutions;
+  const isTradesPending = activeExecutions.isPending;
+  const sentinelRef = useInfiniteScroll({
+    hasMore:
+      activeExecutions.hasNextPage && !activeExecutions.isFetchingNextPage,
+    onLoadMore: () => activeExecutions.fetchNextPage(),
+  });
 
   useEffect(() => {
     if (!isWin) return;
@@ -212,13 +224,18 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
                 )}
               </div>
             ) : (
-              trades.map((trade) =>
-                tradeFilter === AI_TRADES_FILTER ? (
-                  <DuelAiTradeCard key={trade.tradeId} {...trade} />
-                ) : (
-                  <TradeCard key={trade.tradeId} {...trade} />
-                ),
-              )
+              <>
+                {trades.map((trade) =>
+                  tradeFilter === AI_TRADES_FILTER ? (
+                    <DuelAiTradeCard key={trade.tradeId} {...trade} />
+                  ) : (
+                    <TradeCard key={trade.tradeId} {...trade} />
+                  ),
+                )}
+                {activeExecutions.hasNextPage && (
+                  <div ref={sentinelRef} className="h-1" />
+                )}
+              </>
             )}
           </div>
         </div>

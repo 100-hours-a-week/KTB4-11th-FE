@@ -30,9 +30,11 @@ const defaultStart = new Date();
 export function DuelCreateFormContainer() {
   const router = useRouter();
 
-  const { data: duels } = useCompetitionsQuery();
-  const ongoingUserVsAiDuel = (duels ?? []).find(
-    (duel) => duel.type === "나 vs AI" && duel.status === "진행 중",
+  const { data: ongoingDuels } = useCompetitionsQuery({
+    state: "in_progress",
+  });
+  const ongoingUserVsAiDuel = (ongoingDuels ?? []).find(
+    (duel) => duel.type === "나 vs AI",
   );
   const [isAlreadyExistsOpen, setIsAlreadyExistsOpen] = useState(false);
 

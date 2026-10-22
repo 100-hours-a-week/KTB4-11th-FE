@@ -3,7 +3,7 @@ import { formatDateTime } from "@/features/ai/utils/formatDateTime";
 
 export function toDuelTrade(execution: CompetitionExecution): DuelTrade {
   return {
-    tradeId: execution.execution_id,
+    tradeId: execution.order_id,
     stockCode: execution.stock_code,
     stockName: execution.stock_name,
     tradeSide: execution.order_side === "buy" ? "매수" : "매도",
