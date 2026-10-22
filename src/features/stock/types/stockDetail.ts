@@ -44,20 +44,14 @@ export interface StockHolding {
   avgPrice: number;
 }
 
+// 평가금액·수익률은 서버가 안 주고 FE에서 시세 서버 현재가로 계산
 export interface StockHoldingResponse {
-  message: string;
   account_id: number;
   stock_code: string;
-  stock_name: string;
   is_held: boolean;
   quantity: number;
   total_cost: number;
   average_purchase_price: number;
-  current_price: number;
-  total_value: number;
-  unrealized_pnl: number;
-  return_percent: number;
-  fetched_at: string;
 }
 
 export type PendingOrderSide = "구매 예약" | "판매 예약";

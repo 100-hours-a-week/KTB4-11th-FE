@@ -60,7 +60,7 @@ export function StockDetailContainer({
   const accountId = useSelectedAccountId();
   const { data: holdingData } = useStockHoldingQuery(accountId, code);
   const hasHolding = holdingData?.is_held ?? false;
-  const holding = holdingData ? toStockHolding(holdingData) : undefined;
+  const holding = holdingData ? toStockHolding(holdingData, price) : undefined;
 
   const {
     data: pendingOrdersData,
