@@ -37,8 +37,8 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
   const { data: stockInfo } = useStockInfoQuery(code);
   const { price: marketPrice } = useMarketPrice(code);
   const stockName = stockInfo?.stock_name ?? code;
-  const price = marketPrice?.price ?? stockInfo?.current_price ?? 0;
-  const changeRate = marketPrice?.rate ?? stockInfo?.price_change_percent ?? 0;
+  const price = marketPrice?.price ?? 0;
+  const changeRate = marketPrice?.rate ?? 0;
 
   const accountId = useSelectedAccountId();
   const { data: accountDetail } = useAccountDetailQuery(accountId);
