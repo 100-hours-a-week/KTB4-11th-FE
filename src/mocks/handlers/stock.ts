@@ -118,31 +118,20 @@ const favoriteItems = new Map<string, WatchlistItem>([
 ]);
 
 export const stockHandlers: HttpHandler[] = [
-  http.get("*/api/v1/stocks/:stockCode", async ({ params }) => {
+  http.get("*/api/v2/stocks/:stockCode", async ({ params }) => {
     const stockCode = String(params.stockCode);
     const entry = resolveStockPoolEntry(stockCode);
 
     if (!entry) {
       return HttpResponse.json(
-        { message: "찾을 수 없습니다", code: "NOT_FOUND" },
+        { message: "존재하지 않는 종목으로 확인됨", code: "STOCK_NOT_FOUND" },
         { status: 404 },
       );
     }
 
-    const openPrice = Math.round(entry.price / (1 + entry.change_rate / 100));
-
     return HttpResponse.json<StockInfoResponse>({
-      message: "success",
       stock_code: stockCode,
       stock_name: entry.stock_name,
-      current_price: entry.price,
-      price_change: entry.price - openPrice,
-      price_change_percent: entry.change_rate,
-      open_price: openPrice,
-      high_price: Math.round(entry.price * 1.01),
-      low_price: Math.round(entry.price * 0.99),
-      volume: 1_250_000,
-      fetched_at: new Date().toISOString(),
     });
   }),
 

@@ -13,17 +13,8 @@ export type ChartPeriod = (typeof CHART_PERIODS)[number];
 
 // 종목 고정 정보(종목명 등) — 실시간 시세는 market 서비스로 덮어씀
 export interface StockInfoResponse {
-  message: string;
   stock_code: string;
   stock_name: string;
-  current_price: number;
-  price_change: number;
-  price_change_percent: number;
-  open_price: number;
-  high_price: number;
-  low_price: number;
-  volume: number;
-  fetched_at: string;
 }
 
 export interface OrderBookLevel {
