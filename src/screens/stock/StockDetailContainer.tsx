@@ -51,9 +51,9 @@ export function StockDetailContainer({
   const { data: stockInfo } = useStockInfoQuery(code);
   const { price: marketPrice } = useMarketPrice(code);
   const name = stockInfo?.stock_name ?? code;
-  const price = marketPrice?.price ?? stockInfo?.current_price ?? 0;
-  const changeAmount = marketPrice?.change ?? stockInfo?.price_change ?? 0;
-  const changeRate = marketPrice?.rate ?? stockInfo?.price_change_percent ?? 0;
+  const price = marketPrice?.price ?? 0;
+  const changeAmount = marketPrice?.change ?? 0;
+  const changeRate = marketPrice?.rate ?? 0;
 
   const chart = useStockChart(code, price, changeAmount);
 
