@@ -23,6 +23,7 @@ import { useCancelOrderMutation } from "@/features/stock/hooks/useCancelOrderMut
 import { useMarketOrderBook } from "@/features/stock/hooks/useMarketOrderBook";
 import { useMarketPrice } from "@/features/stock/hooks/useMarketPrice";
 import { useStockHoldingQuery } from "@/features/stock/hooks/useStockHoldingQuery";
+import { useStockHoldingValuationQuery } from "@/features/stock/hooks/useStockHoldingValuationQuery";
 import { useStockInfoQuery } from "@/features/stock/hooks/useStockInfoQuery";
 import { useToggleWatchlistMutation } from "@/features/stock/hooks/useToggleWatchlistMutation";
 import { useWatchlistQuery } from "@/features/stock/hooks/useWatchlistQuery";
@@ -31,7 +32,6 @@ import { useStockDetailTab } from "@/features/stock/hooks/useStockDetailTab";
 import { isRegularMarketHours } from "@/features/stock/utils/marketHours";
 import { toOrderBook } from "@/features/stock/utils/toOrderBook";
 import { toPendingOrder } from "@/features/stock/utils/toPendingOrder";
-import { toStockHolding } from "@/features/stock/utils/toStockHolding";
 import { toStockTrade } from "@/features/stock/utils/toStockTrade";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
@@ -60,7 +60,6 @@ export function StockDetailContainer({
   const accountId = useSelectedAccountId();
   const { data: holdingData } = useStockHoldingQuery(accountId, code);
   const hasHolding = holdingData?.is_held ?? false;
-  const holding = holdingData ? toStockHolding(holdingData, price) : undefined;
 
   const {
     data: pendingOrdersData,
@@ -108,6 +107,11 @@ export function StockDetailContainer({
   const { tab, tabs, selectTab } = useStockDetailTab(
     initialTab,
     holdingData?.is_held,
+  );
+  const { data: holding } = useStockHoldingValuationQuery(
+    accountId,
+    code,
+    tab === "내 주식",
   );
 
   const { orderBook: marketOrderBook, isLoading: isOrderBookLoading } =
