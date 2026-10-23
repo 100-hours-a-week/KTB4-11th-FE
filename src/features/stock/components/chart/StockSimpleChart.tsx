@@ -13,7 +13,7 @@ export function StockSimpleChart({
   expanded = false,
   ...options
 }: StockSimpleChartOptions & { expanded?: boolean }) {
-  const { containerRef, baselineY, extremes, dots, tooltip } =
+  const { containerRef, baselineY, extremes, dots, tooltip, endpoint, isLive } =
     useStockSimpleChart(options);
   const { baseline } = options;
   return (
@@ -27,6 +27,26 @@ export function StockSimpleChart({
       />
       {!tooltip && (
         <>
+          {endpoint && (
+            <span
+              aria-hidden="true"
+              data-chart-endpoint
+              data-live={isLive}
+              className="pointer-events-none absolute size-6 -translate-x-1/2 -translate-y-1/2 motion-safe:transition-[left,top] motion-safe:duration-150"
+              style={{ left: endpoint.x, top: endpoint.y }}
+            >
+              {isLive && (
+                <span
+                  className="absolute inset-0 rounded-full opacity-20 motion-safe:animate-ping"
+                  style={{ backgroundColor: endpoint.color }}
+                />
+              )}
+              <span
+                className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                style={{ backgroundColor: endpoint.color }}
+              />
+            </span>
+          )}
           {dots.map((dot, index) => (
             <span
               key={index}

@@ -55,7 +55,12 @@ export function StockDetailContainer({
   const changeAmount = marketPrice?.change ?? 0;
   const changeRate = marketPrice?.rate ?? 0;
 
-  const chart = useStockChart(code, price, changeAmount);
+  const chart = useStockChart(
+    code,
+    price,
+    changeAmount,
+    marketPrice?.timestamp,
+  );
 
   const accountId = useSelectedAccountId();
   const { data: holdingData } = useStockHoldingQuery(accountId, code);
