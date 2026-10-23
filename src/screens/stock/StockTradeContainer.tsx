@@ -35,7 +35,8 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
   const router = useRouter();
 
   const { data: stockInfo } = useStockInfoQuery(code);
-  const { price: marketPrice } = useMarketPrice(code);
+  const { price: marketPrice, isPending: isMarketPricePending } =
+    useMarketPrice(code);
   const stockName = stockInfo?.stock_name ?? code;
   const price = marketPrice?.price ?? 0;
   const changeRate = marketPrice?.rate ?? 0;
@@ -111,10 +112,12 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
           <span className="caption-1-regular text-text-neutral-secondary">
             {stockName}
           </span>
-          <AnimatedPriceText
-            className={cn("body-2-semibold", colorClass)}
-            text={`${price.toLocaleString()}원 ${formatSignedPercent(changeRate)}`}
-          />
+          {!isMarketPricePending && (
+            <AnimatedPriceText
+              className={cn("body-2-semibold", colorClass)}
+              text={`${price.toLocaleString()}원 ${formatSignedPercent(changeRate)}`}
+            />
+          )}
         </div>
       </div>
 
