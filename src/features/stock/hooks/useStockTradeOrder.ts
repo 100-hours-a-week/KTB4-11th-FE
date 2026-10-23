@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { isAxiosError } from "axios";
 import { toast } from "sonner";
 import {
   isInsufficientCashError,
@@ -12,6 +13,7 @@ import type {
   StockTradeResult,
   StockTradeSide,
 } from "@/features/stock/types/stockTrade";
+import type { ApiErrorResponse } from "@/shared/types/apiError";
 
 // 주문 API 호출과 성공·실패 결과 화면 상태를 관리
 export function useStockTradeOrder({
@@ -73,7 +75,12 @@ export function useStockTradeOrder({
             setResult({ type: "insufficient-shares" });
             return;
           }
-          toast.error("주문을 접수하지 못했어요. 다시 시도해 주세요.");
+          const message = isAxiosError<ApiErrorResponse>(error)
+            ? error.response?.data?.message
+            : undefined;
+          toast.error(
+            message ?? "주문을 접수하지 못했어요. 다시 시도해 주세요.",
+          );
         },
       },
     );
