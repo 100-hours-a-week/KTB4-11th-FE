@@ -111,8 +111,6 @@ const favoriteItems = new Map<string, WatchlistItem>([
       stock_code: "035420",
       stock_name: "NAVER",
       sector: "플랫폼",
-      current_price: 221_500,
-      price_change_percent: -0.8,
     },
   ],
 ]);
@@ -151,8 +149,6 @@ export const stockHandlers: HttpHandler[] = [
         stock_code: body.stock_code,
         stock_name: entry.stock_name,
         sector: entry.sector_name,
-        current_price: entry.price,
-        price_change_percent: entry.change_rate,
       });
     }
 

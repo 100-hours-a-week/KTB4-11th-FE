@@ -11,10 +11,10 @@ interface UseEventSourceResult<T> {
 }
 
 /** url이 null이면 연결하지 않음 (재연결은 EventSource 내장 동작에 맡기고 상태만 노출) */
-export function useEventSource<T>(
+export function useEventSource<T, TIncoming = T>(
   url: string | null,
   eventName: string,
-  merge?: (previous: T | null, incoming: T) => T,
+  merge?: (previous: T | null, incoming: TIncoming) => T,
 ): UseEventSourceResult<T> {
   const [data, setData] = useState<T | null>(null);
   const [connectionStatus, setConnectionStatus] =
@@ -35,8 +35,12 @@ export function useEventSource<T>(
 
     source.addEventListener(eventName, (event) => {
       try {
-        const incoming = JSON.parse((event as MessageEvent<string>).data) as T;
-        setData((previous) => (merge ? merge(previous, incoming) : incoming));
+        const incoming = JSON.parse(
+          (event as MessageEvent<string>).data,
+        ) as TIncoming;
+        setData((previous) =>
+          merge ? merge(previous, incoming) : (incoming as unknown as T),
+        );
       } catch {
         // JSON이 아닌 메시지가 오면 무시하고 이전 data 그대로 유지 (앱이 죽지 않게)
       }

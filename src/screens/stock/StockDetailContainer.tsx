@@ -268,7 +268,7 @@ export function StockDetailContainer({
           onBuyClick={() => {
             // 구매 화면이 이전 REST 캐시 대신 진입 순간의 시세로 초기화
             if (marketPrice)
-              queryClient.setQueryData(["marketPrice", code], marketPrice);
+              queryClient.setQueryData(["marketPrices", code], [marketPrice]);
             router.push(`/stock/${code}/buy`);
           }}
           onSellClick={() => router.push(`/stock/${code}/sell`)}
