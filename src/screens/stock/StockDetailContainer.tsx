@@ -13,6 +13,10 @@ import { StockChartSelectionSummary } from "@/features/stock/components/chart/St
 import { StockChart } from "@/features/stock/components/chart/StockChart";
 import { StockDetailTabs } from "@/features/stock/components/StockDetailTabs";
 import { StockHoldingSummary } from "@/features/stock/components/StockHoldingSummary";
+import {
+  StockHoldingSummarySkeleton,
+  StockHoldingTabSkeleton,
+} from "@/features/stock/components/StockHoldingTabSkeleton";
 import { StockOrderBook } from "@/features/stock/components/StockOrderBook";
 import { StockOrderBookWaitingBar } from "@/features/stock/components/StockOrderBookWaitingBar";
 import { StockOrderHistoryList } from "@/features/stock/components/StockOrderHistoryList";
@@ -126,11 +130,12 @@ export function StockDetailContainer({
     initialTab,
     hasStockActivity,
   );
-  const { data: holding } = useStockHoldingValuationQuery(
-    accountId,
-    code,
-    tab === "내 주식" && hasHolding,
-  );
+  const { data: holding, isLoading: isLoadingHoldingValuation } =
+    useStockHoldingValuationQuery(
+      accountId,
+      code,
+      tab === "내 주식" && hasHolding,
+    );
 
   const { orderBook: marketOrderBook, isLoading: isOrderBookLoading } =
     useMarketOrderBook(tab === "호가" ? code : undefined);
@@ -239,6 +244,10 @@ export function StockDetailContainer({
         {tab === "내 주식" && (
           <div className="flex flex-col gap-4 px-5 pt-4">
             {hasHolding && holding && <StockHoldingSummary holding={holding} />}
+            {hasHolding && !holding && isLoadingHoldingValuation && (
+              <StockHoldingSummarySkeleton />
+            )}
+            {hasStockActivity === undefined && <StockHoldingTabSkeleton />}
             <StockPendingOrderList
               orders={pendingOrders}
               onCancel={(orderId) => {
