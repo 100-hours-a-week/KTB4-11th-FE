@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { DuelAlreadyExistsModal } from "@/features/ai/components/DuelAlreadyExistsModal";
@@ -10,6 +11,7 @@ import { DuelTypeSheet } from "@/features/ai/components/DuelTypeSheet";
 import { OngoingDuelCarousel } from "@/features/ai/components/OngoingDuelCarousel";
 import { useCompetitionsInfiniteQuery } from "@/features/ai/hooks/useCompetitionsInfiniteQuery";
 import { useCompetitionsQuery } from "@/features/ai/hooks/useCompetitionsQuery";
+import { useActiveUserVsAiDuelQuery } from "@/features/ai/hooks/useActiveUserVsAiDuelQuery";
 import {
   DUEL_STATUS_FILTERS,
   type DuelStatusFilter,
@@ -39,6 +41,7 @@ const STATUS_FILTER_TO_STATE: Record<
 };
 
 export function DuelContainer() {
+  const router = useRouter();
   const { data: kospi } = useKospiIndexQuery();
   const [statusFilter, setStatusFilter] =
     useState<DuelStatusFilter>(ALL_FILTER);
@@ -48,9 +51,11 @@ export function DuelContainer() {
   const { data: ongoingDuels } = useCompetitionsQuery({
     state: "in_progress",
   });
-  const ongoingUserVsAiDuel = (ongoingDuels ?? []).find(
-    (duel) => duel.type === "나 vs AI",
-  );
+  const {
+    data: ongoingUserVsAiDuel,
+    refetch: refetchActiveDuel,
+    isFetching: isCheckingExistingDuel,
+  } = useActiveUserVsAiDuelQuery();
 
   const {
     data: duelsPages,
@@ -67,6 +72,17 @@ export function DuelContainer() {
 
   function handleCreateClick() {
     setIsTypeSheetOpen(true);
+  }
+
+  async function handleUserVsAiSelect() {
+    const result = await refetchActiveDuel();
+    if (result.isError) {
+      toast.error("기존 대결을 확인하지 못했어요. 다시 시도해 주세요.");
+      return;
+    }
+    setIsTypeSheetOpen(false);
+    if (result.data) setIsAlreadyExistsOpen(true);
+    else router.push("/duel/create");
   }
 
   return (
@@ -176,8 +192,8 @@ export function DuelContainer() {
       <DuelTypeSheet
         open={isTypeSheetOpen}
         onOpenChange={setIsTypeSheetOpen}
-        hasOngoingUserVsAiDuel={!!ongoingUserVsAiDuel}
-        onBlockedByOngoingDuel={() => setIsAlreadyExistsOpen(true)}
+        isCheckingExistingDuel={isCheckingExistingDuel}
+        onSelectUserVsAi={handleUserVsAiSelect}
       />
       {ongoingUserVsAiDuel && (
         <DuelAlreadyExistsModal
@@ -186,6 +202,7 @@ export function DuelContainer() {
           ongoingDuelId={ongoingUserVsAiDuel.id}
           ongoingDuelName={ongoingUserVsAiDuel.name}
           remainingDays={ongoingUserVsAiDuel.dDay}
+          isReady={ongoingUserVsAiDuel.status === "시작 대기"}
         />
       )}
     </div>
