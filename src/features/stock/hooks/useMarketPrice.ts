@@ -46,5 +46,5 @@ export function useMarketPrice(stockCode?: string) {
   const price = liveForStock
     ? mergeMarketPrice(initialForStock, liveForStock)
     : initialForStock;
-  return { price, status };
+  return { price, status, isPending: price === null };
 }
