@@ -1,5 +1,6 @@
 "use client";
 
+import { DuelProgressBar } from "@/features/ai/components/DuelProgressBar";
 import type { Duel } from "@/features/ai/types/duel";
 import Link from "next/link";
 import CalendarIcon from "@/assets/icons/fill/calendar.svg";
@@ -108,43 +109,10 @@ export function OngoingDuelCarousel({ duels }: OngoingDuelCarouselProps) {
                   <span className={cn("heading-1-bold", colorClass)}>
                     {formatSignedPercent(duel.returnPercent)}
                   </span>
-                  <div className="relative mt-1 h-1.5 w-full">
-                    <div
-                      className="bg-bg-layer-floating text-text-neutral-secondary border-border-neutral-muted absolute bottom-full mb-2.5 -translate-x-1/2 rounded-lg border px-2 py-1 text-[10px] leading-[14px] font-semibold whitespace-nowrap"
-                      style={{
-                        left: `clamp(32px, ${progressPercent}%, calc(100% - 32px))`,
-                      }}
-                    >
-                      대결 종료까지 {duel.dDay}일 남았어요!
-                      <div
-                        className="absolute top-full left-1/2 -translate-x-1/2"
-                        style={{
-                          width: 0,
-                          height: 0,
-                          borderLeft: "5px solid transparent",
-                          borderRight: "5px solid transparent",
-                          borderTop:
-                            "10px solid var(--color-border-neutral-muted)",
-                        }}
-                      />
-                      <div
-                        className="absolute top-full left-1/2 -translate-x-1/2"
-                        style={{
-                          width: 0,
-                          height: 0,
-                          borderLeft: "4px solid transparent",
-                          borderRight: "4px solid transparent",
-                          borderTop: "9px solid var(--color-bg-layer-floating)",
-                        }}
-                      />
-                    </div>
-                    <div className="bg-bg-neutral-tertiary h-full w-full overflow-hidden rounded-full">
-                      <div
-                        className="from-sky-blue-200 to-sky-blue-500 h-full rounded-full bg-gradient-to-r"
-                        style={{ width: `${progressPercent}%` }}
-                      />
-                    </div>
-                  </div>
+                  <DuelProgressBar
+                    progressPercent={progressPercent}
+                    dDay={duel.dDay}
+                  />
                 </Link>
               </div>
             );
