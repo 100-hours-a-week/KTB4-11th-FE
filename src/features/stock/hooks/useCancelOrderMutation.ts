@@ -8,8 +8,16 @@ export function useCancelOrderMutation(accountId: number | undefined) {
 
   return useMutation({
     mutationFn: (orderId: number) => patchCancelOrder(accountId!, orderId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["orders", accountId] });
-    },
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["orders", accountId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["orders", "infinite", accountId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["stockHolding", accountId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["account", accountId] }),
+      ]),
   });
 }

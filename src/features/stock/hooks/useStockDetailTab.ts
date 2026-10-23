@@ -1,6 +1,6 @@
 "use client";
 
-// 종목 상세 탭의 URL 상태와 보유 여부에 따른 표시 관리
+// 종목 상세 탭의 URL 상태와 보유·대기 주문 여부에 따른 표시 관리
 import { useSearchParams } from "next/navigation";
 import {
   STOCK_DETAIL_TABS_WITH_HOLDING,
@@ -16,7 +16,7 @@ const TAB_PARAM: Record<StockDetailTab, string> = {
 
 export function useStockDetailTab(
   initialTab: StockDetailTab,
-  hasHolding: boolean | undefined,
+  hasStockActivity: boolean | undefined,
 ) {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
@@ -27,9 +27,11 @@ export function useStockDetailTab(
           (tab) => TAB_PARAM[tab] === tabParam,
         ) ?? "차트");
   const tab =
-    requestedTab === "내 주식" && hasHolding === false ? "차트" : requestedTab;
+    requestedTab === "내 주식" && hasStockActivity === false
+      ? "차트"
+      : requestedTab;
   const tabs =
-    hasHolding || tab === "내 주식"
+    hasStockActivity || tab === "내 주식"
       ? STOCK_DETAIL_TABS_WITH_HOLDING
       : STOCK_DETAIL_TABS_WITHOUT_HOLDING;
 

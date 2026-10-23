@@ -6,23 +6,17 @@ import { cn } from "@/shared/utils/cn";
 import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
-import { useOrdersInfiniteQuery } from "@/features/stock/hooks/useOrdersInfiniteQuery";
 import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { useStockChart } from "@/features/stock/hooks/useStockChart";
 import { StockChartSelectionSummary } from "@/features/stock/components/chart/StockChartSelectionSummary";
 import { StockChart } from "@/features/stock/components/chart/StockChart";
 import { StockDetailTabs } from "@/features/stock/components/StockDetailTabs";
-import { StockHoldingSummary } from "@/features/stock/components/StockHoldingSummary";
 import { StockOrderBook } from "@/features/stock/components/StockOrderBook";
 import { StockOrderBookWaitingBar } from "@/features/stock/components/StockOrderBookWaitingBar";
-import { StockOrderHistoryList } from "@/features/stock/components/StockOrderHistoryList";
-import { StockPendingOrderList } from "@/features/stock/components/StockPendingOrderList";
 import { StockPriceSummary } from "@/features/stock/components/StockPriceSummary";
 import { StockTradeButtons } from "@/features/stock/components/StockTradeButtons";
-import { useCancelOrderMutation } from "@/features/stock/hooks/useCancelOrderMutation";
 import { useMarketOrderBook } from "@/features/stock/hooks/useMarketOrderBook";
 import { useMarketPrice } from "@/features/stock/hooks/useMarketPrice";
-import { useStockHoldingQuery } from "@/features/stock/hooks/useStockHoldingQuery";
 import { useStockHoldingValuationQuery } from "@/features/stock/hooks/useStockHoldingValuationQuery";
 import { useStockInfoQuery } from "@/features/stock/hooks/useStockInfoQuery";
 import { useToggleWatchlistMutation } from "@/features/stock/hooks/useToggleWatchlistMutation";
@@ -31,10 +25,9 @@ import type { StockDetailTab } from "@/features/stock/types/stockDetail";
 import { useStockDetailTab } from "@/features/stock/hooks/useStockDetailTab";
 import { isRegularMarketHours } from "@/features/stock/utils/marketHours";
 import { toOrderBook } from "@/features/stock/utils/toOrderBook";
-import { toPendingOrder } from "@/features/stock/utils/toPendingOrder";
-import { toStockTrade } from "@/features/stock/utils/toStockTrade";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
-import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
+import { useStockHoldingTabData } from "@/features/stock/hooks/useStockHoldingTabData";
+import { StockHoldingTab } from "@/features/stock/components/StockHoldingTab";
 
 interface StockDetailContainerProps {
   code: string;
@@ -64,46 +57,7 @@ export function StockDetailContainer({
   );
 
   const accountId = useSelectedAccountId();
-  const { data: holdingData } = useStockHoldingQuery(accountId, code);
-  const hasHolding = holdingData?.is_held ?? false;
-
-  const {
-    data: pendingOrdersData,
-    hasNextPage: hasMorePendingOrders,
-    isFetchingNextPage: isFetchingNextPendingOrders,
-    fetchNextPage: fetchNextPendingOrdersPage,
-  } = useOrdersInfiniteQuery(accountId, {
-    stockCode: code,
-    orderStatus: "pending",
-  });
-  const {
-    data: orderHistoryData,
-    hasNextPage: hasMoreOrderHistory,
-    isFetchingNextPage: isFetchingNextOrderHistory,
-    fetchNextPage: fetchNextOrderHistoryPage,
-  } = useOrdersInfiniteQuery(accountId, {
-    stockCode: code,
-    orderStatus: "executed",
-  });
-  const pendingOrders = (pendingOrdersData?.pages ?? [])
-    .flatMap((page) => page.orders)
-    .filter((order) => order.order_source === "USER")
-    .map(toPendingOrder);
-  const orderHistory = (orderHistoryData?.pages ?? [])
-    .flatMap((page) => page.orders)
-    .filter((order) => order.order_source === "USER")
-    .map(toStockTrade);
-
-  const pendingOrdersSentinelRef = useInfiniteScroll({
-    hasMore: hasMorePendingOrders && !isFetchingNextPendingOrders,
-    onLoadMore: () => fetchNextPendingOrdersPage(),
-  });
-  const orderHistorySentinelRef = useInfiniteScroll({
-    hasMore: hasMoreOrderHistory && !isFetchingNextOrderHistory,
-    onLoadMore: () => fetchNextOrderHistoryPage(),
-  });
-
-  const cancelOrderMutation = useCancelOrderMutation(accountId);
+  const holdingTab = useStockHoldingTabData(accountId, code);
 
   const { data: watchlistData } = useWatchlistQuery();
   const isFavorite =
@@ -112,13 +66,14 @@ export function StockDetailContainer({
 
   const { tab, tabs, selectTab } = useStockDetailTab(
     initialTab,
-    holdingData?.is_held,
+    holdingTab.hasStockActivity,
   );
-  const { data: holding } = useStockHoldingValuationQuery(
-    accountId,
-    code,
-    tab === "내 주식",
-  );
+  const { data: holding, isLoading: isLoadingHoldingValuation } =
+    useStockHoldingValuationQuery(
+      accountId,
+      code,
+      tab === "내 주식" && holdingTab.hasHolding,
+    );
 
   const { orderBook: marketOrderBook, isLoading: isOrderBookLoading } =
     useMarketOrderBook(tab === "호가" ? code : undefined);
@@ -224,29 +179,20 @@ export function StockDetailContainer({
               </span>
             </div>
           ))}
-        {tab === "내 주식" && hasHolding && holding && (
-          <div className="flex flex-col gap-4 px-5 pt-4">
-            <StockHoldingSummary holding={holding} />
-            <StockPendingOrderList
-              orders={pendingOrders}
-              onCancel={(orderId) => {
-                cancelOrderMutation.mutate(orderId, {
-                  onSuccess: () => toast.success("주문을 취소했어요"),
-                  onError: () =>
-                    toast.error(
-                      "주문을 취소하지 못했어요. 다시 시도해 주세요.",
-                    ),
-                });
-              }}
-            />
-            {hasMorePendingOrders && (
-              <div ref={pendingOrdersSentinelRef} className="h-1" />
-            )}
-            <StockOrderHistoryList items={orderHistory} />
-            {hasMoreOrderHistory && (
-              <div ref={orderHistorySentinelRef} className="h-1" />
-            )}
-          </div>
+        {tab === "내 주식" && (
+          <StockHoldingTab
+            hasHolding={holdingTab.hasHolding}
+            holding={holding}
+            isLoadingHoldingValuation={isLoadingHoldingValuation}
+            isCheckingActivity={holdingTab.hasStockActivity === undefined}
+            pendingOrders={holdingTab.pendingOrders}
+            orderHistory={holdingTab.orderHistory}
+            hasMorePendingOrders={holdingTab.hasMorePendingOrders}
+            hasMoreOrderHistory={holdingTab.hasMoreOrderHistory}
+            pendingOrdersSentinelRef={holdingTab.pendingOrdersSentinelRef}
+            orderHistorySentinelRef={holdingTab.orderHistorySentinelRef}
+            onCancelOrder={holdingTab.cancelOrder}
+          />
         )}
       </div>
 
@@ -264,7 +210,7 @@ export function StockDetailContainer({
           <StockOrderBookWaitingBar orderBook={orderBook} />
         )}
         <StockTradeButtons
-          showSell={hasHolding}
+          showSell={holdingTab.hasHolding}
           onBuyClick={() => {
             // 구매 화면이 이전 REST 캐시 대신 진입 순간의 시세로 초기화
             if (marketPrice)
