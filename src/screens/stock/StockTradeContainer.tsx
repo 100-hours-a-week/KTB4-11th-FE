@@ -10,6 +10,7 @@ import { StockTradeOrderBook } from "@/features/stock/components/trade/StockTrad
 import { StockTradePriceInput } from "@/features/stock/components/trade/StockTradePriceInput";
 import { StockTradeQuantityInput } from "@/features/stock/components/trade/StockTradeQuantityInput";
 import { StockTradeResultSheet } from "@/features/stock/components/trade/StockTradeResultSheet";
+import { LegacyAccountOrderModal } from "@/features/stock/components/trade/LegacyAccountOrderModal";
 import { useMarketOrderBook } from "@/features/stock/hooks/useMarketOrderBook";
 import { useMarketPrice } from "@/features/stock/hooks/useMarketPrice";
 import { useStockHoldingQuery } from "@/features/stock/hooks/useStockHoldingQuery";
@@ -226,11 +227,21 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
         </div>
       </div>
       <StockTradeResultSheet
-        result={form.result}
+        result={form.result?.type === "legacy-account" ? null : form.result}
         stockName={stockName}
         side={side}
         onClose={() => form.setResult(null)}
         onViewHolding={() => router.replace(`/stock/${code}?tab=holding`)}
+      />
+      <LegacyAccountOrderModal
+        open={form.result?.type === "legacy-account"}
+        onOpenChange={(open) => {
+          if (!open) form.setResult(null);
+        }}
+        onCreateAccount={() => {
+          form.setResult(null);
+          router.push("/account/create");
+        }}
       />
     </div>
   );

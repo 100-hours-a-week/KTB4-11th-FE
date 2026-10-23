@@ -13,7 +13,8 @@ export type StockTradeResult =
       pendingNextSession: boolean;
     }
   | { type: "insufficient-cash"; shortfall: number }
-  | { type: "insufficient-shares" };
+  | { type: "insufficient-shares" }
+  | { type: "legacy-account" };
 
 export const STOCK_PRICE_MODE_LABELS: Record<StockPriceMode, string> = {
   limit: "직접 입력",
