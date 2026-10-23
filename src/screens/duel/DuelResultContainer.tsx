@@ -19,6 +19,7 @@ import { DuelAiTradeCard } from "@/features/ai/components/DuelAiTradeCard";
 import { useCompetitionExecutionsInfiniteQuery } from "@/features/ai/hooks/useCompetitionExecutionsInfiniteQuery";
 import { useCompetitionResultQuery } from "@/features/ai/hooks/useCompetitionResultQuery";
 import { EmptyState } from "@/shared/components/EmptyState";
+import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { FilterChips } from "@/shared/components/FilterChips";
 import { TradeCardSkeleton } from "@/shared/components/TradeCardSkeleton";
@@ -39,9 +40,7 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
   const router = useRouter();
   const [tradeFilter, setTradeFilter] = useState<TradeFilter>(MY_TRADES_FILTER);
   const { data: result, error } = useCompetitionResultQuery(id);
-  const myExecutions = useCompetitionExecutionsInfiniteQuery(
-    result?.accountId,
-  );
+  const myExecutions = useCompetitionExecutionsInfiniteQuery(result?.accountId);
   const aiExecutions = useCompetitionExecutionsInfiniteQuery(
     result?.aiAccountId,
   );
@@ -85,7 +84,7 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
           title="대결 결과"
           left={<HeaderBackButton fallbackHref="/duel" />}
         />
-        <div className="bg-bg-layer-default mx-5 mt-4 mb-5 flex flex-1 flex-col items-center rounded-2xl px-5 pt-32 break-keep">
+        <EmptyStateCard className="mx-5 mt-4 mb-5 px-5 break-keep">
           <EmptyState
             icon={TrophyHappyIcon}
             textClassName="gap-2"
@@ -94,7 +93,7 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
             actionLabel="대결 상세 보기"
             onAction={() => router.replace(`/duel/${id}`)}
           />
-        </div>
+        </EmptyStateCard>
       </div>
     );
   }

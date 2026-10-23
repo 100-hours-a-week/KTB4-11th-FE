@@ -67,7 +67,7 @@ export function AiReasoningContainer({ orderId }: AiReasoningContainerProps) {
       )}
 
       {isError ? (
-        <div className="flex flex-1 flex-col items-center pt-32">
+        <div className="flex flex-1 flex-col items-center pt-32 max-sm:justify-center max-sm:pt-0">
           <ErrorState
             message={isNotFound ? "요청한 페이지를 찾을 수 없어요" : undefined}
             actionLabel={isNotFound ? "홈으로 가기" : "다시 시도"}

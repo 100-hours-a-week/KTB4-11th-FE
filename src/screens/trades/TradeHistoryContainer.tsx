@@ -12,6 +12,7 @@ import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccoun
 import { toStockTrade } from "@/features/stock/utils/toStockTrade";
 import CartFlusteredIcon from "@/assets/icons/stockspoon/cart-flustered.svg";
 import { EmptyState } from "@/shared/components/EmptyState";
+import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { TradeCard } from "@/shared/components/TradeCard";
@@ -92,7 +93,7 @@ export function TradeHistoryContainer() {
         <TradeFilterChips value={filter} onChange={setFilter} />
 
         {isError ? (
-          <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
+          <EmptyStateCard>
             <ErrorState
               onRetry={() => {
                 trackEvent("retry_click", {
@@ -102,7 +103,7 @@ export function TradeHistoryContainer() {
                 refetch();
               }}
             />
-          </div>
+          </EmptyStateCard>
         ) : isPending ? (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 4 }, (_, index) => (
@@ -110,7 +111,7 @@ export function TradeHistoryContainer() {
             ))}
           </div>
         ) : trades.length === 0 ? (
-          <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
+          <EmptyStateCard>
             <EmptyState
               icon={CartFlusteredIcon}
               message={
@@ -120,7 +121,7 @@ export function TradeHistoryContainer() {
               }
               description="매매를 진행하면 여기에 표시돼요"
             />
-          </div>
+          </EmptyStateCard>
         ) : (
           <div className="flex flex-col gap-2">
             {trades.map((trade) => (

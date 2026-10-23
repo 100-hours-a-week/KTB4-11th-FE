@@ -11,6 +11,7 @@ import type { HoldingsSort } from "@/features/account/types/holdingStock";
 import { toHoldingStock } from "@/features/account/utils/toHoldingStock";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
 import { EmptyState } from "@/shared/components/EmptyState";
+import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
@@ -97,7 +98,7 @@ export function HoldingsContainer() {
         )}
 
         {isError ? (
-          <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
+          <EmptyStateCard>
             <ErrorState
               onRetry={() => {
                 trackEvent("retry_click", {
@@ -107,7 +108,7 @@ export function HoldingsContainer() {
                 refetch();
               }}
             />
-          </div>
+          </EmptyStateCard>
         ) : isPending ? (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 6 }, (_, index) => (
@@ -115,7 +116,7 @@ export function HoldingsContainer() {
             ))}
           </div>
         ) : filteredStocks.length === 0 ? (
-          <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
+          <EmptyStateCard>
             <EmptyState
               icon={BasketFlusteredIcon}
               message={
@@ -129,7 +130,7 @@ export function HoldingsContainer() {
                   : undefined
               }
             />
-          </div>
+          </EmptyStateCard>
         ) : (
           <div className="flex flex-col gap-2">
             {visibleStocks.map((stock) => (

@@ -18,6 +18,7 @@ import InfoIcon from "@/assets/icons/fill/info.svg";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
 import TrophyHappyIcon from "@/assets/icons/stockspoon/trophy-happy.svg";
 import { EmptyState } from "@/shared/components/EmptyState";
+import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { cn } from "@/shared/utils/cn";
 import {
@@ -48,7 +49,7 @@ export function DuelDetailContainer({ id }: DuelDetailContainerProps) {
           title="대결 시작 대기"
           left={<HeaderBackButton fallbackHref="/duel" />}
         />
-        <div className="bg-bg-layer-default mx-5 mt-4 mb-5 flex flex-1 flex-col items-center rounded-2xl px-5 pt-32 break-keep whitespace-pre-line">
+        <EmptyStateCard className="mx-5 mt-4 mb-5 px-5 break-keep whitespace-pre-line">
           <EmptyState
             icon={TrophyHappyIcon}
             textClassName="gap-2"
@@ -57,7 +58,7 @@ export function DuelDetailContainer({ id }: DuelDetailContainerProps) {
               "다음 장이 열리면 대결이 시작돼요\n진행 상황은 이 화면에서 확인할 수 있어요"
             }
           />
-        </div>
+        </EmptyStateCard>
       </div>
     );
   }

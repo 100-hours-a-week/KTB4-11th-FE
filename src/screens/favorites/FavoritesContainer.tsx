@@ -15,6 +15,7 @@ import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { EmptyState } from "@/shared/components/EmptyState";
+import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { FilterChips } from "@/shared/components/FilterChips";
 import { Header } from "@/shared/components/Header";
@@ -95,7 +96,7 @@ export function FavoritesContainer() {
             ))}
           </div>
         ) : stocks.length === 0 ? (
-          <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
+          <EmptyStateCard>
             <EmptyState
               icon={HeartSadIcon}
               message="관심 목록이 비어있어요"
@@ -103,7 +104,7 @@ export function FavoritesContainer() {
               actionLabel="종목 찾아보기"
               onAction={() => router.push("/discover")}
             />
-          </div>
+          </EmptyStateCard>
         ) : (
           <div className="flex flex-col gap-3 pt-4">
             <FilterChips
