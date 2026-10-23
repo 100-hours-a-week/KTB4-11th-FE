@@ -96,13 +96,21 @@ export function DuelDetailContainer({ id }: DuelDetailContainerProps) {
             {formatSignedPercent(detail.myReturnPercent, 2)}
           </span>
 
-          <div className="border-border-neutral-muted mt-3 rounded-xl border px-2 pt-14 pb-2">
-            <DuelReturnChart
-              data={detail.returnHistory}
-              colorVar={chartColorVar}
-              colorClass={colorClass}
-            />
-          </div>
+          {detail.returnHistory.length === 0 ? (
+            <div className="border-border-neutral-muted mt-3 flex h-64 items-center justify-center rounded-xl border px-2">
+              <span className="caption-1-regular text-text-neutral-tertiary text-center">
+                장마감 후 오늘의 수익률이 반영돼요
+              </span>
+            </div>
+          ) : (
+            <div className="border-border-neutral-muted mt-3 rounded-xl border px-2 pt-14 pb-2">
+              <DuelReturnChart
+                data={detail.returnHistory}
+                colorVar={chartColorVar}
+                colorClass={colorClass}
+              />
+            </div>
+          )}
           <span className="flex items-center justify-center gap-1">
             <InfoIcon
               width={12}
