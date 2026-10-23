@@ -1,17 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { toast } from "sonner";
-import {
-  isInsufficientCashError,
-  isInsufficientSharesError,
-  useCreateOrderMutation,
-} from "@/features/stock/hooks/useCreateOrderMutation";
+import { useStockTradeOrder } from "@/features/stock/hooks/useStockTradeOrder";
 import type {
   StockPriceMode,
   StockTradeField,
   StockTradeInputMode,
-  StockTradeResult,
   StockTradeSide,
 } from "@/features/stock/types/stockTrade";
 import { appendTradeDigit } from "@/features/stock/utils/stockTrade";
@@ -46,7 +40,6 @@ export function useStockTradeForm(
   const [quantityInput, setQuantityInput] = useState("");
   const [field, setField] = useState<StockTradeField>("quantity");
   const [inputMode, setInputMode] = useState<StockTradeInputMode>("number");
-  const [result, setResult] = useState<StockTradeResult | null>(null);
   const [priceError, setPriceError] = useState<string | null>(null);
   const priceErrorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -61,7 +54,14 @@ export function useStockTradeForm(
       : availableQuantity;
   const canSubmit = price > 0 && quantity > 0;
 
-  const createOrderMutation = useCreateOrderMutation(accountId);
+  const order = useStockTradeOrder({
+    accountId,
+    stockCode,
+    stockName,
+    side,
+    availableCash,
+    isRegularMarket,
+  });
 
   function showPriceError(message: string) {
     setPriceError(message);
@@ -143,50 +143,16 @@ export function useStockTradeForm(
         return;
       }
     }
-    createOrderMutation.mutate(
-      {
-        stock_code: stockCode,
-        stock_name: stockName,
-        order_side: side,
-        order_type: priceMode === "market" ? "market" : "limit",
-        limit_price: priceMode === "market" ? null : price,
-        quantity,
-      },
-      {
-        onSuccess: (data) => {
-          const isFilled = data.order_status === "executed";
-          setResult({
-            type: "success",
-            price: isFilled
-              ? (data.executions[0]?.execution_price ?? price)
-              : price,
-            quantity: data.quantity,
-            priceMode,
-            pendingNextSession: !isFilled && !isRegularMarket,
-          });
-        },
-        onError: (error) => {
-          if (isInsufficientCashError(error)) {
-            const shortfall = price * quantity - availableCash;
-            setResult({ type: "insufficient-cash", shortfall });
-            return;
-          }
-          if (isInsufficientSharesError(error)) {
-            setResult({ type: "insufficient-shares" });
-            return;
-          }
-          toast.error("주문을 접수하지 못했어요. 다시 시도해 주세요.");
-        },
-      },
-    );
+    order.submitOrder({ price, quantity, priceMode });
   }
+
   return {
     priceMode,
     priceInput,
     quantityInput,
     field,
     inputMode,
-    result,
+    result: order.result,
     priceError,
     price,
     quantity,
@@ -200,7 +166,7 @@ export function useStockTradeForm(
     adjustPrice,
     selectRatio,
     setInputMode,
-    setResult,
+    setResult: order.setResult,
     submit,
   };
 }
