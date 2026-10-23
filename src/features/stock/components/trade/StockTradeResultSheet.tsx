@@ -45,7 +45,7 @@ export function StockTradeResultSheet({
   const isSuccess = displayResult?.type === "success";
   if (displayResult?.type === "success") {
     const result = displayResult;
-    const isFilled = result.priceMode === "market";
+    const isFilled = result.isFilled;
     title = `${stockName} ${result.quantity.toLocaleString()}주 ${isFilled ? (side === "buy" ? "구매" : "판매") : "주문"} 완료`;
     icon = <CartHappyIcon width={60} height={60} />;
     description = (
