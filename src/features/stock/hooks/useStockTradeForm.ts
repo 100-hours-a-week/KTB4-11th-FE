@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useInputFeedback } from "@/shared/hooks/useInputFeedback";
 import { useStockTradeOrder } from "@/features/stock/hooks/useStockTradeOrder";
 import type {
   StockPriceMode,
@@ -38,6 +39,7 @@ export function useStockTradeForm(
     setPriceInput(String(currentPrice));
   }
   const [quantityInput, setQuantityInput] = useState("");
+  const quantityFeedback = useInputFeedback<HTMLSpanElement>();
   const [field, setField] = useState<StockTradeField>("quantity");
   const [inputMode, setInputMode] = useState<StockTradeInputMode>("number");
   const [priceError, setPriceError] = useState<string | null>(null);
@@ -101,6 +103,7 @@ export function useStockTradeForm(
     setInputMode("number");
   }
   function enterKey(key: string) {
+    if (field === "quantity") quantityFeedback.clearError();
     if (field === "price") {
       setPriceError(null);
       setHasEditedPrice(true);
@@ -119,7 +122,10 @@ export function useStockTradeForm(
       setPriceError(null);
       setHasEditedPrice(true);
       setPriceInput(digits);
-    } else setQuantityInput(digits);
+    } else {
+      quantityFeedback.clearError();
+      setQuantityInput(digits);
+    }
   }
   function selectQuote(value: number) {
     setHasEditedPrice(true);
@@ -130,11 +136,26 @@ export function useStockTradeForm(
     selectQuote(Math.max(1, price + delta));
   }
   function selectRatio(ratio: number) {
-    setQuantityInput(String(Math.floor(maxQuantity * ratio)));
+    const nextQuantity = Math.floor(maxQuantity * ratio);
+    if (maxQuantity >= 1 && nextQuantity < 1) {
+      quantityFeedback.showError(
+        `1주부터 ${side === "buy" ? "구매" : "판매"}할 수 있어요`,
+      );
+      setQuantityInput("1");
+    } else {
+      quantityFeedback.clearError();
+      setQuantityInput(String(nextQuantity));
+    }
     setField("quantity");
   }
   function submit() {
+    if (quantity <= 0) {
+      quantityFeedback.showError("수량을 입력해주세요");
+      setField("quantity");
+      return;
+    }
     if (!canSubmit) return;
+    quantityFeedback.clearError();
     if (priceMode !== "market") {
       const validatedPrice = clampPriceToLimits(price);
       if (validatedPrice !== price) {
@@ -150,6 +171,7 @@ export function useStockTradeForm(
     priceMode,
     priceInput,
     quantityInput,
+    quantityFeedback,
     field,
     inputMode,
     result: order.result,

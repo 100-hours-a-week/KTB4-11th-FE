@@ -1,7 +1,13 @@
+import type { RefObject } from "react";
+import { cn } from "@/shared/utils/cn";
+
 interface StockTradeQuantityInputProps {
   action: string;
   quantity: number;
   description: string;
+  feedbackRef?: RefObject<HTMLSpanElement | null>;
+  errorMessage?: string | null;
+  isErrorFading?: boolean;
   onFocus: () => void;
   onChange: (value: string) => void;
 }
@@ -10,6 +16,9 @@ export function StockTradeQuantityInput({
   action,
   quantity,
   description,
+  feedbackRef,
+  errorMessage,
+  isErrorFading,
   onFocus,
   onChange,
 }: StockTradeQuantityInputProps) {
@@ -19,6 +28,7 @@ export function StockTradeQuantityInput({
       <span className="title-1 flex min-w-0 items-center">
         <input
           aria-label="주문 수량 입력"
+          aria-invalid={!!errorMessage}
           type="text"
           inputMode="none"
           autoComplete="off"
@@ -31,10 +41,15 @@ export function StockTradeQuantityInput({
         {quantity > 0 && <span>주</span>}
       </span>
       <span
-        className="caption-1-regular text-text-neutral-secondary"
+        ref={feedbackRef}
+        className={cn(
+          "caption-1-regular transition-opacity duration-200 motion-reduce:transition-none",
+          errorMessage ? "text-text-error" : "text-text-neutral-secondary",
+          errorMessage && isErrorFading && "opacity-0",
+        )}
         aria-live="polite"
       >
-        {description}
+        {errorMessage ?? description}
       </span>
     </label>
   );

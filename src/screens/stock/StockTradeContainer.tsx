@@ -135,6 +135,9 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
           action={action}
           quantity={form.quantity}
           description={quantityDescription}
+          feedbackRef={form.quantityFeedback.feedbackRef}
+          errorMessage={form.quantityFeedback.errorMessage}
+          isErrorFading={form.quantityFeedback.isErrorFading}
           onFocus={() => form.selectField("quantity")}
           onChange={(value) => form.changeInput("quantity", value)}
         />
