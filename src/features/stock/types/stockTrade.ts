@@ -9,6 +9,7 @@ export type StockTradeResult =
       price: number;
       quantity: number;
       priceMode: StockPriceMode;
+      isFilled: boolean;
       pendingNextSession: boolean;
     }
   | { type: "insufficient-cash"; shortfall: number }

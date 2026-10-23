@@ -60,6 +60,7 @@ export function useStockTradeOrder({
               : price,
             quantity: data.quantity,
             priceMode,
+            isFilled,
             pendingNextSession: !isFilled && !isRegularMarket,
           });
         },
