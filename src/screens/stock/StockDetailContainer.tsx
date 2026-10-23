@@ -49,7 +49,8 @@ export function StockDetailContainer({
   const queryClient = useQueryClient();
 
   const { data: stockInfo } = useStockInfoQuery(code);
-  const { price: marketPrice } = useMarketPrice(code);
+  const { price: marketPrice, isPending: isMarketPricePending } =
+    useMarketPrice(code);
   const name = stockInfo?.stock_name ?? code;
   const price = marketPrice?.price ?? 0;
   const changeAmount = marketPrice?.change ?? 0;
@@ -182,6 +183,7 @@ export function StockDetailContainer({
         <StockPriceSummary
           name={name}
           price={price}
+          isPending={isMarketPricePending}
           changeAmount={
             tab === "차트" && !chart.detailed && chart.bars.length
               ? chart.changeAmount
