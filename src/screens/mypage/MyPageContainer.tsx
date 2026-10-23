@@ -38,7 +38,7 @@ export function MyPageContainer() {
 
         <div className="flex flex-col gap-2">
           <AccountBalanceCard
-            cashBalance={account?.cash_balance ?? 0}
+            availableCash={account?.available_cash ?? 0}
             valuation={account?.holdings_market_value ?? 0}
           />
           <AccountPerformanceCard
