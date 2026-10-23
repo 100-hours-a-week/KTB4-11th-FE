@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useInputFeedback } from "@/shared/hooks/useInputFeedback";
 import { useStockTradeOrder } from "@/features/stock/hooks/useStockTradeOrder";
 import type {
@@ -10,8 +10,7 @@ import type {
   StockTradeSide,
 } from "@/features/stock/types/stockTrade";
 import { appendTradeDigit } from "@/features/stock/utils/stockTrade";
-
-const PRICE_ERROR_DURATION_MS = 2000;
+import { roundToTickSize } from "@/features/stock/utils/tickSize";
 
 export function useStockTradeForm(
   accountId: number | undefined,
@@ -42,10 +41,7 @@ export function useStockTradeForm(
   const quantityFeedback = useInputFeedback<HTMLSpanElement>();
   const [field, setField] = useState<StockTradeField>("quantity");
   const [inputMode, setInputMode] = useState<StockTradeInputMode>("number");
-  const [priceError, setPriceError] = useState<string | null>(null);
-  const priceErrorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
+  const priceFeedback = useInputFeedback<HTMLParagraphElement>();
   const price = priceMode === "limit" ? Number(priceInput) : currentPrice;
   const quantity = Number(quantityInput);
   const maxQuantity =
@@ -65,29 +61,27 @@ export function useStockTradeForm(
     isRegularMarket,
   });
 
-  function showPriceError(message: string) {
-    setPriceError(message);
-    if (priceErrorTimeoutRef.current)
-      clearTimeout(priceErrorTimeoutRef.current);
-    priceErrorTimeoutRef.current = setTimeout(
-      () => setPriceError(null),
-      PRICE_ERROR_DURATION_MS,
-    );
-  }
   function clampPriceToLimits(value: number): number {
-    if (upperLimitPrice !== undefined && value > upperLimitPrice) {
-      showPriceError(
+    let result = value;
+    let clamped = false;
+    if (upperLimitPrice !== undefined && result > upperLimitPrice) {
+      result = upperLimitPrice;
+      clamped = true;
+      priceFeedback.showError(
         `이 주식의 최대 가격은 ${upperLimitPrice.toLocaleString()}원이에요`,
       );
-      return upperLimitPrice;
-    }
-    if (lowerLimitPrice !== undefined && value < lowerLimitPrice) {
-      showPriceError(
+    } else if (lowerLimitPrice !== undefined && result < lowerLimitPrice) {
+      result = lowerLimitPrice;
+      clamped = true;
+      priceFeedback.showError(
         `이 주식의 최소 가격은 ${lowerLimitPrice.toLocaleString()}원이에요`,
       );
-      return lowerLimitPrice;
     }
-    return value;
+    const rounded = roundToTickSize(result);
+    if (rounded !== result && !clamped) {
+      priceFeedback.showError("호가 단위에 맞게 보정했어요");
+    }
+    return rounded;
   }
   function selectPriceMode(mode: StockPriceMode) {
     setPriceMode(mode);
@@ -105,7 +99,7 @@ export function useStockTradeForm(
   function enterKey(key: string) {
     if (field === "quantity") quantityFeedback.clearError();
     if (field === "price") {
-      setPriceError(null);
+      priceFeedback.clearError();
       setHasEditedPrice(true);
     }
     const setValue = field === "price" ? setPriceInput : setQuantityInput;
@@ -119,7 +113,7 @@ export function useStockTradeForm(
       .replace(/^0+/, "")
       .slice(0, 9);
     if (target === "price") {
-      setPriceError(null);
+      priceFeedback.clearError();
       setHasEditedPrice(true);
       setPriceInput(digits);
     } else {
@@ -175,7 +169,7 @@ export function useStockTradeForm(
     field,
     inputMode,
     result: order.result,
-    priceError,
+    priceFeedback,
     price,
     quantity,
     maxQuantity,
