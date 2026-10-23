@@ -15,7 +15,7 @@ import {
   isDuelNameAlreadyExistsError,
   useCreateCompetitionMutation,
 } from "@/features/ai/hooks/useCreateCompetitionMutation";
-import { useCompetitionsQuery } from "@/features/ai/hooks/useCompetitionsQuery";
+import { useActiveUserVsAiDuelQuery } from "@/features/ai/hooks/useActiveUserVsAiDuelQuery";
 import { InitialAmountInput } from "@/features/account/components/InitialAmountInput";
 import InfoIcon from "@/assets/icons/fill/info.svg";
 import { Button } from "@/shared/components/Button";
@@ -30,12 +30,11 @@ const defaultStart = new Date();
 export function DuelCreateFormContainer() {
   const router = useRouter();
 
-  const { data: ongoingDuels } = useCompetitionsQuery({
-    state: "in_progress",
-  });
-  const ongoingUserVsAiDuel = (ongoingDuels ?? []).find(
-    (duel) => duel.type === "나 vs AI",
-  );
+  const {
+    data: ongoingUserVsAiDuel,
+    refetch: refetchActiveDuel,
+    isFetching: isCheckingExistingDuel,
+  } = useActiveUserVsAiDuelQuery();
   const [isAlreadyExistsOpen, setIsAlreadyExistsOpen] = useState(false);
 
   const {
@@ -80,10 +79,16 @@ export function DuelCreateFormContainer() {
     !!startDate &&
     !!endDate &&
     !!amount &&
+    !isCheckingExistingDuel &&
     !createCompetitionMutation.isPending;
 
-  const onSubmit = handleSubmit((values) => {
-    if (ongoingUserVsAiDuel) {
+  const onSubmit = handleSubmit(async (values) => {
+    const result = await refetchActiveDuel();
+    if (result.isError) {
+      toast.error("기존 대결을 확인하지 못했어요. 다시 시도해 주세요.");
+      return;
+    }
+    if (result.data) {
       setIsAlreadyExistsOpen(true);
       return;
     }
@@ -163,6 +168,7 @@ export function DuelCreateFormContainer() {
           ongoingDuelId={ongoingUserVsAiDuel.id}
           ongoingDuelName={ongoingUserVsAiDuel.name}
           remainingDays={ongoingUserVsAiDuel.dDay}
+          isReady={ongoingUserVsAiDuel.status === "시작 대기"}
         />
       )}
     </div>

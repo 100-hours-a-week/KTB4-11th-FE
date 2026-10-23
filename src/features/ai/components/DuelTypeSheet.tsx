@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import HeadCircuitIcon from "@/assets/icons/fill/head-circuit.svg";
 import TrophyIcon from "@/assets/icons/nav/filled/trophy.svg";
@@ -24,17 +23,16 @@ import { trackEvent } from "@/shared/utils/analytics";
 interface DuelTypeSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  hasOngoingUserVsAiDuel: boolean;
-  onBlockedByOngoingDuel: () => void;
+  isCheckingExistingDuel: boolean;
+  onSelectUserVsAi: () => void;
 }
 
 export function DuelTypeSheet({
   open,
   onOpenChange,
-  hasOngoingUserVsAiDuel,
-  onBlockedByOngoingDuel,
+  isCheckingExistingDuel,
+  onSelectUserVsAi,
 }: DuelTypeSheetProps) {
-  const router = useRouter();
   const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
 
   return (
@@ -49,14 +47,8 @@ export function DuelTypeSheet({
               </SheetTitle>
               <button
                 type="button"
-                onClick={() => {
-                  onOpenChange(false);
-                  if (hasOngoingUserVsAiDuel) {
-                    onBlockedByOngoingDuel();
-                  } else {
-                    router.push("/duel/create");
-                  }
-                }}
+                disabled={isCheckingExistingDuel}
+                onClick={onSelectUserVsAi}
                 className="border-border-neutral-muted flex flex-col items-start gap-1 rounded-2xl border p-4 text-left"
               >
                 <span className="flex items-center gap-1">

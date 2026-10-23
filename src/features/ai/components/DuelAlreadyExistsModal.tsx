@@ -18,6 +18,7 @@ interface DuelAlreadyExistsModalProps {
   ongoingDuelId: string;
   ongoingDuelName: string;
   remainingDays: number;
+  isReady: boolean;
 }
 
 export function DuelAlreadyExistsModal({
@@ -26,17 +27,31 @@ export function DuelAlreadyExistsModal({
   ongoingDuelId,
   ongoingDuelName,
   remainingDays,
+  isReady,
 }: DuelAlreadyExistsModalProps) {
   const router = useRouter();
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalPortal>
         <ModalContent>
-          <ModalTitle>이미 진행 중인 대결이 있어요</ModalTitle>
+          <ModalTitle>
+            {isReady
+              ? "이미 시작 대기 중인 대결이 있어요"
+              : "이미 진행 중인 대결이 있어요"}
+          </ModalTitle>
           <ModalDescription>
-            나 vs AI 대결은 동시에 진행할 수 없어요.
-            <br />
-            &apos;{ongoingDuelName}&apos; 종료까지 D-{remainingDays}
+            {isReady ? (
+              <>
+                &apos;{ongoingDuelName}&apos;이 종료된 후 새 대결을 만들 수
+                있어요
+              </>
+            ) : (
+              <>
+                &apos;{ongoingDuelName}&apos; 종료까지 D-{remainingDays}일
+                남았어요
+                <br />이 대결이 종료된 후 새 대결을 만들 수 있어요
+              </>
+            )}
           </ModalDescription>
           <ModalFooter>
             <ModalClose asChild>
@@ -44,13 +59,12 @@ export function DuelAlreadyExistsModal({
                 닫기
               </Button>
             </ModalClose>
-            {/* TODO: 해당 대결 진행 리포트 화면으로 이동 */}
             <ModalClose asChild>
               <Button
                 className="flex-1"
                 onClick={() => router.push(`/duel/${ongoingDuelId}`)}
               >
-                진행 중 대결 보기
+                대결 보기
               </Button>
             </ModalClose>
           </ModalFooter>
