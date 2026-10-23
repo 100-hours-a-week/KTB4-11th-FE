@@ -8,6 +8,7 @@ import { DuelMarketEventAccordion } from "@/features/ai/components/DuelMarketEve
 import { useCompetitionReportQuery } from "@/features/ai/hooks/useCompetitionReportQuery";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { EmptyState } from "@/shared/components/EmptyState";
+import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
 
 interface DuelReportContainerProps {
   id: string;
@@ -28,13 +29,13 @@ export function DuelReportContainer({ id }: DuelReportContainerProps) {
       />
 
       {!report.isReady ? (
-        <div className="bg-bg-layer-default mx-5 mt-4 mb-5 flex flex-1 flex-col items-center rounded-2xl pt-32">
+        <EmptyStateCard className="mx-5 mt-4 mb-5">
           <EmptyState
             icon={RobotFlusteredIcon}
             message="AI 리포트를 준비하고 있어요"
             description="조금만 기다려 주세요"
           />
-        </div>
+        </EmptyStateCard>
       ) : (
         <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-5 pt-4 pb-10">
           <div className="flex flex-col gap-1">

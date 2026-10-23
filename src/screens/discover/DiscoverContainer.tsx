@@ -18,6 +18,7 @@ import SearchIcon from "@/assets/icons/fill/search.svg";
 import ProfileIcon from "@/assets/icons/fill/profile.svg";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { EmptyState } from "@/shared/components/EmptyState";
+import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { Header } from "@/shared/components/Header";
 import { StockTickerBar } from "@/shared/components/StockTickerBar";
@@ -127,13 +128,13 @@ export function DiscoverContainer() {
             ))}
           </div>
         ) : ranking.length === 0 ? (
-          <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
+          <EmptyStateCard>
             <EmptyState
               icon={BasketFlusteredIcon}
               message="랭킹 정보가 없어요"
               description="잠시 후 다시 확인해 주세요"
             />
-          </div>
+          </EmptyStateCard>
         ) : (
           <>
             {isError && (

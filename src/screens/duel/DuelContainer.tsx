@@ -23,6 +23,7 @@ import ProfileIcon from "@/assets/icons/fill/profile.svg";
 import TrophyHappyIcon from "@/assets/icons/stockspoon/trophy-happy.svg";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { EmptyState } from "@/shared/components/EmptyState";
+import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
 import { FilterChips } from "@/shared/components/FilterChips";
 import { Header } from "@/shared/components/Header";
 import { StockTickerBar } from "@/shared/components/StockTickerBar";
@@ -129,7 +130,7 @@ export function DuelContainer() {
             <DuelCardSkeleton />
           </div>
         ) : filteredDuels.length === 0 && statusFilter === "전체" ? (
-          <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
+          <EmptyStateCard>
             <EmptyState
               icon={TrophyHappyIcon}
               message="아직 대결 기록이 없어요"
@@ -137,7 +138,7 @@ export function DuelContainer() {
               actionLabel="대결 생성하기"
               onAction={handleCreateClick}
             />
-          </div>
+          </EmptyStateCard>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col gap-2 pt-4">
             <div className="flex flex-col gap-4">
@@ -161,7 +162,7 @@ export function DuelContainer() {
             </div>
 
             {filteredDuels.length === 0 ? (
-              <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-20">
+              <EmptyStateCard className="pt-20">
                 <EmptyState
                   icon={TrophyHappyIcon}
                   message={
@@ -175,7 +176,7 @@ export function DuelContainer() {
                       : "대결이 종료되면 리포트가 표시돼요"
                   }
                 />
-              </div>
+              </EmptyStateCard>
             ) : (
               <div className="flex flex-col gap-2">
                 {filteredDuels.map((duel) => (
