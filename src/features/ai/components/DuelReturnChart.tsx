@@ -118,7 +118,7 @@ export function DuelReturnChart({
 
       showTooltip(time, x, container.clientWidth, () => {
         dateEl.textContent = formatTooltipDate(time);
-        valueEl.textContent = formatSignedPercent(dataPoint.value);
+        valueEl.textContent = formatSignedPercent(dataPoint.value, 2);
       });
 
       line.style.opacity = "1";

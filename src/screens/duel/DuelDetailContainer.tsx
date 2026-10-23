@@ -93,7 +93,7 @@ export function DuelDetailContainer({ id }: DuelDetailContainerProps) {
             내 수익률
           </span>
           <span className={cn("title-1", colorClass)}>
-            {formatSignedPercent(detail.myReturnPercent)}
+            {formatSignedPercent(detail.myReturnPercent, 2)}
           </span>
 
           <div className="border-border-neutral-muted mt-3 rounded-xl border px-2 pt-14 pb-2">
