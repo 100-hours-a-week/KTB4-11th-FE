@@ -44,8 +44,11 @@ export function DiscoverContainer() {
 
   function handleToggleFavorite(stockCode: string) {
     const target = ranking.find((item) => item.stockCode === stockCode);
-    if (!target || target.isFavorite === undefined || toggleFavorite.isPending)
+    if (!target || toggleFavorite.isPending) return;
+    if (target.isFavorite === undefined) {
+      toast.error("관심 종목 등록에 실패했어요");
       return;
+    }
 
     toggleFavorite.mutate(
       {
@@ -62,7 +65,7 @@ export function DiscoverContainer() {
               }
             : undefined,
       },
-      { onError: () => toast.error("관심 종목을 변경하지 못했어요") },
+      { onError: () => toast.error("관심 종목 등록에 실패했어요") },
     );
   }
 
@@ -140,15 +143,6 @@ export function DiscoverContainer() {
                 onClick={() => void refetch()}
               >
                 목록을 갱신하지 못했어요. 다시 시도
-              </button>
-            )}
-            {watchlist.isError && (
-              <button
-                type="button"
-                className="caption-1-regular text-text-neutral-secondary mb-2"
-                onClick={() => void watchlist.refetch()}
-              >
-                관심 목록을 불러오지 못했어요. 다시 시도
               </button>
             )}
             <RankingList
