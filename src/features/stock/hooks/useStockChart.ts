@@ -13,7 +13,12 @@ import {
 import type { ChartSelection } from "@/features/stock/utils/chart/chartSelection";
 import { selectPeriodBars } from "@/features/stock/utils/chart/stockChart";
 
-export function useStockChart(code: string, price: number, dayChange: number) {
+export function useStockChart(
+  code: string,
+  price: number,
+  dayChange: number,
+  priceTimestamp?: string,
+) {
   const [selection, setSelection] = useState<ChartSelection | null>(null);
   const preferences = useStockChartPreferences();
   const { detailed, period, granularity, hydrated } = preferences;
@@ -43,6 +48,7 @@ export function useStockChart(code: string, price: number, dayChange: number) {
     selection,
     setSelection,
     currentPrice: price,
+    priceTimestamp,
     previousClose: price - dayChange,
     ...preferences,
     query,

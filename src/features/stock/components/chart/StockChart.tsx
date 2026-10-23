@@ -78,6 +78,12 @@ export function StockChart({ model }: { model: StockChartModel }) {
           <StockSimpleChart
             key={period}
             bars={bars}
+            period={period}
+            tick={
+              model.priceTimestamp
+                ? { price: model.currentPrice, timestamp: model.priceTimestamp }
+                : undefined
+            }
             baseline={period === "1일" ? model.baseline : 0}
             intraday={period === "1일" || period === "1주"}
             rise={model.changeAmount >= 0}
