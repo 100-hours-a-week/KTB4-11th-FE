@@ -1,3 +1,4 @@
+import type { RefObject } from "react";
 import MinusIcon from "@/assets/icons/fill/minus.svg";
 import PlusIcon from "@/assets/icons/fill/plus.svg";
 import type {
@@ -10,7 +11,9 @@ interface StockTradePriceInputProps {
   side: StockTradeSide;
   mode: StockPriceMode;
   price: number;
-  priceError?: string | null;
+  feedbackRef?: RefObject<HTMLParagraphElement | null>;
+  errorMessage?: string | null;
+  isErrorFading?: boolean;
   showAdjust?: boolean;
   isRegularMarket: boolean;
   onModeChange: (mode: StockPriceMode) => void;
@@ -23,7 +26,9 @@ export function StockTradePriceInput({
   side,
   mode,
   price,
-  priceError,
+  feedbackRef,
+  errorMessage,
+  isErrorFading,
   showAdjust = true,
   isRegularMarket,
   onModeChange,
@@ -107,8 +112,16 @@ export function StockTradePriceInput({
           </div>
         )}
       </div>
-      {mode === "limit" && priceError && (
-        <p className="caption-1-regular text-text-error mt-1">{priceError}</p>
+      {mode === "limit" && errorMessage && (
+        <p
+          ref={feedbackRef}
+          className={cn(
+            "caption-1-regular text-text-error mt-1",
+            isErrorFading && "opacity-0",
+          )}
+        >
+          {errorMessage}
+        </p>
       )}
       {mode !== "limit" && (
         <p className="caption-1-regular text-text-neutral-secondary mt-1">

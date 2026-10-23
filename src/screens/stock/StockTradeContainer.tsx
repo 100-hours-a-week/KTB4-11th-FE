@@ -126,7 +126,9 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
           side={side}
           mode={form.priceMode}
           price={form.price}
-          priceError={form.priceError}
+          feedbackRef={form.priceFeedback.feedbackRef}
+          errorMessage={form.priceFeedback.errorMessage}
+          isErrorFading={form.priceFeedback.isErrorFading}
           showAdjust={form.field === "price"}
           isRegularMarket={isRegularMarket}
           onModeChange={form.selectPriceMode}
