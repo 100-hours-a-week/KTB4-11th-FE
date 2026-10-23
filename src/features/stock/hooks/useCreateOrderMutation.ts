@@ -41,10 +41,16 @@ export function useCreateOrderMutation(accountId: number | undefined) {
 
   return useMutation({
     mutationFn: (payload: CreateOrderRequest) => postOrder(accountId!, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["orders", accountId] });
-      queryClient.invalidateQueries({ queryKey: ["stockHolding", accountId] });
-      queryClient.invalidateQueries({ queryKey: ["account", accountId] });
-    },
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["orders", accountId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["orders", "infinite", accountId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["stockHolding", accountId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["account", accountId] }),
+      ]),
   });
 }
