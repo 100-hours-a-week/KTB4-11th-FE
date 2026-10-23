@@ -8,6 +8,7 @@ import { RankingItem } from "@/features/stock/components/RankingItem";
 import { RankingItemSkeleton } from "@/features/stock/components/RankingItemSkeleton";
 import { useToggleFavoriteMutation } from "@/features/stock/hooks/useToggleFavoriteMutation";
 import { useWatchlistQuery } from "@/features/stock/hooks/useWatchlistQuery";
+import { useMarketPrices } from "@/features/stock/hooks/useMarketPrices";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
 import { toRankingStockFromWatchlistItem } from "@/features/stock/utils/toRankingStockFromWatchlistItem";
 import HeartSadIcon from "@/assets/icons/stockspoon/heart-sad.svg";
@@ -32,7 +33,11 @@ export function FavoritesContainer() {
   const { data, isPending, isError, refetch } = useWatchlistQuery();
   const toggleFavorite = useToggleFavoriteMutation();
 
-  const stocks = (data?.watchlists ?? []).map(toRankingStockFromWatchlistItem);
+  const watchlists = data?.watchlists ?? [];
+  const { prices } = useMarketPrices(watchlists.map((item) => item.stock_code));
+  const stocks = watchlists.map((item) =>
+    toRankingStockFromWatchlistItem(item, prices[item.stock_code]),
+  );
   const sectors = Array.from(new Set(stocks.map((stock) => stock.sector)));
   const filteredStocks =
     sector === ALL_SECTOR
