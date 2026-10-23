@@ -55,16 +55,11 @@ export function DiscoverContainer() {
       {
         stockCode,
         isFavorite: target.isFavorite,
-        stock:
-          target.price !== null && target.changeRate !== null
-            ? {
-                stock_code: stockCode,
-                stock_name: target.name,
-                sector: target.sector,
-                current_price: target.price,
-                price_change_percent: target.changeRate,
-              }
-            : undefined,
+        stock: {
+          stock_code: stockCode,
+          stock_name: target.name,
+          sector: target.sector,
+        },
       },
       { onError: () => toast.error("관심 종목 등록에 실패했어요") },
     );
