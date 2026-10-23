@@ -64,11 +64,13 @@ export function StockDetailContainer({
   );
 
   const accountId = useSelectedAccountId();
-  const { data: holdingData } = useStockHoldingQuery(accountId, code);
+  const { data: holdingData, isFetching: isFetchingHolding } =
+    useStockHoldingQuery(accountId, code);
   const hasHolding = holdingData?.is_held ?? false;
 
   const {
     data: pendingOrdersData,
+    isFetching: isFetchingPendingOrders,
     hasNextPage: hasMorePendingOrders,
     isFetchingNextPage: isFetchingNextPendingOrders,
     fetchNextPage: fetchNextPendingOrdersPage,
@@ -110,14 +112,24 @@ export function StockDetailContainer({
     watchlistData?.watchlists.some((item) => item.stock_code === code) ?? false;
   const toggleWatchlistMutation = useToggleWatchlistMutation();
 
+  // 이전 미보유 캐시가 남아 있어도 재조회 중에는 내 주식 이동 요청을 유지
+  const hasStockActivity =
+    hasHolding || pendingOrders.length > 0
+      ? true
+      : isFetchingHolding ||
+          isFetchingPendingOrders ||
+          !holdingData ||
+          !pendingOrdersData
+        ? undefined
+        : false;
   const { tab, tabs, selectTab } = useStockDetailTab(
     initialTab,
-    holdingData?.is_held,
+    hasStockActivity,
   );
   const { data: holding } = useStockHoldingValuationQuery(
     accountId,
     code,
-    tab === "내 주식",
+    tab === "내 주식" && hasHolding,
   );
 
   const { orderBook: marketOrderBook, isLoading: isOrderBookLoading } =
@@ -224,9 +236,9 @@ export function StockDetailContainer({
               </span>
             </div>
           ))}
-        {tab === "내 주식" && hasHolding && holding && (
+        {tab === "내 주식" && (
           <div className="flex flex-col gap-4 px-5 pt-4">
-            <StockHoldingSummary holding={holding} />
+            {hasHolding && holding && <StockHoldingSummary holding={holding} />}
             <StockPendingOrderList
               orders={pendingOrders}
               onCancel={(orderId) => {
@@ -242,7 +254,9 @@ export function StockDetailContainer({
             {hasMorePendingOrders && (
               <div ref={pendingOrdersSentinelRef} className="h-1" />
             )}
-            <StockOrderHistoryList items={orderHistory} />
+            {(hasHolding || orderHistory.length > 0) && (
+              <StockOrderHistoryList items={orderHistory} />
+            )}
             {hasMoreOrderHistory && (
               <div ref={orderHistorySentinelRef} className="h-1" />
             )}
