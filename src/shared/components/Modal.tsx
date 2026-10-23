@@ -20,8 +20,10 @@ export function ModalPortal({
 }: ComponentProps<typeof Dialog.Portal>) {
   return (
     <Dialog.Portal container={getMobileContainerElement()} {...props}>
-      <ModalOverlay />
-      {children}
+      <div className="fixed inset-0 z-50 mx-auto h-full max-w-120">
+        <ModalOverlay />
+        {children}
+      </div>
     </Dialog.Portal>
   );
 }
