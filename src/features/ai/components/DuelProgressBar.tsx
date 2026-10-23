@@ -45,28 +45,30 @@ export function DuelProgressBar({
 
   return (
     <div ref={trackRef} className="relative mt-1 h-1.5 w-full">
-      <div
-        ref={tooltipRef}
-        className="bg-bg-layer-floating text-text-neutral-secondary border-border-neutral-muted absolute bottom-full left-0 mb-2.5 w-max max-w-full rounded-lg border px-2 py-1 text-center text-[10px] leading-[14px] font-semibold"
-      >
-        대결 종료까지 {dDay}일 남았어요!
-        <svg
-          aria-hidden="true"
-          width="8"
-          height="8"
-          viewBox="0 0 8 8"
-          className="absolute -translate-x-1/2 overflow-visible"
-          style={{ left: "var(--arrow-left, 50%)", top: "100%" }}
+      {dDay > 0 && (
+        <div
+          ref={tooltipRef}
+          className="bg-bg-layer-floating text-text-neutral-secondary border-border-neutral-muted absolute bottom-full left-0 mb-2.5 w-max max-w-full rounded-lg border px-2 py-1 text-center text-[10px] leading-[14px] font-semibold"
         >
-          <path
-            d="M 0 0 L 4 7 L 8 0"
-            fill="var(--color-bg-layer-floating)"
-            stroke="var(--color-border-neutral-muted)"
-            strokeWidth="1"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
+          대결 종료까지 {dDay}일 남았어요!
+          <svg
+            aria-hidden="true"
+            width="8"
+            height="8"
+            viewBox="0 0 8 8"
+            className="absolute -translate-x-1/2 overflow-visible"
+            style={{ left: "var(--arrow-left, 50%)", top: "100%" }}
+          >
+            <path
+              d="M 0 0 L 4 7 L 8 0"
+              fill="var(--color-bg-layer-floating)"
+              stroke="var(--color-border-neutral-muted)"
+              strokeWidth="1"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      )}
       <div className="bg-bg-neutral-tertiary h-full w-full overflow-hidden rounded-full">
         <div
           className="from-sky-blue-200 to-sky-blue-500 h-full rounded-full bg-gradient-to-r"
