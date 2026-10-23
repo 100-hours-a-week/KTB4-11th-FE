@@ -26,7 +26,7 @@ export function MyPageContainer() {
     <div className="pt-screen-top flex h-full flex-col">
       <Header title="마이" className="px-5 py-3" left={<HeaderBackButton />} />
 
-      <div className="flex flex-1 flex-col gap-2 px-5 pt-4">
+      <div className="flex flex-1 flex-col gap-2 px-5 pt-4 pb-[max(24px,env(safe-area-inset-bottom))]">
         <ProfileCard
           nickname={user?.nickname ?? ""}
           profileImage={user?.profile_image_url ?? null}
