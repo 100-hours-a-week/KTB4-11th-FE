@@ -102,7 +102,11 @@ export function AccountNameEditModal({
                 취소
               </Button>
             </ModalClose>
-            <Button className="flex-1" onClick={onSubmit} disabled={isPending}>
+            <Button
+              className="flex-1"
+              onClick={onSubmit}
+              disabled={isPending || !!errors.accountName}
+            >
               저장
             </Button>
           </ModalFooter>
