@@ -124,7 +124,7 @@ export function HomeContainer() {
         <AccountSelector />
         <div className="flex flex-col gap-2">
           <AccountBalanceCard
-            cashBalance={account?.cash_balance ?? 0}
+            availableCash={account?.available_cash ?? 0}
             valuation={account?.holdings_market_value ?? 0}
           />
           <MenuRow label="주문내역" onClick={() => router.push("/trades")} />
