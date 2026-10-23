@@ -6,6 +6,16 @@ import { postOrder } from "@/features/stock/api/postOrder";
 import type { CreateOrderRequest } from "@/features/stock/types/stockTrade";
 import type { ApiErrorResponse } from "@/shared/types/apiError";
 
+export function isLegacyAccountOrderError(
+  error: unknown,
+): error is AxiosError<ApiErrorResponse> {
+  return (
+    isAxiosError<ApiErrorResponse>(error) &&
+    error.response?.status === 403 &&
+    error.response?.data?.code === "LEGACY_ACCOUNT_USER_ORDER_NOT_ALLOWED"
+  );
+}
+
 export function isInsufficientCashError(
   error: unknown,
 ): error is AxiosError<ApiErrorResponse> {
