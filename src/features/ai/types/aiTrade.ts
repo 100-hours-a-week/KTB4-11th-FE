@@ -24,7 +24,7 @@ export interface Order {
   order_id: number;
   stock_code: string;
   stock_name: string;
-  order_source: "user" | "ai";
+  order_source: "USER" | "AI";
   order_side: OrderSide;
   order_type: OrderType;
   order_status: OrderStatus;

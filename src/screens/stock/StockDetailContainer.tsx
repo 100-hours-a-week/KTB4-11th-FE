@@ -81,11 +81,11 @@ export function StockDetailContainer({
   });
   const pendingOrders = (pendingOrdersData?.pages ?? [])
     .flatMap((page) => page.orders)
-    .filter((order) => order.order_source === "user")
+    .filter((order) => order.order_source === "USER")
     .map(toPendingOrder);
   const orderHistory = (orderHistoryData?.pages ?? [])
     .flatMap((page) => page.orders)
-    .filter((order) => order.order_source === "user")
+    .filter((order) => order.order_source === "USER")
     .map(toStockTrade);
 
   const pendingOrdersSentinelRef = useInfiniteScroll({
