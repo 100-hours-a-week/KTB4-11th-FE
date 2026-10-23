@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   isInsufficientCashError,
   isInsufficientSharesError,
+  isLegacyAccountOrderError,
   useCreateOrderMutation,
 } from "@/features/stock/hooks/useCreateOrderMutation";
 import type {
@@ -67,6 +68,10 @@ export function useStockTradeOrder({
           });
         },
         onError: (error) => {
+          if (isLegacyAccountOrderError(error)) {
+            setResult({ type: "legacy-account" });
+            return;
+          }
           if (isInsufficientCashError(error)) {
             const shortfall = price * quantity - availableCash;
             setResult({ type: "insufficient-cash", shortfall });
