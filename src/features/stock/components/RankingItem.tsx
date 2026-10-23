@@ -54,14 +54,14 @@ export function RankingItem({
       </div>
       <button
         type="button"
-        disabled={favoriteDisabled || isFavorite === undefined}
+        disabled={favoriteDisabled}
         onClick={(event) => {
           event.stopPropagation();
           onToggleFavorite(stockCode);
         }}
         aria-label={
           isFavorite === undefined
-            ? undefined
+            ? "관심 종목 변경"
             : isFavorite
               ? "관심 종목 해제"
               : "관심 종목 등록"
