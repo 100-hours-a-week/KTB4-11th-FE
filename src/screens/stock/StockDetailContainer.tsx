@@ -3,6 +3,7 @@
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/shared/utils/cn";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
@@ -28,6 +29,7 @@ import { toOrderBook } from "@/features/stock/utils/toOrderBook";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { useStockHoldingTabData } from "@/features/stock/hooks/useStockHoldingTabData";
 import { StockHoldingTab } from "@/features/stock/components/StockHoldingTab";
+import { trackEvent } from "@/shared/utils/analytics";
 
 interface StockDetailContainerProps {
   code: string;
@@ -45,6 +47,13 @@ export function StockDetailContainer({
   const { price: marketPrice, isPending: isMarketPricePending } =
     useMarketPrice(code);
   const name = stockInfo?.stock_name ?? code;
+
+  useEffect(() => {
+    if (stockInfo) {
+      trackEvent("stock_detail_view", { stock_code: code });
+    }
+  }, [stockInfo, code]);
+
   const price = marketPrice?.price ?? 0;
   const changeAmount = marketPrice?.change ?? 0;
   const changeRate = marketPrice?.rate ?? 0;
