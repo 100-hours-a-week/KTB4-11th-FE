@@ -7,6 +7,7 @@ import { useCancelOrderMutation } from "@/features/stock/hooks/useCancelOrderMut
 import { toPendingOrder } from "@/features/stock/utils/toPendingOrder";
 import { toStockTrade } from "@/features/stock/utils/toStockTrade";
 import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
+import { trackEvent } from "@/shared/utils/analytics";
 
 // 내 주식 탭 노출 판단과 주문 조회·변환·취소를 관리한다.
 export function useStockHoldingTabData(
@@ -69,7 +70,10 @@ export function useStockHoldingTabData(
 
   function cancelOrder(orderId: number) {
     cancelOrderMutation.mutate(orderId, {
-      onSuccess: () => toast.success("주문을 취소했어요"),
+      onSuccess: () => {
+        trackEvent("order_cancel", { stock_code: code });
+        toast.success("주문을 취소했어요");
+      },
       onError: () =>
         toast.error("주문을 취소하지 못했어요. 다시 시도해 주세요."),
     });
