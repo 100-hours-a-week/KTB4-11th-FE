@@ -1,28 +1,16 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { useEffect } from "react";
-import { toast } from "sonner";
-import { useUserQuery } from "@/features/user/hooks/useUserQuery";
-import { Splash } from "@/shared/components/Splash";
+import { ClientAuthGuard } from "@/features/auth/components/ClientAuthGuard";
+import { getServerUser } from "@/features/auth/server/getServerUser";
 
-export default function OnboardedLayout({ children }: { children: ReactNode }) {
-  const router = useRouter();
-  const { data, isSuccess } = useUserQuery({
-    skipAuthRedirect: true,
-    retry: false,
-  });
-  const needsOnboarding = isSuccess && !data?.onboarding_completed;
-
-  useEffect(() => {
-    if (needsOnboarding) {
-      toast.info("온보딩을 완료하지 않았어요");
-      router.replace("/onboarding");
-    }
-  }, [needsOnboarding, router]);
-
-  if (!isSuccess || needsOnboarding) return <Splash />;
-
+export default async function OnboardedLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const user = await getServerUser();
+  if (!user)
+    return <ClientAuthGuard mode="onboarded">{children}</ClientAuthGuard>;
+  if (!user.onboarding_completed) redirect("/onboarding");
   return <>{children}</>;
 }
