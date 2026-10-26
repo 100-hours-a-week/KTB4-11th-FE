@@ -1,15 +1,23 @@
 import Link from "next/link";
-import type { Duel } from "@/features/ai/types/duel";
+import type { Duel, DuelStatus } from "@/features/ai/types/duel";
 import CalendarIcon from "@/assets/icons/fill/calendar.svg";
 import FireIcon from "@/assets/icons/fill/fire.svg";
 import PulseIcon from "@/assets/icons/fill/pulse.svg";
 import SmileyIcon from "@/assets/icons/fill/smiley.svg";
 import SmileyNervousIcon from "@/assets/icons/fill/smiley-nervous.svg";
 import { cn } from "@/shared/utils/cn";
+import { trackEvent, type DuelCardStatus } from "@/shared/utils/analytics";
 import {
   formatSignedPercent,
   getReturnRateInfo,
 } from "@/shared/utils/getReturnRateInfo";
+
+const DUEL_STATUS_TO_CARD_STATUS: Record<DuelStatus, DuelCardStatus> = {
+  "시작 대기": "ready",
+  "진행 중": "in_progress",
+  종료: "completed",
+  취소: "cancelled",
+};
 
 type DuelCardProps = Duel;
 
@@ -35,6 +43,11 @@ export function DuelCard({
   return (
     <Link
       href={status === "종료" ? `/duel/${id}/result` : `/duel/${id}`}
+      onClick={() =>
+        trackEvent("duel_card_click", {
+          status: DUEL_STATUS_TO_CARD_STATUS[status],
+        })
+      }
       className="bg-bg-layer-default relative flex flex-col gap-[5px] rounded-2xl px-4 py-3"
     >
       {!result && winner && (

@@ -3,6 +3,7 @@
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/shared/utils/cn";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import HeartFilledIcon from "@/assets/icons/nav/filled/heart.svg";
 import HeartOutlineIcon from "@/assets/icons/nav/outline/heart.svg";
@@ -28,6 +29,7 @@ import { toOrderBook } from "@/features/stock/utils/toOrderBook";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { useStockHoldingTabData } from "@/features/stock/hooks/useStockHoldingTabData";
 import { StockHoldingTab } from "@/features/stock/components/StockHoldingTab";
+import { trackEvent } from "@/shared/utils/analytics";
 
 interface StockDetailContainerProps {
   code: string;
@@ -45,6 +47,13 @@ export function StockDetailContainer({
   const { price: marketPrice, isPending: isMarketPricePending } =
     useMarketPrice(code);
   const name = stockInfo?.stock_name ?? code;
+
+  useEffect(() => {
+    if (stockInfo) {
+      trackEvent("stock_detail_view", { stock_code: code });
+    }
+  }, [stockInfo, code]);
+
   const price = marketPrice?.price ?? 0;
   const changeAmount = marketPrice?.change ?? 0;
   const changeRate = marketPrice?.rate ?? 0;
@@ -157,7 +166,17 @@ export function StockDetailContainer({
         />
       </div>
       <div className="mt-4">
-        <StockDetailTabs tabs={tabs} value={tab} onChange={selectTab} />
+        <StockDetailTabs
+          tabs={tabs}
+          value={tab}
+          onChange={(value) => {
+            trackEvent("filter_chip_click", {
+              screen: "stock_detail",
+              filter_value: value,
+            });
+            selectTab(value);
+          }}
+        />
       </div>
 
       <div
@@ -166,7 +185,7 @@ export function StockDetailContainer({
           tab !== "호가" && "pb-4",
         )}
       >
-        {tab === "차트" && <StockChart model={chart} />}
+        {tab === "차트" && <StockChart model={chart} stockCode={code} />}
         {tab === "호가" &&
           (orderBook ? (
             <StockOrderBook orderBook={orderBook} />
@@ -212,12 +231,22 @@ export function StockDetailContainer({
         <StockTradeButtons
           showSell={holdingTab.hasHolding}
           onBuyClick={() => {
+            trackEvent("trade_button_click", {
+              stock_code: code,
+              side: "buy",
+            });
             // 구매 화면이 이전 REST 캐시 대신 진입 순간의 시세로 초기화
             if (marketPrice)
               queryClient.setQueryData(["marketPrices", code], [marketPrice]);
             router.push(`/stock/${code}/buy`);
           }}
-          onSellClick={() => router.push(`/stock/${code}/sell`)}
+          onSellClick={() => {
+            trackEvent("trade_button_click", {
+              stock_code: code,
+              side: "sell",
+            });
+            router.push(`/stock/${code}/sell`);
+          }}
         />
       </div>
     </div>

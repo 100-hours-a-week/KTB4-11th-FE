@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { RankingList } from "@/features/stock/components/RankingList";
 import { RankingItemSkeleton } from "@/features/stock/components/RankingItemSkeleton";
@@ -65,6 +65,24 @@ export function DiscoverContainer() {
     );
   }
 
+  useEffect(() => {
+    if (isError) {
+      trackEvent("error_view", {
+        screen: "discover_ranking",
+        api_name: "ranking",
+      });
+    }
+  }, [isError]);
+
+  useEffect(() => {
+    if (!isError && data && ranking.length === 0) {
+      trackEvent("empty_state_view", {
+        screen: "discover_ranking",
+        empty_type: "no_ranking",
+      });
+    }
+  }, [isError, data, ranking.length]);
+
   return (
     <div className="bg-page-gradient pt-screen-top flex h-full flex-col">
       <Header
@@ -111,11 +129,28 @@ export function DiscoverContainer() {
           }}
         />
         <span className="heading-2-semibold">실시간 차트</span>
-        <RankingTypeTabs value={rankingType} onChange={setRankingType} />
+        <RankingTypeTabs
+          value={rankingType}
+          onChange={(value) => {
+            trackEvent("filter_chip_click", {
+              screen: "discover_ranking",
+              filter_value: value,
+            });
+            setRankingType(value);
+          }}
+        />
       </div>
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-4 pb-28">
         {isError && !data ? (
-          <ErrorState onRetry={() => refetch()} />
+          <ErrorState
+            onRetry={() => {
+              trackEvent("retry_click", {
+                screen: "discover_ranking",
+                api_name: "ranking",
+              });
+              refetch();
+            }}
+          />
         ) : isPending ? (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 8 }, (_, index) => (
@@ -136,7 +171,13 @@ export function DiscoverContainer() {
               <button
                 type="button"
                 className="caption-1-regular text-text-neutral-secondary mb-2"
-                onClick={() => void refetch()}
+                onClick={() => {
+                  trackEvent("retry_click", {
+                    screen: "discover_ranking",
+                    api_name: "ranking",
+                  });
+                  void refetch();
+                }}
               >
                 목록을 갱신하지 못했어요. 다시 시도
               </button>

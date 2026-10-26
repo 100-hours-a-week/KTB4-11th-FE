@@ -87,7 +87,13 @@ export function HoldingsContainer() {
           <HoldingCategoryChips
             categories={categories}
             value={category}
-            onChange={setCategory}
+            onChange={(value) => {
+              trackEvent("filter_chip_click", {
+                screen: "holdings_list",
+                filter_value: value,
+              });
+              setCategory(value);
+            }}
           />
         )}
 

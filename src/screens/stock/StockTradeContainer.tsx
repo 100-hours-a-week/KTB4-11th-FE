@@ -22,6 +22,7 @@ import { toOrderBook } from "@/features/stock/utils/toOrderBook";
 import { AnimatedPriceText } from "@/shared/components/AnimatedPriceText";
 import { Button } from "@/shared/components/Button";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
+import { trackEvent } from "@/shared/utils/analytics";
 import {
   formatSignedPercent,
   getReturnRateInfo,
@@ -152,7 +153,14 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
             <StockTradeOrderBook
               orderBook={orderBook}
               selectedPrice={form.price}
-              onSelect={form.selectQuote}
+              onSelect={(quotePrice) => {
+                trackEvent("trade_orderbook_select", {
+                  stock_code: code,
+                  side,
+                  price: quotePrice,
+                });
+                form.selectQuote(quotePrice);
+              }}
             />
           ) : (
             <div className="flex min-h-32 flex-1 items-center justify-center">
@@ -188,11 +196,15 @@ export function StockTradeContainer({ code, side }: StockTradeContainerProps) {
         <div className="flex items-center gap-2 px-4 pt-6">
           <Button
             className="bg-bg-layer-default text-text-neutral-secondary h-14 w-20 shrink-0 gap-2 active:bg-gray-50"
-            onClick={() =>
-              form.setInputMode(
-                form.inputMode === "number" ? "orderbook" : "number",
-              )
-            }
+            onClick={() => {
+              const nextMode =
+                form.inputMode === "number" ? "orderbook" : "number";
+              trackEvent("trade_input_mode_change", {
+                stock_code: code,
+                mode: nextMode,
+              });
+              form.setInputMode(nextMode);
+            }}
           >
             <span
               aria-hidden="true"

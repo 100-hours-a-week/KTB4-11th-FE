@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { RankingItem } from "@/features/stock/components/RankingItem";
 import { RankingItemSkeleton } from "@/features/stock/components/RankingItemSkeleton";
@@ -55,6 +55,21 @@ export function FavoritesContainer() {
     });
   }
 
+  useEffect(() => {
+    if (isError) {
+      trackEvent("error_view", { screen: "favorites", api_name: "watchlist" });
+    }
+  }, [isError]);
+
+  useEffect(() => {
+    if (!isError && data && stocks.length === 0) {
+      trackEvent("empty_state_view", {
+        screen: "favorites",
+        empty_type: "no_favorites",
+      });
+    }
+  }, [isError, data, stocks.length]);
+
   return (
     <div className="bg-page-gradient pt-screen-top flex h-full flex-col">
       <Header
@@ -93,7 +108,15 @@ export function FavoritesContainer() {
       />
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-28">
         {isError ? (
-          <ErrorState onRetry={() => refetch()} />
+          <ErrorState
+            onRetry={() => {
+              trackEvent("retry_click", {
+                screen: "favorites",
+                api_name: "watchlist",
+              });
+              refetch();
+            }}
+          />
         ) : isPending ? (
           <div className="flex flex-col gap-2 pt-4">
             {Array.from({ length: 6 }, (_, index) => (
@@ -115,7 +138,13 @@ export function FavoritesContainer() {
             <FilterChips
               options={[ALL_SECTOR, ...sectors]}
               value={sector}
-              onChange={setSector}
+              onChange={(value) => {
+                trackEvent("filter_chip_click", {
+                  screen: "favorites",
+                  filter_value: value,
+                });
+                setSector(value);
+              }}
               scrollable
             />
             <div className="flex flex-col gap-2">

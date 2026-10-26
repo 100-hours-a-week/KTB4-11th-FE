@@ -20,6 +20,7 @@ import TrophyHappyIcon from "@/assets/icons/stockspoon/trophy-happy.svg";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
+import { trackEvent } from "@/shared/utils/analytics";
 import { cn } from "@/shared/utils/cn";
 import {
   formatSignedPercent,
@@ -126,7 +127,13 @@ export function DuelDetailContainer({ id }: DuelDetailContainerProps) {
         <div className="flex flex-1 flex-col gap-3">
           <DuelPortfolioToggle
             value={portfolio}
-            onChange={setPortfolio}
+            onChange={(value) => {
+              trackEvent("filter_chip_click", {
+                screen: "duel_detail",
+                filter_value: value,
+              });
+              setPortfolio(value);
+            }}
             isAiLocked
             onLockedClick={() =>
               toast.info("AI 포트폴리오는 대결이 끝나면 확인할 수 있어요")

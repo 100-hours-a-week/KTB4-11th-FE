@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { DuelAlreadyExistsModal } from "@/features/ai/components/DuelAlreadyExistsModal";
 import { DuelCard } from "@/features/ai/components/DuelCard";
@@ -74,6 +74,15 @@ export function DuelContainer() {
   function handleCreateClick() {
     setIsTypeSheetOpen(true);
   }
+
+  useEffect(() => {
+    if (!isDuelsPending && filteredDuels.length === 0) {
+      trackEvent("empty_state_view", {
+        screen: "duel_list",
+        empty_type: "no_duels",
+      });
+    }
+  }, [isDuelsPending, filteredDuels.length]);
 
   async function handleUserVsAiSelect() {
     const result = await refetchActiveDuel();
@@ -148,7 +157,13 @@ export function DuelContainer() {
                 <FilterChips
                   options={DUEL_STATUS_FILTERS}
                   value={statusFilter}
-                  onChange={setStatusFilter}
+                  onChange={(value) => {
+                    trackEvent("filter_chip_click", {
+                      screen: "duel_list",
+                      filter_value: value,
+                    });
+                    setStatusFilter(value);
+                  }}
                 />
                 <button
                   type="button"

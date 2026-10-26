@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import CalendarIcon from "@/assets/icons/fill/calendar.svg";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
 import RobotFlusteredIcon from "@/assets/icons/stockspoon/robot-flustered.svg";
@@ -9,6 +10,7 @@ import { useCompetitionReportQuery } from "@/features/ai/hooks/useCompetitionRep
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
+import { trackEvent } from "@/shared/utils/analytics";
 
 interface DuelReportContainerProps {
   id: string;
@@ -17,6 +19,12 @@ interface DuelReportContainerProps {
 export function DuelReportContainer({ id }: DuelReportContainerProps) {
   const router = useRouter();
   const { data: report } = useCompetitionReportQuery(id);
+
+  useEffect(() => {
+    if (report?.isReady) {
+      trackEvent("duel_report_view", { competition_id: id });
+    }
+  }, [report?.isReady, id]);
 
   if (!report) return null;
 
@@ -62,7 +70,10 @@ export function DuelReportContainer({ id }: DuelReportContainerProps) {
               </div>
             ) : (
               <div className="bg-bg-layer-default rounded-2xl px-4">
-                <DuelMarketEventAccordion items={report.marketEvents} />
+                <DuelMarketEventAccordion
+                  items={report.marketEvents}
+                  competitionId={id}
+                />
               </div>
             )}
           </div>

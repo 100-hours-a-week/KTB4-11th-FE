@@ -1,18 +1,42 @@
 "use client";
 
 import { Accordion } from "radix-ui";
+import { useRef } from "react";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
 import type { DuelMarketEvent } from "@/features/ai/types/duel";
+import { trackEvent } from "@/shared/utils/analytics";
 
 interface DuelMarketEventAccordionProps {
   items: DuelMarketEvent[];
+  competitionId: string;
 }
 
 export function DuelMarketEventAccordion({
   items,
+  competitionId,
 }: DuelMarketEventAccordionProps) {
+  const openValuesRef = useRef<string[]>([]);
+
+  function handleValueChange(value: string[]) {
+    const newlyOpened = value.find(
+      (item) => !openValuesRef.current.includes(item),
+    );
+    if (newlyOpened) {
+      const eventIndex = Number(newlyOpened.replace("event-", ""));
+      trackEvent("duel_market_event_expand", {
+        competition_id: competitionId,
+        event_index: eventIndex,
+      });
+    }
+    openValuesRef.current = value;
+  }
+
   return (
-    <Accordion.Root type="multiple" className="flex flex-col">
+    <Accordion.Root
+      type="multiple"
+      className="flex flex-col"
+      onValueChange={handleValueChange}
+    >
       {items.map((item, index) => (
         <Accordion.Item
           key={`${item.date}-${item.title}`}

@@ -15,6 +15,7 @@ import type {
   StockTradeSide,
 } from "@/features/stock/types/stockTrade";
 import type { ApiErrorResponse } from "@/shared/types/apiError";
+import { trackEvent } from "@/shared/utils/analytics";
 
 // 주문 API 호출과 성공·실패 결과 화면 상태를 관리
 export function useStockTradeOrder({
@@ -44,6 +45,11 @@ export function useStockTradeOrder({
     quantity: number;
     priceMode: StockPriceMode;
   }) {
+    trackEvent("trade_attempt", {
+      stock_code: stockCode,
+      side,
+      price_mode: priceMode,
+    });
     createOrderMutation.mutate(
       {
         stock_code: stockCode,
@@ -56,6 +62,11 @@ export function useStockTradeOrder({
       {
         onSuccess: (data) => {
           const isFilled = data.order_status === "executed";
+          trackEvent("trade_success", {
+            stock_code: stockCode,
+            side,
+            is_filled: isFilled,
+          });
           setResult({
             type: "success",
             price: isFilled
@@ -68,6 +79,14 @@ export function useStockTradeOrder({
           });
         },
         onError: (error) => {
+          const errorCode = isAxiosError<ApiErrorResponse>(error)
+            ? error.response?.data?.code
+            : undefined;
+          trackEvent("trade_fail", {
+            stock_code: stockCode,
+            side,
+            error_code: errorCode,
+          });
           if (isLegacyAccountOrderError(error)) {
             setResult({ type: "legacy-account" });
             return;
