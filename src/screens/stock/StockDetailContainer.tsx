@@ -166,7 +166,17 @@ export function StockDetailContainer({
         />
       </div>
       <div className="mt-4">
-        <StockDetailTabs tabs={tabs} value={tab} onChange={selectTab} />
+        <StockDetailTabs
+          tabs={tabs}
+          value={tab}
+          onChange={(value) => {
+            trackEvent("filter_chip_click", {
+              screen: "stock_detail",
+              filter_value: value,
+            });
+            selectTab(value);
+          }}
+        />
       </div>
 
       <div
