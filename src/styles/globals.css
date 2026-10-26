@@ -6,7 +6,7 @@
 /** 디자인 토큰 정의 (v1 범위) */
 @theme {
   --font-sans:
-    "Pretendard Variable", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    var(--font-pretendard, -apple-system), BlinkMacSystemFont, "Segoe UI",
     Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
   /** Atomic Color Tokens */
