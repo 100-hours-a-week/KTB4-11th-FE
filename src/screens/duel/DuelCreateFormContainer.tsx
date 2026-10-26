@@ -21,6 +21,7 @@ import InfoIcon from "@/assets/icons/fill/info.svg";
 import { Button } from "@/shared/components/Button";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { Input } from "@/shared/components/Input";
+import { trackEvent } from "@/shared/utils/analytics";
 import { toDateOnly } from "@/shared/utils/toDateOnly";
 
 const DUEL_NAME_MAX_LENGTH = 20;
@@ -62,6 +63,7 @@ export function DuelCreateFormContainer() {
 
   const createCompetitionMutation = useCreateCompetitionMutation({
     onSuccess: () => {
+      trackEvent("duel_create");
       toast.success("대결이 생성됐어요");
       router.push("/duel");
     },
