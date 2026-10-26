@@ -90,7 +90,16 @@ export function TradeHistoryContainer() {
       />
 
       <div className="flex flex-1 flex-col gap-4 px-5 pt-4 pb-8">
-        <TradeFilterChips value={filter} onChange={setFilter} />
+        <TradeFilterChips
+          value={filter}
+          onChange={(value) => {
+            trackEvent("filter_chip_click", {
+              screen: "trade_history",
+              filter_value: value,
+            });
+            setFilter(value);
+          }}
+        />
 
         {isError ? (
           <EmptyStateCard>
