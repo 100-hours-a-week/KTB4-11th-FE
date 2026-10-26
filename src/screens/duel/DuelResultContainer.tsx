@@ -24,6 +24,7 @@ import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { FilterChips } from "@/shared/components/FilterChips";
 import { TradeCardSkeleton } from "@/shared/components/TradeCardSkeleton";
 import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
+import { trackEvent } from "@/shared/utils/analytics";
 import { cn } from "@/shared/utils/cn";
 import { formatSignedPercent } from "@/shared/utils/getReturnRateInfo";
 
@@ -73,10 +74,21 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
     });
   }, [isWin]);
 
-  if (
+  const isNotCompleted =
     isAxiosError(error) &&
-    error.response?.data?.code === "COMPETITION_NOT_COMPLETED"
-  ) {
+    error.response?.data?.code === "COMPETITION_NOT_COMPLETED";
+
+  useEffect(() => {
+    if (isNotCompleted) {
+      trackEvent("error_view", {
+        screen: "duel_result",
+        api_name: "competitions",
+        error_code: "COMPETITION_NOT_COMPLETED",
+      });
+    }
+  }, [isNotCompleted]);
+
+  if (isNotCompleted) {
     return (
       <div className="pt-screen-top flex h-full flex-col">
         <Header
@@ -184,6 +196,9 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
 
         <Link
           href={`/duel/${id}/report`}
+          onClick={() =>
+            trackEvent("duel_report_click", { competition_id: id })
+          }
           className="bg-bg-layer-default -mt-1 flex items-center justify-between rounded-2xl p-4"
         >
           <span className="body-1-semibold">AI 리포트 보기</span>
