@@ -73,7 +73,7 @@ interface AnalyticsEventMap {
   duel_card_click: { status: DuelCardStatus };
   duel_report_click: { competition_id: string };
   duel_report_view: { competition_id: string };
-  duel_market_event_expand: { analysis_id: number };
+  duel_market_event_expand: { competition_id: string; event_index: number };
   stock_detail_view: { stock_code: string };
   trade_attempt: { stock_code: string; side: TradeType; price_mode: string };
   trade_success: { stock_code: string; side: TradeType; is_filled: boolean };
