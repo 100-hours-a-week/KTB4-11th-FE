@@ -9,8 +9,14 @@ import { CHART_PERIODS } from "@/features/stock/types/stockDetail";
 import { StockChartIntervalChips } from "@/features/stock/components/chart/StockChartIntervalChips";
 import type { StockChartModel } from "@/features/stock/hooks/useStockChart";
 import { FilterChips } from "@/shared/components/FilterChips";
+import { trackEvent } from "@/shared/utils/analytics";
 
-export function StockChart({ model }: { model: StockChartModel }) {
+interface StockChartProps {
+  model: StockChartModel;
+  stockCode: string;
+}
+
+export function StockChart({ model, stockCode }: StockChartProps) {
   const {
     detailed,
     setDetailed,
@@ -26,7 +32,13 @@ export function StockChart({ model }: { model: StockChartModel }) {
       <button
         type="button"
         aria-pressed={detailed}
-        onClick={() => setDetailed(!detailed)}
+        onClick={() => {
+          trackEvent("chart_detail_toggle", {
+            stock_code: stockCode,
+            detailed: !detailed,
+          });
+          setDetailed(!detailed);
+        }}
         className="flex w-fit items-center gap-1"
       >
         <CheckCircleIcon
@@ -94,13 +106,25 @@ export function StockChart({ model }: { model: StockChartModel }) {
         <StockChartIntervalChips
           value={granularity}
           minute={model.minute}
-          onChange={setGranularity}
+          onChange={(value) => {
+            trackEvent("chart_granularity_change", {
+              stock_code: stockCode,
+              granularity: value,
+            });
+            setGranularity(value);
+          }}
         />
       ) : (
         <FilterChips
           options={CHART_PERIODS}
           value={period}
-          onChange={setPeriod}
+          onChange={(value) => {
+            trackEvent("chart_period_change", {
+              stock_code: stockCode,
+              period: value,
+            });
+            setPeriod(value);
+          }}
           className="grid grid-cols-5 gap-1.5"
           itemClassName="body-2-semibold px-2"
         />

@@ -185,7 +185,7 @@ export function StockDetailContainer({
           tab !== "호가" && "pb-4",
         )}
       >
-        {tab === "차트" && <StockChart model={chart} />}
+        {tab === "차트" && <StockChart model={chart} stockCode={code} />}
         {tab === "호가" &&
           (orderBook ? (
             <StockOrderBook orderBook={orderBook} />
