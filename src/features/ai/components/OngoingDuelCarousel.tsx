@@ -7,6 +7,7 @@ import CalendarIcon from "@/assets/icons/fill/calendar.svg";
 import FireIcon from "@/assets/icons/fill/fire.svg";
 import InfoIcon from "@/assets/icons/fill/info.svg";
 import { useCarousel } from "@/shared/hooks/useCarousel";
+import { trackEvent } from "@/shared/utils/analytics";
 import { cn } from "@/shared/utils/cn";
 import {
   formatSignedPercent,
@@ -85,6 +86,9 @@ export function OngoingDuelCarousel({ duels }: OngoingDuelCarouselProps) {
               <div key={duel.id} className="min-w-0 flex-[0_0_100%] pl-3">
                 <Link
                   href={`/duel/${duel.id}`}
+                  onClick={() =>
+                    trackEvent("duel_card_click", { status: "in_progress" })
+                  }
                   className="bg-bg-layer-default relative flex flex-col gap-1 rounded-2xl p-4"
                 >
                   <span className="text-text-neutral-secondary body-2-semibold absolute top-4 right-4 flex items-center gap-0.5">
