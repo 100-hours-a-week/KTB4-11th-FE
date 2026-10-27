@@ -118,22 +118,22 @@ export function SearchContainer() {
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
-            {recentSearches.map((term) => (
+            {recentSearches.map((item) => (
               <span
-                key={term}
+                key={item.search_id}
                 className="bg-bg-layer-default flex items-center gap-1 rounded-full py-1.5 pr-2 pl-3"
               >
                 <button
                   type="button"
                   className="body-2-medium text-text-neutral-secondary"
-                  onClick={() => handleSelectRecent(term)}
+                  onClick={() => handleSelectRecent(item.keyword)}
                 >
-                  {term}
+                  {item.keyword}
                 </button>
                 <button
                   type="button"
-                  aria-label={`${term} 삭제`}
-                  onClick={() => removeRecentSearch(term)}
+                  aria-label={`${item.keyword} 삭제`}
+                  onClick={() => removeRecentSearch(item.search_id)}
                 >
                   <CloseIcon
                     width={12}
