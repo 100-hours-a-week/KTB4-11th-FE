@@ -8,6 +8,5 @@ export function useAccountDetailQuery(accountId?: number) {
     queryKey: ["account", accountId],
     queryFn: () => getAccountDetail(accountId!),
     enabled: accountId !== undefined,
-    staleTime: 30_000,
   });
 }
