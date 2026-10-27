@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { RankingItem } from "@/features/stock/components/RankingItem";
 import { RankingItemSkeleton } from "@/features/stock/components/RankingItemSkeleton";
 import { useToggleFavoriteMutation } from "@/features/stock/hooks/useToggleFavoriteMutation";
@@ -76,15 +75,7 @@ export function FavoritesContainer() {
         className="px-5"
         right={
           <>
-            <button
-              type="button"
-              onClick={() => {
-                trackEvent("unsupported_feature_click", {
-                  feature_name: "search",
-                });
-                toast.info("검색 기능은 v3에서 이용할 수 있어요");
-              }}
-            >
+            <button type="button" onClick={() => router.push("/search")}>
               <SearchIcon
                 width={24}
                 height={24}

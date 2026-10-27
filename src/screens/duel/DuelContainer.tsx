@@ -101,15 +101,7 @@ export function DuelContainer() {
         className="px-5"
         right={
           <>
-            <button
-              type="button"
-              onClick={() => {
-                trackEvent("unsupported_feature_click", {
-                  feature_name: "search",
-                });
-                toast.info("검색 기능은 v3에서 이용할 수 있어요");
-              }}
-            >
+            <button type="button" onClick={() => router.push("/search")}>
               <SearchIcon
                 width={24}
                 height={24}
