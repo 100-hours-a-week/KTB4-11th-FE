@@ -2,6 +2,11 @@ import { http, HttpResponse, type HttpHandler } from "msw";
 import type { StockInfoResponse } from "@/features/stock/types/stockDetail";
 import type { StockSearchResponse } from "@/features/stock/types/stockSearch";
 import type {
+  CreateSearchHistoryResponse,
+  SearchHistoryItem,
+  SearchHistoryResponse,
+} from "@/features/stock/types/searchHistory";
+import type {
   WatchlistItem,
   WatchlistResponse,
 } from "@/features/stock/types/watchlist";
@@ -109,6 +114,9 @@ function resolveStockPoolEntry(stockCode: string): StockPoolEntry | null {
   return STOCK_POOL[index % STOCK_POOL.length];
 }
 
+let searchHistoryItems: SearchHistoryItem[] = [];
+let nextSearchHistoryId = 1;
+
 const favoriteItems = new Map<string, WatchlistItem>([
   [
     "035420",
@@ -195,4 +203,45 @@ export const stockHandlers: HttpHandler[] = [
       stocks,
     });
   }),
+
+  http.get("*/api/v1/users/me/search-history", async () => {
+    return HttpResponse.json<SearchHistoryResponse>({
+      search_history: searchHistoryItems,
+    });
+  }),
+
+  http.post("*/api/v1/users/me/search-history", async ({ request }) => {
+    const body = (await request.json()) as { keyword: string };
+    const keyword = body.keyword?.trim();
+
+    if (!keyword) {
+      return HttpResponse.json(
+        { message: "검색어를 입력해 주세요.", code: "EMPTY_KEYWORD" },
+        { status: 400 },
+      );
+    }
+
+    const searchId = nextSearchHistoryId++;
+    searchHistoryItems = [
+      { search_id: searchId, keyword, created_at: new Date().toISOString() },
+      ...searchHistoryItems,
+    ];
+
+    return HttpResponse.json<CreateSearchHistoryResponse>(
+      { search_id: searchId },
+      { status: 201 },
+    );
+  }),
+
+  http.delete(
+    "*/api/v1/users/me/search-history/:searchId",
+    async ({ params }) => {
+      const searchId = Number(params.searchId);
+      searchHistoryItems = searchHistoryItems.filter(
+        (item) => item.search_id !== searchId,
+      );
+
+      return HttpResponse.json({ message: "delete_success" });
+    },
+  ),
 ];
