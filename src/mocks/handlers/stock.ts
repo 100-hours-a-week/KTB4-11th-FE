@@ -1,5 +1,6 @@
 import { http, HttpResponse, type HttpHandler } from "msw";
 import type { StockInfoResponse } from "@/features/stock/types/stockDetail";
+import type { StockSearchResponse } from "@/features/stock/types/stockSearch";
 import type {
   WatchlistItem,
   WatchlistResponse,
@@ -92,6 +93,10 @@ const REAL_STOCK_CODES: Record<string, StockPoolEntry> = {
   "005930": STOCK_POOL[0], // 삼성전자
 };
 
+const REAL_CODE_BY_ENTRY = new Map(
+  Object.entries(REAL_STOCK_CODES).map(([code, entry]) => [entry, code]),
+);
+
 function resolveStockPoolEntry(stockCode: string): StockPoolEntry | null {
   if (stockCode in REAL_STOCK_CODES) return REAL_STOCK_CODES[stockCode];
 
@@ -162,5 +167,32 @@ export const stockHandlers: HttpHandler[] = [
     favoriteItems.delete(params.stockCode as string);
 
     return HttpResponse.json({ message: "delete_success" });
+  }),
+
+  http.get("*/api/v1/search", async ({ request }) => {
+    const url = new URL(request.url);
+    const keyword = (url.searchParams.get("keyword") ?? "").trim();
+    const normalized = keyword.toLowerCase();
+
+    const pool = STOCK_POOL.map((entry, index) => ({
+      stock_code: REAL_CODE_BY_ENTRY.get(entry) ?? `search-${index}`,
+      stock_name: entry.stock_name,
+      market: "KOSPI",
+      sector: entry.sector_name,
+    }));
+
+    const stocks = normalized
+      ? pool.filter(
+          (stock) =>
+            stock.stock_name.toLowerCase().includes(normalized) ||
+            stock.stock_code.toLowerCase().includes(normalized),
+        )
+      : [];
+
+    return HttpResponse.json<StockSearchResponse>({
+      keyword,
+      total_count: stocks.length,
+      stocks,
+    });
   }),
 ];
