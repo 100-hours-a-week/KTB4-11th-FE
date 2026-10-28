@@ -1,6 +1,16 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
-import { requestServerAccountDetail } from "../requestServerAccountData.ts";
+import { registerHooks } from "node:module";
+
+// Node 단독 테스트에서 공통 서버 요청 모듈의 TypeScript 경로 해석
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    if (specifier.endsWith("/requestServerApi")) specifier += ".ts";
+    return nextResolve(specifier, context);
+  },
+});
+const { requestServerAccountDetail } =
+  await import("../requestServerAccountData.ts");
 
 const originalFetch = globalThis.fetch;
 afterEach(() => {
