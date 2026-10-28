@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useServerSelectedAccountId } from "@/features/account/components/AccountHydration";
+import { useServerSelectedAccountId } from "@/features/account/components/SelectedAccountProvider";
 import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
 import { writeSelectedAccountCookie } from "@/features/account/utils/selectedAccountCookie";
 import { useAccountStore } from "@/store/accountStore";
