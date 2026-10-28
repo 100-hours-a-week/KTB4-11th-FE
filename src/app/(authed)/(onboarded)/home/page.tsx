@@ -1,5 +1,5 @@
-import { HomeContainer } from "@/screens/home/HomeContainer";
+import { HomeServerContainer } from "@/screens/home/HomeServerContainer";
 
 export default function HomePage() {
-  return <HomeContainer />;
+  return <HomeServerContainer />;
 }
