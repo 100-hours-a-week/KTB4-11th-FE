@@ -1,6 +1,6 @@
 "use client";
 
-import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import EditIcon from "@/assets/icons/fill/edit.svg";
 import ProfileDefaultIcon from "@/assets/icons/stockspoon/profile-default.svg";
 
@@ -10,6 +10,8 @@ interface ProfileCardProps {
 }
 
 export function ProfileCard({ nickname, profileImage }: ProfileCardProps) {
+  const router = useRouter();
+
   return (
     <div className="bg-bg-layer-default flex items-center justify-between rounded-2xl p-4">
       <div className="flex items-center gap-3">
@@ -24,10 +26,7 @@ export function ProfileCard({ nickname, profileImage }: ProfileCardProps) {
         )}
         <span className="body-1-bold">{nickname}</span>
       </div>
-      <button
-        type="button"
-        onClick={() => toast.info("프로필 수정은 v3에서 이용할 수 있어요")}
-      >
+      <button type="button" onClick={() => router.push("/mypage/edit")}>
         <EditIcon
           width={24}
           height={24}
