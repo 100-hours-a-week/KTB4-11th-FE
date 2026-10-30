@@ -8,6 +8,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "k.kakaocdn.net",
+        port: "",
+        pathname: "/dn/**",
+        search: "",
+      },
+      {
+        protocol: "https",
         hostname: new URL(STOCK_LOGO_BASE_URL).hostname,
       },
     ],
