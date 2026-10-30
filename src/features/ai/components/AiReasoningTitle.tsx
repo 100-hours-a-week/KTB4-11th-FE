@@ -17,7 +17,7 @@ export function AiReasoningTitle({
       <span className="heading-1-bold">{title}</span>
       <span className="body-2-regular text-text-neutral-secondary flex items-center gap-1.5">
         <span className="flex items-center gap-1">
-          <CalendarIcon className="text-icon-accent" />
+          <CalendarIcon width={12} height={12} className="text-icon-accent" />
           {date}
         </span>
         {holdingDays !== undefined && (

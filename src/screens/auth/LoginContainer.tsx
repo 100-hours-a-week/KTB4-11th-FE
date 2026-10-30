@@ -1,36 +1,9 @@
-"use client";
-
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { toast } from "sonner";
-import { useAccountListQuery } from "@/features/account/hooks/useAccountListQuery";
 import stockSpoonLogo from "@/assets/images/stockspoon-logo-full.png";
 import { KakaoLoginButton } from "@/features/auth/components/KakaoLoginButton";
 import { TermsAgreementNotice } from "@/features/auth/components/TermsAgreementNotice";
-import { Splash } from "@/shared/components/Splash";
 
 export function LoginContainer() {
-  const router = useRouter();
-  const {
-    data: accounts,
-    isSuccess,
-    isLoading,
-  } = useAccountListQuery({ skipAuthRedirect: true, retry: false });
-
-  useEffect(() => {
-    if (!isSuccess) return;
-
-    if (accounts.length === 0) {
-      toast.info("온보딩을 완료하지 않았어요");
-      router.replace("/onboarding");
-    } else {
-      router.replace("/home");
-    }
-  }, [isSuccess, accounts, router]);
-
-  if (isLoading || isSuccess) return <Splash />;
-
   return (
     <div className="bg-login-gradient flex h-full flex-col items-center justify-center px-5 pb-10">
       <div className="flex flex-col items-center">

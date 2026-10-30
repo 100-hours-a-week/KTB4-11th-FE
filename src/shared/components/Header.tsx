@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useSafeBack } from "@/shared/hooks/useSafeBack";
 import type { ReactNode } from "react";
 import ChevronBackwardIcon from "@/assets/icons/fill/chevron-backward.svg";
 import { cn } from "@/shared/utils/cn";
@@ -33,13 +33,17 @@ export function Header({ title, left, right, className }: HeaderProps) {
 
 interface HeaderBackButtonProps {
   onClick?: () => void;
+  fallbackHref?: string;
 }
 
-export function HeaderBackButton({ onClick }: HeaderBackButtonProps) {
-  const router = useRouter();
+export function HeaderBackButton({
+  onClick,
+  fallbackHref,
+}: HeaderBackButtonProps) {
+  const goBack = useSafeBack(fallbackHref);
 
   return (
-    <button type="button" onClick={onClick ?? (() => router.back())}>
+    <button type="button" onClick={onClick ?? goBack}>
       <ChevronBackwardIcon className="text-icon-neutral-secondary size-7.5" />
     </button>
   );

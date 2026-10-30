@@ -11,11 +11,14 @@ import type { HoldingsSort } from "@/features/account/types/holdingStock";
 import { toHoldingStock } from "@/features/account/utils/toHoldingStock";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
 import { EmptyState } from "@/shared/components/EmptyState";
+import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
+import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
 import { trackEvent } from "@/shared/utils/analytics";
 
 const ALL_CATEGORY = "전체";
+const PAGE_SIZE = 10;
 
 export function HoldingsContainer() {
   const accountId = useSelectedAccountId();
@@ -36,6 +39,21 @@ export function HoldingsContainer() {
     category === ALL_CATEGORY
       ? stocks
       : stocks.filter((stock) => stock.category === category);
+
+  // 업종 필터가 바뀌면 보여줄 개수도 처음부터 다시 셈
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [lastCategory, setLastCategory] = useState(category);
+  if (category !== lastCategory) {
+    setLastCategory(category);
+    setVisibleCount(PAGE_SIZE);
+  }
+
+  const visibleStocks = filteredStocks.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredStocks.length;
+  const sentinelRef = useInfiniteScroll({
+    hasMore,
+    onLoadMore: () => setVisibleCount((count) => count + PAGE_SIZE),
+  });
 
   useEffect(() => {
     if (isError) {
@@ -69,7 +87,13 @@ export function HoldingsContainer() {
           <HoldingCategoryChips
             categories={categories}
             value={category}
-            onChange={setCategory}
+            onChange={(value) => {
+              trackEvent("filter_chip_click", {
+                screen: "holdings_list",
+                filter_value: value,
+              });
+              setCategory(value);
+            }}
           />
         )}
 
@@ -80,7 +104,7 @@ export function HoldingsContainer() {
         )}
 
         {isError ? (
-          <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
+          <EmptyStateCard>
             <ErrorState
               onRetry={() => {
                 trackEvent("retry_click", {
@@ -90,7 +114,7 @@ export function HoldingsContainer() {
                 refetch();
               }}
             />
-          </div>
+          </EmptyStateCard>
         ) : isPending ? (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 6 }, (_, index) => (
@@ -98,7 +122,7 @@ export function HoldingsContainer() {
             ))}
           </div>
         ) : filteredStocks.length === 0 ? (
-          <div className="bg-bg-layer-default flex flex-1 flex-col items-center rounded-2xl pt-32">
+          <EmptyStateCard>
             <EmptyState
               icon={BasketFlusteredIcon}
               message={
@@ -108,16 +132,17 @@ export function HoldingsContainer() {
               }
               description={
                 category === ALL_CATEGORY
-                  ? "AI 매매가 체결되면 보유 종목이 여기 표시돼요"
+                  ? "매매가 체결되면 보유 종목이 여기 표시돼요"
                   : undefined
               }
             />
-          </div>
+          </EmptyStateCard>
         ) : (
           <div className="flex flex-col gap-2">
-            {filteredStocks.map((stock) => (
+            {visibleStocks.map((stock) => (
               <HoldingStockItem key={stock.id} {...stock} />
             ))}
+            {hasMore && <div ref={sentinelRef} className="h-1" />}
           </div>
         )}
       </div>

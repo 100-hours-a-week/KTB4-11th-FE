@@ -51,7 +51,7 @@ export function JudgmentFlowAccordion({ items }: JudgmentFlowAccordionProps) {
             </Accordion.Trigger>
           </Accordion.Header>
           <Accordion.Content className="pb-4 pl-8">
-            <span className="body-2-regular text-text-neutral-secondary">
+            <span className="body-2-regular text-text-neutral-secondary block text-justify">
               {item.body}
             </span>
           </Accordion.Content>

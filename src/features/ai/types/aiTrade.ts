@@ -1,15 +1,3 @@
-export interface AiTrade {
-  orderId: number;
-  stockName: string;
-  tradeType: "매도" | "매수";
-  tradeDate: string;
-  quantity: number;
-  price: number;
-  reasoning: string;
-  realizedProfit: number;
-  profitRate: number;
-}
-
 export type OrderSide = "buy" | "sell";
 export type OrderType = "limit" | "market";
 export type OrderStatus = "pending" | "executed" | "cancelled";
@@ -36,7 +24,7 @@ export interface Order {
   order_id: number;
   stock_code: string;
   stock_name: string;
-  order_source: "user" | "ai";
+  order_source: "USER" | "AI";
   order_side: OrderSide;
   order_type: OrderType;
   order_status: OrderStatus;
@@ -51,8 +39,20 @@ export interface Order {
   can_cancel: boolean;
 }
 
+export interface OrdersPagination {
+  page: number;
+  limit: number;
+  total_elements: number;
+  total_pages: number;
+  has_next: boolean;
+}
+
 export interface OrdersResponse {
-  message: string;
   account_id: number;
+  pagination?: OrdersPagination;
   orders: Order[];
+}
+
+export interface PaginatedOrdersResponse extends OrdersResponse {
+  pagination: OrdersPagination;
 }

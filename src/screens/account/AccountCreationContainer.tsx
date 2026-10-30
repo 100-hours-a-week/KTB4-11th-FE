@@ -3,23 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { InitialAmountInput } from "@/features/account/components/InitialAmountInput";
 import { Button } from "@/shared/components/Button";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
-import {
-  Modal,
-  ModalClose,
-  ModalContent,
-  ModalDescription,
-  ModalPortal,
-  ModalTitle,
-} from "@/shared/components/Modal";
-import { AiDelegationSwitch } from "@/features/account/components/AiDelegationSwitch";
-import { InitialAmountField } from "@/features/account/components/InitialAmountField";
-import { InitialAmountSlider } from "@/features/account/components/InitialAmountSlider";
-import { QuickAmountChips } from "@/features/account/components/QuickAmountChips";
 import {
   isAccountNameAlreadyExistsError,
   useCreateAccountMutation,
@@ -28,8 +17,6 @@ import { useOnboardingMutation } from "@/features/account/hooks/useOnboardingMut
 import {
   ACCOUNT_NAME_MAX_LENGTH,
   accountCreationFormSchema,
-  MAX_AMOUNT,
-  MIN_AMOUNT,
   type AccountCreationFormValues,
 } from "@/features/account/schemas/accountCreationFormSchema";
 import { Input } from "@/shared/components/Input";
@@ -53,9 +40,6 @@ export function AccountCreationContainer({
   const setSelectedAccountId = useAccountStore(
     (state) => state.setSelectedAccountId,
   );
-  const [isAiDelegated, setIsAiDelegated] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   useEffect(() => {
     if (!showAccountNameField) {
       trackEvent("onboarding_start");
@@ -152,42 +136,11 @@ export function AccountCreationContainer({
         )}
 
         <div className="flex flex-col gap-3">
-          <span className="body-1-bold">AI 위임 설정</span>
-          <AiDelegationSwitch
-            checked={isAiDelegated}
-            onCheckedChange={(checked) => {
-              if (checked) {
-                setIsAiDelegated(true);
-              } else {
-                trackEvent("unsupported_feature_click", {
-                  feature_name: "manual_investment",
-                });
-                setIsModalOpen(true);
-              }
-            }}
-          />
-        </div>
-
-        <div className="flex flex-col gap-3">
           <span className="body-1-bold">시작 자금</span>
-          <InitialAmountField
-            value={amount.toLocaleString()}
-            onChange={(value) =>
-              updateAmount(Number(value.replace(/,/g, "")) || 0)
-            }
-            error={errors.amount?.message}
-          />
-          <QuickAmountChips
-            onAdd={(value) => updateAmount(amount + value)}
-            onManualInput={() => updateAmount(0)}
-          />
-          <InitialAmountSlider
+          <InitialAmountInput
             value={amount}
-            onValueChange={updateAmount}
-            min={MIN_AMOUNT}
-            max={MAX_AMOUNT}
-            minLabel="100만"
-            maxLabel="1억"
+            onChange={updateAmount}
+            error={errors.amount?.message}
           />
           <p className="caption-1-regular text-text-neutral-tertiary">
             한 번 설정한 시작 금액은 나중에 바꿀 수 없어요
@@ -202,22 +155,6 @@ export function AccountCreationContainer({
           {submitLabel}
         </Button>
       </div>
-
-      <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <ModalPortal>
-          <ModalContent>
-            <ModalTitle>지금은 AI 위임 투자만 가능해요</ModalTitle>
-            <ModalDescription>
-              직접 투자는 v2에서 이용할 수 있어요.
-              <br />
-              조금만 기다려 주세요!
-            </ModalDescription>
-            <ModalClose asChild>
-              <Button className="mt-6">확인</Button>
-            </ModalClose>
-          </ModalContent>
-        </ModalPortal>
-      </Modal>
     </div>
   );
 }

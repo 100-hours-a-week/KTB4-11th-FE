@@ -11,6 +11,7 @@ interface InputProps extends Omit<ComponentProps<"input">, "onChange"> {
   left?: ReactNode;
   right?: ReactNode;
   labelClassName?: string;
+  compact?: boolean;
   onChange?: (value: string) => void;
 }
 
@@ -25,6 +26,7 @@ export function Input({
   disabled,
   className,
   labelClassName,
+  compact = false,
   onChange,
   ...props
 }: InputProps) {
@@ -47,7 +49,8 @@ export function Input({
       )}
       <div
         className={cn(
-          "bg-bg-layer-default flex items-center gap-2 rounded-2xl border-[1.4px] p-4",
+          "bg-bg-layer-default flex items-center gap-2 rounded-2xl border-[1.4px]",
+          compact ? "px-4 py-2.5" : "p-4",
           "focus-within:border-border-accent",
           error && "border-border-error",
           disabled && "bg-bg-layer-basement border-border-neutral-muted",
@@ -62,7 +65,8 @@ export function Input({
           disabled={disabled}
           aria-describedby={helperText ? helperTextId : undefined}
           className={cn(
-            "body-1-medium text-text-neutral-secondary focus:text-text-neutral-primary disabled:text-text-neutral-tertiary w-full overflow-hidden bg-transparent text-ellipsis whitespace-nowrap outline-none",
+            compact ? "body-2-medium" : "body-1-medium",
+            "text-text-neutral-secondary focus:text-text-neutral-primary disabled:text-text-neutral-tertiary w-full overflow-hidden bg-transparent text-ellipsis whitespace-nowrap outline-none",
             className,
           )}
           onChange={(event) => onChange?.(event.target.value)}

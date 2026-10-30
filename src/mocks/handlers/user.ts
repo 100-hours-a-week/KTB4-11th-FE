@@ -6,6 +6,11 @@ export const userHandlers: HttpHandler[] = [
     return HttpResponse.json<UserProfile>({
       nickname: "스푼러버",
       profile_image_url: null,
+      onboarding_completed: true,
     });
+  }),
+
+  http.delete("*/api/v1/users/me", async () => {
+    return HttpResponse.json({ message: "withdraw_success" });
   }),
 ];

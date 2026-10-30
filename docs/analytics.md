@@ -193,7 +193,109 @@ V1에서 제공하지 않는 기능에 대한 실제 클릭 데이터를 기반�
 
 ## V2
 
-V2 기능 확정 후 이벤트 추가
+V2에서는 대결(나 vs AI), 종목 상세·매매, 발견/관심종목 화면이 추가되면서
+V1에는 없던 탐색·매매·대결 참여 행동을 측정한다.
+
+### 이벤트 목록
+
+기존 `empty_state_view` / `error_view` / `retry_click`은 그대로 재사용하며,
+`screen` / `api_name` / `empty_type`에 아래 값을 추가해 V2 화면을 포괄한다.
+
+| 타입               | 추가된 값                                                                                  |
+| ------------------ | ------------------------------------------------------------------------------------------ |
+| `AnalyticsScreen`  | `discover_ranking`, `favorites`, `duel_list`, `duel_detail`, `duel_result`, `stock_detail` |
+| `AnalyticsApiName` | `ranking`, `watchlist`, `competitions`                                                     |
+| `EmptyType`        | `no_ranking`, `no_favorites`, `no_duels`                                                   |
+
+신규 이벤트는 다음과 같다.
+
+| 이벤트                     | 파라미터                                       | 측정 목적                                                                |
+| -------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------ |
+| `withdraw`                 | -                                              | 사용자가 명시적으로 회원 탈퇴한 행동 기록. 핵심 KPI에는 포함하지 않음    |
+| `duel_create`              | -                                              | 대결 생성 완료 빈도 확인                                                 |
+| `duel_card_click`          | `status: DuelCardStatus`                       | 대결 카드가 상태(시작 대기/진행 중/종료/취소)별로 얼마나 클릭되는지 확인 |
+| `duel_report_click`        | `competition_id`                               | 대결 결과 화면에서 AI 리포트로 이동하는 비율 확인                        |
+| `duel_report_view`         | `competition_id`                               | AI 리포트 페이지가 실제로 열람되는지 확인                                |
+| `duel_market_event_expand` | `competition_id`, `event_index`                | 리포트의 시황 분석 중 어떤 항목이 펼쳐지는지 확인                        |
+| `stock_detail_view`        | `stock_code`                                   | 종목 상세 조회 빈도 및 어떤 종목이 많이 조회되는지 확인                  |
+| `trade_attempt`            | `stock_code`, `side: TradeType`, `price_mode`  | 매수/매도 주문 시도 빈도 확인                                            |
+| `trade_success`            | `stock_code`, `side: TradeType`, `is_filled`   | 주문 성공 중 즉시 체결과 미체결(대기) 비율 확인                          |
+| `trade_fail`               | `stock_code`, `side: TradeType`, `error_code?` | 주문 실패 원인별 빈도 확인                                               |
+| `trade_button_click`       | `stock_code`, `side: TradeType`                | 종목 상세에서 매매 화면 진입 버튼 클릭 빈도 확인                         |
+| `trade_input_mode_change`  | `stock_code`, `mode: "number" \| "orderbook"`  | 매매 화면에서 숫자 입력과 호가 선택 중 어느 쪽을 더 쓰는지 확인          |
+| `trade_orderbook_select`   | `stock_code`, `side: TradeType`, `price`       | 호가 리스트에서 특정 가격을 지정가로 선택하는 빈도 확인                  |
+| `order_cancel`             | `stock_code`                                   | 대기 주문 취소 빈도 확인                                                 |
+| `chart_period_change`      | `stock_code`, `period`                         | 기본 차트에서 조회 기간(1일/1주/3달/1년/전체) 선호도 확인                |
+| `chart_granularity_change` | `stock_code`, `granularity`                    | 자세한 차트에서 분봉 단위 선호도 확인                                    |
+| `chart_detail_toggle`      | `stock_code`, `detailed`                       | 자세한 차트 전환 사용률 확인                                             |
+| `filter_chip_click`        | `screen: AnalyticsScreen`, `filter_value`      | 화면별 필터/탭/토글 칩 클릭 빈도를 공용 이벤트로 확인                    |
+
+> `filter_chip_click`은 발견 랭킹 탭, 관심종목 업종 필터, 대결 목록 상태 필터, 매매내역 필터, 보유종목 카테고리, 대결 상세 포트폴리오 토글, 종목 상세 탭 등 구조가 동일한 칩/탭 UI 전반에 공용으로 사용한다. 화면마다 전용 이벤트를 만들면 종류만 늘어나고 분석 방식은 동일해, `screen` 값으로 구분하는 쪽을 택했다.
+
+### 주요 분석 흐름
+
+**대결 생성 및 참여**
+
+```text
+duel_create
+→ duel_card_click (status: in_progress)
+→ duel_card_click (status: completed)
+→ duel_report_click
+→ duel_report_view
+→ duel_market_event_expand
+```
+
+대결을 생성한 뒤 진행 중/종료된 대결을 실제로 다시 찾아보고,
+AI 리포트까지 소비하는지 확인한다.
+
+**종목 매매**
+
+```text
+stock_detail_view
+→ trade_button_click
+→ trade_input_mode_change / trade_orderbook_select
+→ trade_attempt
+→ trade_success / trade_fail
+```
+
+종목 상세 조회가 실제 매매 시도·체결로 이어지는 비율과,
+숫자 입력/호가 선택 중 어떤 방식을 선호하는지 분석한다.
+
+**회원 탈퇴**
+
+```text
+withdraw
+```
+
+로그아웃과 구분해 서비스 이탈 빈도를 별도로 추적한다.
+
+### 코드 삽입 지점
+
+| 파일                                       | 이벤트                                                                     | 위치                                                                          |
+| ------------------------------------------ | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `DiscoverContainer.tsx`                    | `error_view` / `empty_state_view` / `retry_click` / `filter_chip_click`    | 랭킹 조회 에러·empty·재시도, 랭킹 탭 클릭                                     |
+| `FavoritesContainer.tsx`                   | `error_view` / `empty_state_view` / `retry_click` / `filter_chip_click`    | 관심종목 조회 에러·empty·재시도, 업종 필터 클릭                               |
+| `DuelContainer.tsx`                        | `empty_state_view` / `filter_chip_click`                                   | 대결 목록 empty, 상태 필터 클릭                                               |
+| `DuelCard.tsx` / `OngoingDuelCarousel.tsx` | `duel_card_click`                                                          | 대결 카드 클릭 시 (`DuelStatus → DuelCardStatus` 매핑)                        |
+| `DuelCreateFormContainer.tsx`              | `duel_create`                                                              | 대결 생성 mutation 성공 시                                                    |
+| `DuelResultContainer.tsx`                  | `error_view` / `duel_report_click`                                         | 미완료 대결 조회 에러, AI 리포트 보기 클릭                                    |
+| `DuelReportContainer.tsx`                  | `duel_report_view`                                                         | 리포트가 준비된 상태로 화면에 노출된 시점                                     |
+| `DuelMarketEventAccordion.tsx`             | `duel_market_event_expand`                                                 | 닫혀 있던 시황 분석 항목을 사용자가 펼친 시점                                 |
+| `DuelDetailContainer.tsx`                  | `filter_chip_click`                                                        | 내 포트폴리오/AI 포트폴리오 토글 클릭                                         |
+| `StockDetailContainer.tsx`                 | `stock_detail_view` / `filter_chip_click` / `trade_button_click`           | 종목 정보 조회, 차트/호가/내 주식 탭 클릭, 매수·판매하기 클릭                 |
+| `useStockHoldingTabData.ts`                | `order_cancel`                                                             | 주문 취소 mutation `onSuccess`                                                |
+| `StockChart.tsx`                           | `chart_period_change` / `chart_granularity_change` / `chart_detail_toggle` | 기간 칩, 분봉 칩, 자세한 차트 토글 버튼 클릭                                  |
+| `useStockTradeOrder.ts`                    | `trade_attempt` / `trade_success` / `trade_fail`                           | 주문 mutation 호출 직전 / `onSuccess` / `onError`                             |
+| `StockTradeContainer.tsx`                  | `trade_input_mode_change` / `trade_orderbook_select`                       | 숫자·호가 입력 모드 전환 버튼, 호가 리스트 가격 선택                          |
+| `WithdrawConfirmModal.tsx`                 | `withdraw`                                                                 | 탈퇴 mutation `onSuccess` (`LogoutConfirmModal.tsx`의 `logout`과 동일한 패턴) |
+| `TradeHistoryContainer.tsx`                | `filter_chip_click`                                                        | 매매내역 필터(전체/매수/매도) 클릭                                            |
+| `HoldingsContainer.tsx`                    | `filter_chip_click`                                                        | 보유종목 카테고리 칩 클릭                                                     |
+
+### 제외 항목
+
+- **차트 크로스헤어 드래그·구간 선택** — `StockChartSelectionSummary`에 표시되는 값은 상세 차트 위 포인터 이동에 따라 매 프레임 바뀌는 연속값이라 클릭 단위 이벤트로 의미 있게 집계하기 어려워 V2에서는 제외한다.
+- **AI 위임 버튼 관련 이벤트(`unsupported_feature_click` / `manual_investment`)** — 버튼 UI(`AiDelegationSwitch`)가 삭제되면서 이벤트를 쏘던 코드도 함께 삭제됐다. 타입 유니온에는 `manual_investment` 값이 아직 남아 있지만 실제로 발생시키는 코드가 없는 죽은 값이며, V2에서도 되살리지 않는다.
+- **`trade_orderbook_select`의 체결 성공 연결** — 호가 선택은 가격 입력 보조 행동이고 이후 `trade_attempt`/`trade_success`로 결과가 이어지므로, 선택과 체결을 직접 연결하는 별도 파라미터는 추가하지 않는다.
 
 ## V3
 

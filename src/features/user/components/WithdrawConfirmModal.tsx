@@ -11,6 +11,8 @@ import {
   ModalPortal,
   ModalTitle,
 } from "@/shared/components/Modal";
+import { useWithdrawMutation } from "@/features/user/hooks/useWithdrawMutation";
+import { trackEvent } from "@/shared/utils/analytics";
 import WalletSadIcon from "@/assets/icons/stockspoon/wallet-sad.svg";
 
 interface WithdrawConfirmModalProps {
@@ -22,6 +24,19 @@ export function WithdrawConfirmModal({
   open,
   onOpenChange,
 }: WithdrawConfirmModalProps) {
+  const { mutate, isPending } = useWithdrawMutation();
+
+  const handleWithdraw = () => {
+    mutate(undefined, {
+      onSuccess: () => {
+        trackEvent("withdraw");
+      },
+      onError: () => {
+        toast.error("회원 탈퇴를 완료하지 못했어요. 다시 시도해 주세요.");
+      },
+    });
+  };
+
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
       <ModalPortal>
@@ -41,9 +56,8 @@ export function WithdrawConfirmModal({
             </ModalClose>
             <Button
               className="flex-1"
-              onClick={() =>
-                toast.info("회원 탈퇴 기능은 v2에서 이용할 수 있어요")
-              }
+              onClick={handleWithdraw}
+              disabled={isPending}
             >
               탈퇴하기
             </Button>

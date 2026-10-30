@@ -1,0 +1,189 @@
+name: Frontend V2 Production CD
+
+on:
+  workflow_call:
+
+concurrency:
+  group: stockspoon-v2-prod-frontend-deploy
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: vars.AWS_V2_PROD_FE_PUBLISH_ROLE_ARN != ''
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      image_uri: ${{ steps.publish-image.outputs.image_uri }}
+    env:
+      AWS_REGION: ap-northeast-2
+      ECR_REPOSITORY: stockspoon-v2-prod-frontend
+      S3_ASSETS_BUCKET: ${{ vars.AWS_V2_PROD_FE_ASSETS_BUCKET }}
+      CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_V2_PROD_FE_DISTRIBUTION_ID }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_V2_PROD_FE_PUBLISH_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: FrontendV2Publish-${{ github.run_id }}
+
+      - name: Verify published infrastructure settings
+        run: |
+          set -Eeuo pipefail
+          : "${S3_ASSETS_BUCKET:?Set repository variable AWS_V2_PROD_FE_ASSETS_BUCKET from Terraform output frontend_edge.assets_bucket}"
+          : "${CLOUDFRONT_DISTRIBUTION_ID:?Set repository variable AWS_V2_PROD_FE_DISTRIBUTION_ID from Terraform output frontend_edge.distribution_id}"
+
+      - name: Login to private Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build the production image
+        id: build-image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/stockspoon-v2-prod-frontend:${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          build-args: |
+            NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+            NEXT_PUBLIC_MARKET_API_BASE_URL=${{ vars.NEXT_PUBLIC_MARKET_API_BASE_URL || '/market' }}
+            NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.NEXT_PUBLIC_KAKAO_CLIENT_ID }}
+            NEXT_PUBLIC_KAKAO_REDIRECT_URI=${{ vars.NEXT_PUBLIC_KAKAO_REDIRECT_URI }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+            NEXT_PUBLIC_RELEASE=${{ github.sha }}
+            NEXT_PUBLIC_GA_ID=${{ secrets.NEXT_PUBLIC_GA_ID }}
+          secrets: |
+            sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
+          cache-from: type=gha,scope=stockspoon-v2-prod-frontend
+          cache-to: type=gha,mode=max,scope=stockspoon-v2-prod-frontend
+
+      - name: Push image and extract its matching static assets
+        id: publish-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          STATIC_EXPORT_DIR: ${{ runner.temp }}/fe-v2-static
+        run: |
+          set -Eeuo pipefail
+          IMAGE_TAG_URI="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+          PUSH_LOG="$RUNNER_TEMP/ecr-push.log"
+          docker push "$IMAGE_TAG_URI" 2>&1 | tee "$PUSH_LOG"
+          IMAGE_DIGEST="$(sed -nE 's/.*digest: (sha256:[0-9a-f]{64}).*/\1/p' "$PUSH_LOG" | tail -n 1)"
+          [[ "$IMAGE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo "Could not read the pushed ECR image digest." >&2; exit 1; }
+
+          CONTAINER_ID="$(docker create "$IMAGE_TAG_URI")"
+          cleanup() { docker rm -f "$CONTAINER_ID" >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          mkdir -p "$STATIC_EXPORT_DIR"
+          docker cp "$CONTAINER_ID:/app/.next/static/." "$STATIC_EXPORT_DIR/"
+          [[ -n "$(find "$STATIC_EXPORT_DIR" -type f -print -quit)" ]] || { echo "The image contains no .next/static assets." >&2; exit 1; }
+          cleanup
+          trap - EXIT
+
+          IMAGE_URI="${ECR_REGISTRY}/${ECR_REPOSITORY}@${IMAGE_DIGEST}"
+          echo "image_uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"
+
+      - name: Publish matching static assets to private S3
+        env:
+          STATIC_EXPORT_DIR: ${{ runner.temp }}/fe-v2-static
+        run: |
+          set -Eeuo pipefail
+          aws s3 sync "$STATIC_EXPORT_DIR/" "s3://${S3_ASSETS_BUCKET}/_next/static/" \
+            --cache-control 'public,max-age=31536000,immutable' \
+            --only-show-errors
+
+      - name: Invalidate the static asset path
+        id: invalidate
+        run: |
+          set -Eeuo pipefail
+          INVALIDATION_ID="$(aws cloudfront create-invalidation \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --paths '/_next/static/*' \
+            --query 'Invalidation.Id' \
+            --output text)"
+          aws cloudfront wait invalidation-completed \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --id "$INVALIDATION_ID"
+          echo "invalidation_id=$INVALIDATION_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Add publish summary
+        env:
+          IMAGE_URI: ${{ steps.publish-image.outputs.image_uri }}
+        run: |
+          {
+            echo "### V2 production frontend image published"
+            echo "- Image: `$IMAGE_URI`"
+            echo "- Static assets: `s3://${S3_ASSETS_BUCKET}/_next/static/`"
+            echo "- CloudFront invalidation: `${{ steps.invalidate.outputs.invalidation_id }}`"
+            if [[ -z "${{ vars.AWS_V2_PROD_FE_ECS_DEPLOY_ROLE_ARN }}" ]]; then
+              echo "- ECS rollout: skipped until the ECS frontend service and deploy role are applied."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy-ecs:
+    needs: publish
+    if: needs.publish.result == 'success' && vars.AWS_V2_PROD_FE_ECS_DEPLOY_ROLE_ARN != ''
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_REGION: ap-northeast-2
+      ECS_CLUSTER: ${{ vars.AWS_V2_PROD_FE_ECS_CLUSTER }}
+      ECS_SERVICE: ${{ vars.AWS_V2_PROD_FE_ECS_SERVICE }}
+      ECS_TASK_FAMILY: ${{ vars.AWS_V2_PROD_FE_TASK_FAMILY }}
+      PUBLISHED_IMAGE: ${{ needs.publish.outputs.image_uri }}
+    steps:
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_V2_PROD_FE_ECS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: FrontendV2Deploy-${{ github.run_id }}
+
+      - name: Register task definition and deploy to ECS
+        run: |
+          set -Eeuo pipefail
+          : "${ECS_CLUSTER:?Set repository variable AWS_V2_PROD_FE_ECS_CLUSTER from Terraform output frontend_deployment.cluster}"
+          : "${ECS_SERVICE:?Set repository variable AWS_V2_PROD_FE_ECS_SERVICE from Terraform output frontend_deployment.service}"
+          : "${ECS_TASK_FAMILY:?Set repository variable AWS_V2_PROD_FE_TASK_FAMILY from Terraform output frontend_deployment.task_family}"
+          : "${PUBLISHED_IMAGE:?The publish job did not return an immutable image URI}"
+
+          aws ecs describe-task-definition \
+            --task-definition "$ECS_TASK_FAMILY" \
+            --query 'taskDefinition' \
+            --output json > task-definition-source.json
+          jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy, .deregisteredAt)' \
+            task-definition-source.json > task-definition.json
+          jq -e --arg image "$PUBLISHED_IMAGE" '
+            if any(.containerDefinitions[]; .name == "frontend") then
+              (.containerDefinitions[] | select(.name == "frontend") | .image) = $image
+            else
+              error("frontend container is missing from the ECS task definition")
+            end
+          ' task-definition.json > task-definition-next.json
+
+          TASK_DEFINITION_ARN="$(aws ecs register-task-definition \
+            --cli-input-json file://task-definition-next.json \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)"
+          aws ecs update-service \
+            --cluster "$ECS_CLUSTER" \
+            --service "$ECS_SERVICE" \
+            --task-definition "$TASK_DEFINITION_ARN" \
+            >/dev/null
+          aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE"
+          {
+            echo "### V2 production frontend deployed"
+            echo "- Image: `$PUBLISHED_IMAGE`"
+            echo "- ECS service: `$ECS_CLUSTER/$ECS_SERVICE`"
+            echo "- Task definition: `$TASK_DEFINITION_ARN`"
+          } >> "$GITHUB_STEP_SUMMARY"

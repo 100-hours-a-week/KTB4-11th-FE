@@ -1,6 +1,12 @@
 import { http, HttpResponse, type HttpHandler } from "msw";
 import type { Order, OrdersResponse } from "@/features/ai/types/aiTrade";
 import type { AiReportResponse } from "@/features/ai/types/aiTradeReasoning";
+import type {
+  CreateOrderRequest,
+  CreateOrderResponse,
+} from "@/features/stock/types/stockTrade";
+import { DEMO_ACCOUNTS } from "@/mocks/handlers/account";
+import { HOLDINGS } from "@/mocks/handlers/holdings";
 
 const AI_REPORTS: Record<number, AiReportResponse> = {
   101: {
@@ -155,12 +161,154 @@ const AI_REPORTS: Record<number, AiReportResponse> = {
   },
 };
 
-const ORDERS: Order[] = Object.values(AI_REPORTS)
-  .map((report) => ({
+// 종목 상세 "내 주식" 탭 데모용 (사용자가 직접 낸 주문)
+const USER_ORDERS: Order[] = [
+  {
+    order_id: 201,
+    stock_code: "035420",
+    stock_name: "NAVER",
+    order_source: "USER",
+    order_side: "buy",
+    order_type: "limit",
+    order_status: "pending",
+    quantity: 3,
+    limit_price: 220_000,
+    reserved_cash: 660_000,
+    created_at: "2026-08-25T09:41:00+09:00",
+    canceled_at: null,
+    reason: null,
+    executions: [],
+    execution_summary: null,
+    can_cancel: true,
+  },
+  {
+    order_id: 202,
+    stock_code: "035420",
+    stock_name: "NAVER",
+    order_source: "USER",
+    order_side: "sell",
+    order_type: "limit",
+    order_status: "pending",
+    quantity: 1,
+    limit_price: 225_000,
+    reserved_cash: 0,
+    created_at: "2026-08-25T10:02:00+09:00",
+    canceled_at: null,
+    reason: null,
+    executions: [],
+    execution_summary: null,
+    can_cancel: true,
+  },
+  {
+    order_id: 203,
+    stock_code: "035420",
+    stock_name: "NAVER",
+    order_source: "USER",
+    order_side: "buy",
+    order_type: "limit",
+    order_status: "executed",
+    quantity: 2,
+    limit_price: 223_000,
+    reserved_cash: 0,
+    created_at: "2026-08-26T09:32:00+09:00",
+    canceled_at: null,
+    reason: null,
+    executions: [
+      {
+        execution_id: 3001,
+        execution_price: 223_000,
+        execution_quantity: 2,
+        realized_pnl: null,
+        realized_return_percent: null,
+        created_at: "2026-08-26T09:32:00+09:00",
+      },
+    ],
+    execution_summary: {
+      quantity: 2,
+      average_price: 223_000,
+      total_amount: 446_000,
+      executed_at: "2026-08-26T09:32:00+09:00",
+      realized_pnl: null,
+      realized_return_percent: null,
+    },
+    can_cancel: false,
+  },
+  {
+    order_id: 204,
+    stock_code: "035420",
+    stock_name: "NAVER",
+    order_source: "USER",
+    order_side: "buy",
+    order_type: "limit",
+    order_status: "executed",
+    quantity: 3,
+    limit_price: 221_000,
+    reserved_cash: 0,
+    created_at: "2026-08-20T10:15:00+09:00",
+    canceled_at: null,
+    reason: null,
+    executions: [
+      {
+        execution_id: 3002,
+        execution_price: 221_000,
+        execution_quantity: 3,
+        realized_pnl: null,
+        realized_return_percent: null,
+        created_at: "2026-08-20T10:15:00+09:00",
+      },
+    ],
+    execution_summary: {
+      quantity: 3,
+      average_price: 221_000,
+      total_amount: 663_000,
+      executed_at: "2026-08-20T10:15:00+09:00",
+      realized_pnl: null,
+      realized_return_percent: null,
+    },
+    can_cancel: false,
+  },
+  {
+    order_id: 205,
+    stock_code: "035420",
+    stock_name: "NAVER",
+    order_source: "USER",
+    order_side: "sell",
+    order_type: "limit",
+    order_status: "executed",
+    quantity: 1,
+    limit_price: 219_500,
+    reserved_cash: 0,
+    created_at: "2026-08-18T13:47:00+09:00",
+    canceled_at: null,
+    reason: null,
+    executions: [
+      {
+        execution_id: 3003,
+        execution_price: 219_500,
+        execution_quantity: 1,
+        realized_pnl: -1_500,
+        realized_return_percent: -0.7,
+        created_at: "2026-08-18T13:47:00+09:00",
+      },
+    ],
+    execution_summary: {
+      quantity: 1,
+      average_price: 219_500,
+      total_amount: 219_500,
+      executed_at: "2026-08-18T13:47:00+09:00",
+      realized_pnl: -1_500,
+      realized_return_percent: -0.7,
+    },
+    can_cancel: false,
+  },
+];
+
+const ORDERS: Order[] = [
+  ...Object.values(AI_REPORTS).map((report) => ({
     order_id: report.order_id,
     stock_code: report.stock_code,
     stock_name: report.stock_name,
-    order_source: "ai" as const,
+    order_source: "AI" as const,
     order_side: report.order_side,
     order_type: "market" as const,
     order_status: "executed" as const,
@@ -191,20 +339,52 @@ const ORDERS: Order[] = Object.values(AI_REPORTS)
         report.sell_result?.realized_return_percent ?? null,
     },
     can_cancel: false,
-  }))
-  .sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  );
+  })),
+  ...USER_ORDERS,
+].sort(
+  (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+);
+
+let nextOrderId = 206;
 
 export const aiHandlers: HttpHandler[] = [
-  http.get("*/api/v1/accounts/:accountId/orders", async () => {
-    return HttpResponse.json<OrdersResponse>({
-      message: "success",
-      account_id: 1,
-      orders: ORDERS,
-    });
-  }),
+  http.get(
+    "*/api/v1/accounts/:accountId/orders",
+    async ({ request, params }) => {
+      const url = new URL(request.url);
+      const isPaginated = url.searchParams.has("page");
+      const page = Number(url.searchParams.get("page") ?? "0");
+      const limit = Number(url.searchParams.get("limit") ?? "10");
+      const orderSide = url.searchParams.get("order_side");
+      const orderStatus = url.searchParams.get("order_status");
+      const stockCode = url.searchParams.get("stock_code");
+
+      const filteredOrders = ORDERS.filter(
+        (order) =>
+          (!orderSide || order.order_side === orderSide) &&
+          (!orderStatus || order.order_status === orderStatus) &&
+          (!stockCode || order.stock_code === stockCode),
+      );
+      const totalElements = filteredOrders.length;
+      const totalPages = Math.ceil(totalElements / limit);
+      const start = isPaginated ? page * limit : 0;
+      const orders = filteredOrders.slice(start, start + limit);
+
+      return HttpResponse.json<OrdersResponse>({
+        account_id: Number(params.accountId),
+        ...(isPaginated && {
+          pagination: {
+            page,
+            limit,
+            total_elements: totalElements,
+            total_pages: totalPages,
+            has_next: page + 1 < totalPages,
+          },
+        }),
+        orders,
+      });
+    },
+  ),
   http.get(
     "*/api/v1/accounts/:accountId/orders/:orderId/ai-report",
     async ({ params }) => {
@@ -216,6 +396,158 @@ export const aiHandlers: HttpHandler[] = [
       }
 
       return HttpResponse.json<AiReportResponse>(report);
+    },
+  ),
+
+  http.post(
+    "*/api/v1/accounts/:accountId/orders",
+    async ({ request, params }) => {
+      const body = (await request.json()) as CreateOrderRequest;
+      const accountId = Number(params.accountId);
+      const account = DEMO_ACCOUNTS.find(
+        (item) => item.account_id === accountId,
+      );
+      const holding = HOLDINGS.find(
+        (item) => item.stock_code === body.stock_code,
+      );
+      const referencePrice = body.limit_price ?? holding?.current_price ?? 0;
+
+      if (body.order_side === "sell") {
+        const availableQuantity = holding?.quantity ?? 0;
+        if (body.quantity > availableQuantity) {
+          return HttpResponse.json(
+            {
+              message: "매도 가능한 수량이 부족합니다.",
+              code: "INSUFFICIENT_AVAILABLE_QUANTITY",
+            },
+            { status: 409 },
+          );
+        }
+      }
+
+      if (body.order_side === "buy") {
+        const cost = referencePrice * body.quantity;
+        if (account && cost > account.cash_balance) {
+          return HttpResponse.json(
+            {
+              message: "주문 가능한 금액이 부족합니다.",
+              code: "INSUFFICIENT_CASH",
+            },
+            { status: 409 },
+          );
+        }
+      }
+
+      const now = new Date().toISOString();
+      const isFilled = body.order_type === "market";
+      const orderId = nextOrderId++;
+
+      const order: Order = {
+        order_id: orderId,
+        stock_code: body.stock_code,
+        stock_name: body.stock_name,
+        order_source: "USER",
+        order_side: body.order_side,
+        order_type: body.order_type,
+        order_status: isFilled ? "executed" : "pending",
+        quantity: body.quantity,
+        limit_price: body.limit_price,
+        reserved_cash:
+          body.order_side === "buy" && !isFilled
+            ? referencePrice * body.quantity
+            : 0,
+        created_at: now,
+        canceled_at: null,
+        reason: null,
+        executions: isFilled
+          ? [
+              {
+                execution_id: orderId * 10,
+                execution_price: referencePrice,
+                execution_quantity: body.quantity,
+                realized_pnl: null,
+                realized_return_percent: null,
+                created_at: now,
+              },
+            ]
+          : [],
+        execution_summary: isFilled
+          ? {
+              quantity: body.quantity,
+              average_price: referencePrice,
+              total_amount: referencePrice * body.quantity,
+              executed_at: now,
+              realized_pnl: null,
+              realized_return_percent: null,
+            }
+          : null,
+        can_cancel: !isFilled,
+      };
+
+      ORDERS.unshift(order);
+
+      return HttpResponse.json<CreateOrderResponse>(
+        {
+          order_id: order.order_id,
+          account_id: accountId,
+          stock_code: order.stock_code,
+          order_side: order.order_side,
+          order_type: order.order_type,
+          limit_price: order.limit_price,
+          quantity: order.quantity,
+          order_status: isFilled ? "executed" : "pending",
+          reserved_cash: order.reserved_cash,
+          created_at: order.created_at,
+          executions: order.executions.map((execution) => ({
+            execution_id: execution.execution_id,
+            execution_price: execution.execution_price,
+            execution_quantity: execution.execution_quantity,
+          })),
+        },
+        { status: 201 },
+      );
+    },
+  ),
+
+  http.patch(
+    "*/api/v1/accounts/:accountId/orders/:orderId",
+    async ({ params }) => {
+      const orderId = Number(params.orderId);
+      const order = ORDERS.find((item) => item.order_id === orderId);
+
+      if (!order) {
+        return HttpResponse.json(
+          { message: "찾을 수 없습니다" },
+          { status: 404 },
+        );
+      }
+      if (order.order_status === "executed") {
+        return HttpResponse.json(
+          {
+            message: "이미 체결된 주문은 취소할 수 없습니다.",
+            code: "ORDER_ALREADY_FILLED",
+          },
+          { status: 400 },
+        );
+      }
+      if (order.order_status === "cancelled") {
+        return HttpResponse.json(
+          { message: "이미 취소된 주문입니다." },
+          { status: 409 },
+        );
+      }
+
+      const canceledAt = new Date().toISOString();
+      order.order_status = "cancelled";
+      order.canceled_at = canceledAt;
+      order.can_cancel = false;
+
+      return HttpResponse.json({
+        message: "success",
+        order_id: order.order_id,
+        order_status: order.order_status,
+        canceled_at: canceledAt,
+      });
     },
   ),
 ];

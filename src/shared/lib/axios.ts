@@ -9,8 +9,6 @@ export const apiClient = axios.create({
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
-    // ngrok 무료 터널의 브라우저 경고 인터스티셜을 건너뛰기 위함 (ngrok 아닌 호스트에서는 무시됨)
-    "ngrok-skip-browser-warning": "true",
   },
 });
 
@@ -61,7 +59,14 @@ function expireSession() {
 }
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.config.url?.split("?")[0] === "/api/v1/auth/reissue") {
+      // 인증 재발급 시 서버가 CSRF 쿠키를 초기화할 수 있어 다음 요청에서 다시 발급
+      csrfToken = null;
+      csrfTokenPromise = null;
+    }
+    return response;
+  },
   async (error) => {
     const isCsrfError = error.response?.data?.code === "INVALID_CSRF_TOKEN";
     const alreadyRetriedCsrf = error.config?.__isCsrfRetry;

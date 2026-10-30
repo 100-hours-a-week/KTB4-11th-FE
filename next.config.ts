@@ -1,8 +1,17 @@
 import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
+import { STOCK_LOGO_BASE_URL } from "./src/shared/constants/stockLogo";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: new URL(STOCK_LOGO_BASE_URL).hostname,
+      },
+    ],
+  },
   turbopack: {
     rules: {
       "*.svg": {

@@ -1,9 +1,18 @@
-import type { HoldingStock } from "@/features/account/types/holdingStock";
-import { cn } from "@/shared/utils/cn";
+"use client";
 
-type HoldingStockItemProps = Omit<HoldingStock, "id">;
+import { useRouter } from "next/navigation";
+import type { HoldingStock } from "@/features/account/types/holdingStock";
+import { StockLogo } from "@/shared/components/StockLogo";
+import { cn } from "@/shared/utils/cn";
+import {
+  formatSignedPercent,
+  getReturnRateInfo,
+} from "@/shared/utils/getReturnRateInfo";
+
+type HoldingStockItemProps = HoldingStock;
 
 export function HoldingStockItem({
+  id,
   name,
   category,
   quantity,
@@ -12,13 +21,16 @@ export function HoldingStockItem({
   profitAmount,
   changeRate,
 }: HoldingStockItemProps) {
-  const isRise = changeRate > 0;
-  const isFall = changeRate < 0;
+  const router = useRouter();
+  const { sign, colorClass } = getReturnRateInfo(changeRate);
 
   return (
-    <div className="bg-bg-layer-default flex items-center justify-between rounded-2xl px-4 py-3">
+    <div
+      onClick={() => router.push(`/stock/${id}`)}
+      className="bg-bg-layer-default flex cursor-pointer items-center justify-between rounded-2xl px-4 py-3"
+    >
       <div className="flex items-center gap-3">
-        <span className="border-border-neutral-tertiary size-10 rounded-full border border-dashed" />
+        <StockLogo code={id} className="size-10" />
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1">
             <span className="body-1-semibold">{name}</span>
@@ -26,26 +38,20 @@ export function HoldingStockItem({
               {category}
             </span>
           </div>
-          <span className="body-2-regular text-text-neutral-secondary">
-            {quantity}주 · 평단 {avgPrice.toLocaleString()}
+          <span className="body-2-regular text-text-neutral-secondary flex items-center">
+            {quantity}주
+            <span className="bg-border-neutral-muted mx-1.5 h-3 w-px" />
+            평단 {avgPrice.toLocaleString()}
           </span>
         </div>
       </div>
       <div className="flex flex-col items-end gap-1">
         <span className="body-1-semibold">{value.toLocaleString()}원</span>
-        <span
-          className={cn(
-            "body-2-medium",
-            isRise && "text-text-price-rise",
-            isFall && "text-text-price-fall",
-            !isRise && !isFall && "text-text-price-flat",
-          )}
-        >
-          {isRise ? "+" : ""}
+        <span className={cn("body-2-medium", colorClass)}>
+          {sign}
           {profitAmount.toLocaleString()}원{" "}
           <span className="caption-1-regular">
-            ({isRise ? "+" : ""}
-            {changeRate.toFixed(1)}%)
+            ({formatSignedPercent(changeRate)})
           </span>
         </span>
       </div>
