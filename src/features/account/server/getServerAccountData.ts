@@ -15,7 +15,7 @@ function parseAccountId(value?: string) {
 }
 
 // 현재 요청 안에서만 계좌 조회를 재사용하고 브라우저 선택값은 쿠키에서 읽기
-export const getServerAccountData = cache(async () => {
+export const getServerAccountContext = cache(async () => {
   if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") return null;
 
   const cookieStore = await cookies();
@@ -28,6 +28,14 @@ export const getServerAccountData = cache(async () => {
   const apiBaseUrl =
     process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL;
   if (!apiBaseUrl) throw new Error("API 서버 주소가 설정되지 않았어요.");
+
+  return { apiBaseUrl, accessToken, selectedAccountId };
+});
+
+export const getServerAccountData = cache(async () => {
+  const context = await getServerAccountContext();
+  if (!context) return null;
+  const { apiBaseUrl, accessToken, selectedAccountId } = context;
 
   const account = await requestServerAccountDetail(
     apiBaseUrl,
