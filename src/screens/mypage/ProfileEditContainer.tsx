@@ -7,6 +7,10 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import EditIcon from "@/assets/icons/fill/edit.svg";
 import { ProfileImageField } from "@/features/user/components/ProfileImageField";
+import {
+  ProfileImageUploadError,
+  useUpdateProfileMutation,
+} from "@/features/user/hooks/useUpdateProfileMutation";
 import { useUserQuery } from "@/features/user/hooks/useUserQuery";
 import {
   nicknameEditFormSchema,
@@ -36,9 +40,29 @@ export function ProfileEditContainer() {
   const hasChanges = nickname !== (user?.nickname ?? "") || imageFile !== null;
   const canSubmit = hasChanges && !errors.nickname;
 
-  const onSubmit = handleSubmit(() => {
-    toast.success("프로필이 수정됐어요");
-    router.back();
+  const updateProfileMutation = useUpdateProfileMutation();
+
+  const onSubmit = handleSubmit((values) => {
+    updateProfileMutation.mutate(
+      {
+        nickname:
+          values.nickname !== user?.nickname ? values.nickname : undefined,
+        imageFile,
+      },
+      {
+        onSuccess: () => {
+          toast.success("프로필 수정을 완료했어요");
+          router.back();
+        },
+        onError: (error) => {
+          if (error instanceof ProfileImageUploadError) {
+            toast.error("이미지 업로드에 실패했어요. 다시 시도해 주세요.");
+          } else {
+            toast.error("프로필 수정에 실패했어요. 다시 시도해 주세요.");
+          }
+        },
+      },
+    );
   });
 
   if (!user) return null;
@@ -75,7 +99,10 @@ export function ProfileEditContainer() {
       </div>
 
       <div className="px-5 pb-[max(24px,env(safe-area-inset-bottom))]">
-        <Button onClick={onSubmit} disabled={!canSubmit}>
+        <Button
+          onClick={onSubmit}
+          disabled={!canSubmit || updateProfileMutation.isPending}
+        >
           수정하기
         </Button>
       </div>
