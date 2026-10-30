@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import CameraIcon from "@/assets/icons/fill/camera.svg";
 import ProfileDefaultIcon from "@/assets/icons/stockspoon/profile-default.svg";
 
@@ -46,8 +47,13 @@ export function ProfileImageField({
       >
         <span className="block size-24 overflow-hidden rounded-full">
           {displayUrl ? (
-            <img
+            <Image
               src={displayUrl}
+              width={96}
+              height={96}
+              sizes="96px"
+              // 업로드 미리보기는 원본으로 표시하며, 저장된 업로드 이미지 최적화는 v3에서 검토
+              unoptimized={!displayUrl.startsWith("https://k.kakaocdn.net/dn/")}
               alt="프로필 이미지"
               className="size-full object-cover"
             />
