@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { toast } from "sonner";
 import { Header } from "@/shared/components/Header";
 import { StockTickerBar } from "@/shared/components/StockTickerBar";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
@@ -117,6 +116,7 @@ export function HomeTradesSection() {
 
 // 검색 버튼과 코스피 갱신을 담당하는 클라이언트 영역
 export function HomeHeader() {
+  const router = useRouter();
   const { data: kospi } = useKospiIndexQuery();
   return (
     <>
@@ -124,15 +124,7 @@ export function HomeHeader() {
         className="px-5"
         right={
           <>
-            <button
-              type="button"
-              onClick={() => {
-                trackEvent("unsupported_feature_click", {
-                  feature_name: "search",
-                });
-                toast.info("검색 기능은 v3에서 이용할 수 있어요");
-              }}
-            >
+            <button type="button" onClick={() => router.push("/search")}>
               <SearchIcon
                 width={24}
                 height={24}
