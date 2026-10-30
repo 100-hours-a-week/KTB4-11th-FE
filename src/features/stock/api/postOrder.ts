@@ -12,6 +12,7 @@ export async function postOrder(
     await apiClient.post<CreateOrderResponse>(
       `/api/v1/accounts/${accountId}/orders`,
       payload,
+      { headers: { "Idempotency-Key": crypto.randomUUID() } },
     );
 
   return createOrderResponse;
