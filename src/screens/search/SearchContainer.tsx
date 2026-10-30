@@ -9,9 +9,12 @@ import MagnifierFlusteredIcon from "@/assets/icons/stockspoon/magnifier-flustere
 import { SearchInput } from "@/features/stock/components/SearchInput";
 import { SearchResultItem } from "@/features/stock/components/SearchResultItem";
 import { SearchSuggestionItem } from "@/features/stock/components/SearchSuggestionItem";
+import { useMarketPrices } from "@/features/stock/hooks/useMarketPrices";
 import { useRecentSearches } from "@/features/stock/hooks/useRecentSearches";
-import { useSearchableStocks } from "@/features/stock/hooks/useSearchableStocks";
+import { useStockSearchQuery } from "@/features/stock/hooks/useStockSearchQuery";
+import { toRankingStockFromSearchItem } from "@/features/stock/utils/toRankingStockFromSearchItem";
 import { EmptyState } from "@/shared/components/EmptyState";
+import { ErrorState } from "@/shared/components/ErrorState";
 import { HeaderBackButton } from "@/shared/components/Header";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 
@@ -26,7 +29,16 @@ export function SearchContainer() {
   const [keyword, setKeyword] = useState("");
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const debouncedKeyword = useDebouncedValue(keyword, SEARCH_DEBOUNCE_MS);
-  const { stocks } = useSearchableStocks();
+  const trimmedKeyword = debouncedKeyword.trim();
+  const {
+    stocks: searchItems,
+    isPending,
+    isError,
+    refetch,
+  } = useStockSearchQuery(trimmedKeyword);
+  const { prices } = useMarketPrices(
+    searchItems.map((item) => item.stock_code),
+  );
   const {
     recentSearches,
     addRecentSearch,
@@ -34,16 +46,13 @@ export function SearchContainer() {
     clearRecentSearches,
   } = useRecentSearches();
 
-  const trimmedKeyword = debouncedKeyword.trim();
-  const results = useMemo(() => {
-    if (!trimmedKeyword) return [];
-    const normalized = normalize(trimmedKeyword);
-    return stocks.filter(
-      (stock) =>
-        normalize(stock.name).includes(normalized) ||
-        stock.stockCode.includes(normalized),
-    );
-  }, [stocks, trimmedKeyword]);
+  const results = useMemo(
+    () =>
+      searchItems.map((item) =>
+        toRankingStockFromSearchItem(item, prices[item.stock_code]),
+      ),
+    [searchItems, prices],
+  );
 
   function handleSelectResult(stockCode: string) {
     addRecentSearch(trimmedKeyword);
@@ -109,22 +118,22 @@ export function SearchContainer() {
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
-            {recentSearches.map((term) => (
+            {recentSearches.map((item) => (
               <span
-                key={term}
+                key={item.search_id}
                 className="bg-bg-layer-default flex items-center gap-1 rounded-full py-1.5 pr-2 pl-3"
               >
                 <button
                   type="button"
                   className="body-2-medium text-text-neutral-secondary"
-                  onClick={() => handleSelectRecent(term)}
+                  onClick={() => handleSelectRecent(item.keyword)}
                 >
-                  {term}
+                  {item.keyword}
                 </button>
                 <button
                   type="button"
-                  aria-label={`${term} 삭제`}
-                  onClick={() => removeRecentSearch(term)}
+                  aria-label={`${item.keyword} 삭제`}
+                  onClick={() => removeRecentSearch(item.search_id)}
                 >
                   <CloseIcon
                     width={12}
@@ -170,7 +179,9 @@ export function SearchContainer() {
 
       {trimmedKeyword && hasSubmitted && (
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-4 pb-10">
-          {results.length === 0 ? (
+          {isError ? (
+            <ErrorState onRetry={() => refetch()} />
+          ) : isPending ? null : results.length === 0 ? (
             <EmptyState
               icon={MagnifierFlusteredIcon}
               iconSize={70}
