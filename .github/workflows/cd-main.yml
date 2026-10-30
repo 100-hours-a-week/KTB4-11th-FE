@@ -1,13 +1,13 @@
-name: Frontend CD
+name: Frontend V1 CD
 
 on:
   workflow_run:
-    workflows: ["Frontend Main CI"]
+    workflows: ["Frontend V1 CI"]
     types: [completed]
-    branches: [main]
+    branches: [support/v1]
 
 concurrency:
-  group: fe-cd
+  group: fe-v1-cd
   cancel-in-progress: false
 
 env:
@@ -24,7 +24,7 @@ jobs:
       deploy: ${{ steps.check.outputs.deploy }}
       tag: ${{ steps.check.outputs.tag }}
     steps:
-      - name: Check whether the main CI built an image
+      - name: Check whether the V1 CI built an image
         id: check
         uses: actions/github-script@v9
         with:
@@ -34,9 +34,9 @@ jobs:
             if (
               run.conclusion !== 'success' ||
               run.event !== 'push' ||
-              run.head_branch !== 'main'
+              run.head_branch !== 'support/v1'
             ) {
-              core.info('Not a successful main push; skip deployment.');
+              core.info('Not a successful support/v1 push; skip deployment.');
               core.setOutput('deploy', 'false');
               return;
             }
@@ -116,7 +116,7 @@ jobs:
         if: always()
         run: |
           {
-            echo "### Frontend deployment"
+            echo "### Frontend V1 deployment"
             echo "- Service: $SERVICE"
             echo "- Image tag: `$IMAGE_TAG`"
             echo "- Result: ${{ job.status }}"

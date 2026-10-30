@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       image_tag:
-        description: Frontend image tag pushed by Frontend Dev CI
+        description: Frontend image tag pushed by Frontend V2 CI/CD
         required: true
         type: string
 

@@ -1,15 +1,17 @@
-name: Frontend Dev CI
+name: Frontend V2 CI/CD
 
 on:
   push:
     branches:
       - dev
+      - main
     paths-ignore: # 문서 변경 시에는 CI를 진행하지 않는다
       - "**/*.md"
       - "docs/**"
   pull_request:
     branches:
       - dev
+      - main
     paths-ignore: # 문서 변경 시에는 CI를 진행하지 않는다
       - "**/*.md"
       - "docs/**"
@@ -22,7 +24,7 @@ jobs:
   test-build:
     runs-on: ubuntu-26.04
     concurrency:
-      group: fe-dev-ci-${{ github.ref }}
+      group: fe-v2-ci-${{ github.ref }}
       cancel-in-progress: true
 
     steps:
@@ -127,7 +129,7 @@ jobs:
   deploy-v2-prod:
     name: Publish and deploy V2 production frontend
     needs: test-build
-    if: github.ref == 'refs/heads/dev' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     uses: ./.github/workflows/cd-v2-prod.yml
     permissions:
       contents: read
