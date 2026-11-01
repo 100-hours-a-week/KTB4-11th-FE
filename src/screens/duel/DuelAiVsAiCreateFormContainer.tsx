@@ -2,8 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import {
   aiVsAiDuelCreationFormSchema,
   type AiVsAiDuelCreationFormValues,
@@ -11,6 +11,12 @@ import {
 import { DuelModelCountSelector } from "@/features/ai/components/DuelModelCountSelector";
 import { DuelPeriodSelector } from "@/features/ai/components/DuelPeriodSelector";
 import { InitialAmountInput } from "@/features/account/components/InitialAmountInput";
+import {
+  hydrateDuelCreationDraftStore,
+  useDuelCreationDraftStore,
+  type AiVsAiDuelDraft,
+  type AiVsAiFlowState,
+} from "@/store/duelCreationDraftStore";
 import { Button } from "@/shared/components/Button";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { Input } from "@/shared/components/Input";
@@ -22,7 +28,38 @@ const defaultStart = new Date();
 
 export function DuelAiVsAiCreateFormContainer() {
   const router = useRouter();
+  const hydrated = useDuelCreationDraftStore((state) => state.hydrated);
+  const flow = useDuelCreationDraftStore((state) => state.aiVsAiFlow);
+  const startAiVsAiFlow = useDuelCreationDraftStore(
+    (state) => state.startAiVsAiFlow,
+  );
 
+  useEffect(() => {
+    void hydrateDuelCreationDraftStore();
+  }, []);
+
+  if (!hydrated) return null;
+
+  return (
+    <DuelAiVsAiCreateForm
+      router={router}
+      flow={flow}
+      startAiVsAiFlow={startAiVsAiFlow}
+    />
+  );
+}
+
+interface DuelAiVsAiCreateFormProps {
+  router: ReturnType<typeof useRouter>;
+  flow: AiVsAiFlowState | null;
+  startAiVsAiFlow: (draft: AiVsAiDuelDraft) => void;
+}
+
+function DuelAiVsAiCreateForm({
+  router,
+  flow,
+  startAiVsAiFlow,
+}: DuelAiVsAiCreateFormProps) {
   const {
     watch,
     setValue,
@@ -31,11 +68,11 @@ export function DuelAiVsAiCreateFormContainer() {
   } = useForm<AiVsAiDuelCreationFormValues>({
     resolver: zodResolver(aiVsAiDuelCreationFormSchema),
     defaultValues: {
-      name: "",
-      startDate: toDateOnly(defaultStart),
-      endDate: "",
-      amount: 10_000_000,
-      modelCount: 2,
+      name: flow?.name ?? "",
+      startDate: flow?.startDate ?? toDateOnly(defaultStart),
+      endDate: flow?.endDate ?? "",
+      amount: flow?.amount ?? 10_000_000,
+      modelCount: flow?.modelCount ?? 2,
     },
   });
 
@@ -49,8 +86,9 @@ export function DuelAiVsAiCreateFormContainer() {
 
   const canSubmit = !!name && !!startDate && !!endDate && !!amount;
 
-  const onSubmit = handleSubmit(() => {
-    toast.info("에이전트 세팅 화면은 준비 중이에요");
+  const onSubmit = handleSubmit((values) => {
+    startAiVsAiFlow(values);
+    router.push("/duel/create/ai-vs-ai/strategy");
   });
 
   return (
