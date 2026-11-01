@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
   aiVsAiDuelCreationFormSchema,
@@ -11,12 +10,7 @@ import {
 import { DuelModelCountSelector } from "@/features/ai/components/DuelModelCountSelector";
 import { DuelPeriodSelector } from "@/features/ai/components/DuelPeriodSelector";
 import { InitialAmountInput } from "@/features/account/components/InitialAmountInput";
-import {
-  hydrateDuelCreationDraftStore,
-  useDuelCreationDraftStore,
-  type AiVsAiDuelDraft,
-  type AiVsAiFlowState,
-} from "@/store/duelCreationDraftStore";
+import { useDuelCreationDraftStore } from "@/store/duelCreationDraftStore";
 import { Button } from "@/shared/components/Button";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { Input } from "@/shared/components/Input";
@@ -28,38 +22,11 @@ const defaultStart = new Date();
 
 export function DuelAiVsAiCreateFormContainer() {
   const router = useRouter();
-  const hydrated = useDuelCreationDraftStore((state) => state.hydrated);
-  const flow = useDuelCreationDraftStore((state) => state.aiVsAiFlow);
+  const flow = useDuelCreationDraftStore.getState().aiVsAiFlow;
   const startAiVsAiFlow = useDuelCreationDraftStore(
     (state) => state.startAiVsAiFlow,
   );
 
-  useEffect(() => {
-    void hydrateDuelCreationDraftStore();
-  }, []);
-
-  if (!hydrated) return null;
-
-  return (
-    <DuelAiVsAiCreateForm
-      router={router}
-      flow={flow}
-      startAiVsAiFlow={startAiVsAiFlow}
-    />
-  );
-}
-
-interface DuelAiVsAiCreateFormProps {
-  router: ReturnType<typeof useRouter>;
-  flow: AiVsAiFlowState | null;
-  startAiVsAiFlow: (draft: AiVsAiDuelDraft) => void;
-}
-
-function DuelAiVsAiCreateForm({
-  router,
-  flow,
-  startAiVsAiFlow,
-}: DuelAiVsAiCreateFormProps) {
   const {
     watch,
     setValue,

@@ -7,10 +7,7 @@ import { AI_STRATEGY_THEMES } from "@/features/ai/constants/aiStrategyThemes";
 import { InvestmentTendencySelector } from "@/features/ai/components/InvestmentTendencySelector";
 import { ThemeMultiSelect } from "@/features/ai/components/ThemeMultiSelect";
 import type { AiAgentStrategy } from "@/features/ai/types/aiStrategy";
-import {
-  hydrateDuelCreationDraftStore,
-  useDuelCreationDraftStore,
-} from "@/store/duelCreationDraftStore";
+import { useDuelCreationDraftStore } from "@/store/duelCreationDraftStore";
 import { Button } from "@/shared/components/Button";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import BuildingApartmentIcon from "@/assets/icons/fill/building-apartment.svg";
@@ -26,7 +23,6 @@ const USED_DATA_ITEMS = [
 
 export function DuelAiStrategySettingContainer() {
   const router = useRouter();
-  const hydrated = useDuelCreationDraftStore((state) => state.hydrated);
   const flow = useDuelCreationDraftStore((state) => state.aiVsAiFlow);
   const updateCurrentAgent = useDuelCreationDraftStore(
     (state) => state.updateCurrentAgent,
@@ -36,14 +32,10 @@ export function DuelAiStrategySettingContainer() {
   );
 
   useEffect(() => {
-    void hydrateDuelCreationDraftStore();
-  }, []);
+    if (!flow) router.replace("/duel/create/ai-vs-ai");
+  }, [flow, router]);
 
-  useEffect(() => {
-    if (hydrated && !flow) router.replace("/duel/create/ai-vs-ai");
-  }, [hydrated, flow, router]);
-
-  if (!hydrated || !flow) return null;
+  if (!flow) return null;
 
   const { agents, currentAgentIndex, modelCount } = flow;
   const current: AiAgentStrategy = agents[currentAgentIndex];
