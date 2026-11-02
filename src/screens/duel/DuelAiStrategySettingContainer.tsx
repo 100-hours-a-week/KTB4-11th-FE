@@ -6,7 +6,15 @@ import { toast } from "sonner";
 import { AI_STRATEGY_THEMES } from "@/features/ai/constants/aiStrategyThemes";
 import { InvestmentTendencySelector } from "@/features/ai/components/InvestmentTendencySelector";
 import { ThemeMultiSelect } from "@/features/ai/components/ThemeMultiSelect";
-import type { AiAgentStrategy } from "@/features/ai/types/aiStrategy";
+import { useCreateAiCompetitionSettingsMutation } from "@/features/ai/hooks/useCreateAiCompetitionSettingsMutation";
+import {
+  isDuelNameAlreadyExistsError,
+  useCreateCompetitionMutation,
+} from "@/features/ai/hooks/useCreateCompetitionMutation";
+import {
+  toRiskLevel,
+  type AiAgentStrategy,
+} from "@/features/ai/types/aiStrategy";
 import { useDuelCreationDraftStore } from "@/store/duelCreationDraftStore";
 import { Button } from "@/shared/components/Button";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
@@ -30,6 +38,38 @@ export function DuelAiStrategySettingContainer() {
   const setCurrentAgentIndex = useDuelCreationDraftStore(
     (state) => state.setCurrentAgentIndex,
   );
+  const clearAiVsAiFlow = useDuelCreationDraftStore(
+    (state) => state.clearAiVsAiFlow,
+  );
+
+  const aiSettingsMutation = useCreateAiCompetitionSettingsMutation({
+    onSuccess: () => {
+      toast.success("대결이 생성됐어요");
+      clearAiVsAiFlow();
+      router.push("/duel");
+    },
+  });
+  const createCompetitionMutation = useCreateCompetitionMutation({
+    onSuccess: () => {
+      if (!flow) return;
+      aiSettingsMutation.mutate({
+        agents: flow.agents.map((agent) => ({
+          risk_level: toRiskLevel(agent.investmentTendency),
+          preferred_themes: agent.interestThemes,
+          excluded_themes: agent.excludeThemes,
+          additional_request: agent.additionalRequest,
+        })),
+      });
+    },
+    onError: (error) => {
+      if (isDuelNameAlreadyExistsError(error)) {
+        toast.error("이미 존재하는 대결 이름이에요. 이름을 변경해 주세요.");
+        router.push("/duel/create/ai-vs-ai");
+        return true;
+      }
+      return false;
+    },
+  });
 
   useEffect(() => {
     if (!flow) router.replace("/duel/create/ai-vs-ai");
@@ -40,6 +80,8 @@ export function DuelAiStrategySettingContainer() {
   const { agents, currentAgentIndex, modelCount } = flow;
   const current: AiAgentStrategy = agents[currentAgentIndex];
   const isLastAgent = currentAgentIndex === modelCount - 1;
+  const isSubmitting =
+    createCompetitionMutation.isPending || aiSettingsMutation.isPending;
 
   function goToPreviousStep() {
     if (currentAgentIndex > 0) {
@@ -51,7 +93,15 @@ export function DuelAiStrategySettingContainer() {
 
   function goToNextStep() {
     if (isLastAgent) {
-      toast.info("대결 생성은 준비 중이에요");
+      if (!flow) return;
+      createCompetitionMutation.mutate({
+        competition_name: flow.name,
+        competition_type: "ai_vs_ai",
+        start_date: flow.startDate,
+        end_date: flow.endDate,
+        initial_capital: flow.amount,
+        ai_participant_count: flow.modelCount,
+      });
       return;
     }
     setCurrentAgentIndex(currentAgentIndex + 1);
@@ -130,7 +180,11 @@ export function DuelAiStrategySettingContainer() {
               <ChevronBackwardIcon className="text-icon-neutral-secondary size-6" />
             </button>
           )}
-          <Button className="flex-1" onClick={goToNextStep}>
+          <Button
+            className="flex-1"
+            onClick={goToNextStep}
+            disabled={isLastAgent && isSubmitting}
+          >
             {isLastAgent ? "대결 시작" : "다음"}
           </Button>
         </div>

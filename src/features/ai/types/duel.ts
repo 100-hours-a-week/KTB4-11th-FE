@@ -51,7 +51,7 @@ export interface CompetitionApiItem {
   competition_id: number;
   state: CompetitionState;
   competition_name: string;
-  competition_type: "user_vs_ai";
+  competition_type: "user_vs_ai" | "ai_vs_ai";
   start_date: string;
   end_date: string;
   d_day: number;
@@ -73,16 +73,38 @@ export interface CompetitionsResponse {
 
 export interface CreateCompetitionRequest {
   competition_name: string;
-  competition_type: "user_vs_ai";
+  competition_type: "user_vs_ai" | "ai_vs_ai";
   start_date: string;
   end_date: string;
   initial_capital: number;
+  ai_participant_count?: number;
 }
 
 export interface CreateCompetitionResponse {
   message: string;
   competition_id: number;
   state: CompetitionState;
+}
+
+export interface AiAgentSettingRequest {
+  risk_level: 1 | 2 | 3 | 4 | 5;
+  preferred_themes: string[];
+  excluded_themes: string[];
+  additional_request: string;
+}
+
+export interface CreateAiCompetitionSettingsRequest {
+  agents: AiAgentSettingRequest[];
+}
+
+export interface AiCompetitionAgent {
+  agent_id: number;
+  participant_id: number;
+}
+
+export interface CreateAiCompetitionSettingsResponse {
+  competition_id: number;
+  agents: AiCompetitionAgent[];
 }
 
 export interface CompetitionDailyPerformance {

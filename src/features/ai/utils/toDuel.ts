@@ -21,7 +21,7 @@ export function toDuel(competition: CompetitionApiItem): Duel {
   return {
     id: String(competition.competition_id),
     name: competition.competition_name,
-    type: "나 vs AI",
+    type: competition.competition_type === "ai_vs_ai" ? "AI끼리" : "나 vs AI",
     status: STATUS_BY_STATE[competition.state],
     startDate: formatShortDate(competition.start_date),
     endDate: formatShortDate(competition.end_date),
