@@ -7,10 +7,14 @@ import type {
   CompetitionReportResponse,
   CompetitionResultResponse,
   CompetitionsResponse,
+  CreateAiCompetitionSettingsRequest,
+  CreateAiCompetitionSettingsResponse,
   CreateCompetitionRequest,
   CreateCompetitionResponse,
 } from "@/features/ai/types/duel";
 import { addDemoAccount } from "@/mocks/handlers/account";
+
+let lastCreatedCompetitionId: number | undefined;
 
 const DEMO_COMPETITIONS: CompetitionApiItem[] = [
   {
@@ -475,6 +479,8 @@ export const duelHandlers: HttpHandler[] = [
       return_percent: 0,
     });
 
+    lastCreatedCompetitionId = competitionId;
+
     return HttpResponse.json<CreateCompetitionResponse>(
       {
         message: "success",
@@ -484,6 +490,31 @@ export const duelHandlers: HttpHandler[] = [
       { status: 201 },
     );
   }),
+
+  http.post(
+    "*/api/v3/users/me/competitions/ai-settings",
+    async ({ request }) => {
+      const body = (await request.json()) as CreateAiCompetitionSettingsRequest;
+
+      if (lastCreatedCompetitionId === undefined) {
+        return HttpResponse.json(
+          { code: "NOT_FOUND", message: "진행 중인 대결이 없습니다" },
+          { status: 404 },
+        );
+      }
+
+      const competitionId = lastCreatedCompetitionId;
+      const agents = body.agents.map((_, index) => ({
+        agent_id: competitionId * 10 + index + 1,
+        participant_id: competitionId * 100 + index + 1,
+      }));
+
+      return HttpResponse.json<CreateAiCompetitionSettingsResponse>({
+        competition_id: competitionId,
+        agents,
+      });
+    },
+  ),
 
   http.get("*/api/v2/users/me/competitions/:id", async ({ params }) => {
     const detail = DEMO_COMPETITION_DETAILS[Number(params.id)];
