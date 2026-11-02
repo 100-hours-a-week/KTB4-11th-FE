@@ -1,18 +1,11 @@
 "use client";
 
+import { TENDENCY_DOT_COLORS } from "@/features/ai/constants/investmentTendencyColors";
 import {
   INVESTMENT_TENDENCIES,
   type InvestmentTendency,
 } from "@/features/ai/types/aiStrategy";
 import { cn } from "@/shared/utils/cn";
-
-export const TENDENCY_DOT_COLORS: Record<InvestmentTendency, string> = {
-  성장형: "bg-red-500",
-  성장추구형: "bg-orange-500",
-  위험중립형: "bg-yellow-500",
-  안정추구형: "bg-green-500",
-  안정형: "bg-blue-500",
-};
 
 const TENDENCY_DOT_MUTED_COLORS: Record<InvestmentTendency, string> = {
   성장형: "bg-red-200",
