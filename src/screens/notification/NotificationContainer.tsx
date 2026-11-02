@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import BellIcon from "@/assets/icons/fill/bell.svg";
 import CheckCircleIcon from "@/assets/icons/fill/check-circle.svg";
+import BellHappyIcon from "@/assets/icons/stockspoon/bell-happy.svg";
 import { MarkAllReadModal } from "@/features/notification/components/MarkAllReadModal";
 import { NotificationItem } from "@/features/notification/components/NotificationItem";
 import { NOTIFICATION_PREVIEW } from "@/features/notification/constants/notificationPreview";
@@ -36,11 +36,7 @@ export function NotificationContainer() {
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-4 pb-10">
         {notifications.length === 0 ? (
           <EmptyStateCard>
-            <EmptyState
-              icon={BellIcon}
-              message="새로운 알림이 없어요"
-              description="새 소식이 생기면 여기서 알려드릴게요"
-            />
+            <EmptyState icon={BellHappyIcon} message="새로운 알림이 없어요" />
           </EmptyStateCard>
         ) : (
           <>
