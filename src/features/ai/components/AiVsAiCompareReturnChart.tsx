@@ -2,8 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import {
-  AreaSeries,
-  LineSeries,
   createChart,
   type IChartApi,
   type MouseEventParams,
@@ -12,7 +10,9 @@ import {
 import type { InvestmentTendency } from "@/features/ai/types/aiStrategy";
 import { useChartTooltip } from "@/shared/hooks/useChartTooltip";
 import {
+  addHighlightableSeries,
   createBaseChartOptions,
+  createCompareCrosshairOptions,
   formatTooltipDate,
   resolveCssColor,
   toUnixTime,
@@ -64,10 +64,7 @@ export function AiVsAiCompareReturnChart({
 
     const chart = createChart(container, {
       ...createBaseChartOptions(tertiaryColor),
-      crosshair: {
-        vertLine: { color: tertiaryColor, width: 1, labelVisible: false },
-        horzLine: { visible: false, labelVisible: false },
-      },
+      crosshair: createCompareCrosshairOptions(tertiaryColor),
     });
 
     const lastPoint = data[data.length - 1];
@@ -84,24 +81,11 @@ export function AiVsAiCompareReturnChart({
       const color = resolveCssColor(
         TENDENCY_CHART_COLOR_VARS[agent.investmentTendency],
       );
-      const isLeader = agent.agentLabel === leaderLabel;
-      const series = isLeader
-        ? chart.addSeries(AreaSeries, {
-            lineColor: color,
-            topColor: `${color}40`,
-            bottomColor: `${color}00`,
-            lineWidth: 2,
-            priceLineVisible: false,
-            lastValueVisible: false,
-            crosshairMarkerRadius: 3,
-          })
-        : chart.addSeries(LineSeries, {
-            color,
-            lineWidth: 2,
-            priceLineVisible: false,
-            lastValueVisible: false,
-            crosshairMarkerRadius: 3,
-          });
+      const series = addHighlightableSeries(
+        chart,
+        color,
+        agent.agentLabel === leaderLabel,
+      );
       series.setData(
         data.map((point) => ({
           time: toUnixTime(point.date),
