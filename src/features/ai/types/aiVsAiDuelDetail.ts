@@ -1,0 +1,37 @@
+import type { InvestmentTendency } from "@/features/ai/types/aiStrategy";
+import type { Trade } from "@/shared/types/trade";
+
+export interface AiVsAiAgentSummary {
+  agentLabel: string;
+  returnPercent: number;
+  investmentTendency: InvestmentTendency;
+  interestThemes: string[];
+  excludeThemes: string[];
+  additionalRequest: string;
+}
+
+export interface AiVsAiTrade extends Trade {
+  agentLabel: string;
+  orderId?: number;
+  hasReasoning?: boolean;
+}
+
+export interface AiVsAiAgentResult extends AiVsAiAgentSummary {
+  tradeCount: number;
+  summary: string;
+}
+
+export interface AiVsAiDuelDetail {
+  name: string;
+  dDay: number;
+  agents: AiVsAiAgentSummary[];
+  trades: AiVsAiTrade[];
+}
+
+export interface AiVsAiDuelResult {
+  name: string;
+  startDate: string;
+  endDate: string;
+  winnerLabel: string;
+  agents: AiVsAiAgentResult[];
+}

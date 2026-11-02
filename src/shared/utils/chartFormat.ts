@@ -1,4 +1,11 @@
-import type { ChartOptions, DeepPartial, Time } from "lightweight-charts";
+import {
+  AreaSeries,
+  LineSeries,
+  type ChartOptions,
+  type DeepPartial,
+  type IChartApi,
+  type Time,
+} from "lightweight-charts";
 
 export function toUnixTime(date: string): Time {
   return Math.floor(new Date(date).getTime() / 1000) as Time;
@@ -52,4 +59,40 @@ export function createBaseChartOptions(
     handleScroll: true,
     handleScale: true,
   };
+}
+
+// 비교 차트(2개 이상 시리즈)에서 공통으로 쓰는 십자선 옵션 — 세로선만 표시
+export function createCompareCrosshairOptions(
+  tertiaryColor: string,
+): DeepPartial<ChartOptions>["crosshair"] {
+  return {
+    vertLine: { color: tertiaryColor, width: 1, labelVisible: false },
+    horzLine: { visible: false, labelVisible: false },
+  };
+}
+
+// 강조 시리즈는 그라데이션 영역, 나머지는 단색 선으로 추가
+export function addHighlightableSeries(
+  chart: IChartApi,
+  color: string,
+  highlighted: boolean,
+) {
+  if (highlighted) {
+    return chart.addSeries(AreaSeries, {
+      lineColor: color,
+      topColor: `${color}40`,
+      bottomColor: `${color}00`,
+      lineWidth: 2,
+      priceLineVisible: false,
+      lastValueVisible: false,
+      crosshairMarkerRadius: 3,
+    });
+  }
+  return chart.addSeries(LineSeries, {
+    color,
+    lineWidth: 2,
+    priceLineVisible: false,
+    lastValueVisible: false,
+    crosshairMarkerRadius: 3,
+  });
 }
