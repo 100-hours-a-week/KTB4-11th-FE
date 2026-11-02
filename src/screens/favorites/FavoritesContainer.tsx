@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { RankingItem } from "@/features/stock/components/RankingItem";
@@ -11,8 +10,8 @@ import { useMarketPrices } from "@/features/stock/hooks/useMarketPrices";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
 import { toRankingStockFromWatchlistItem } from "@/features/stock/utils/toRankingStockFromWatchlistItem";
 import HeartSadIcon from "@/assets/icons/stockspoon/heart-sad.svg";
-import SearchIcon from "@/assets/icons/fill/search.svg";
-import ProfileIcon from "@/assets/icons/fill/profile.svg";
+import { HAS_UNREAD_NOTIFICATION_PREVIEW } from "@/features/notification/constants/notificationPreview";
+import { AppHeaderActions } from "@/shared/components/AppHeaderActions";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
@@ -74,22 +73,9 @@ export function FavoritesContainer() {
       <Header
         className="px-5"
         right={
-          <>
-            <button type="button" onClick={() => router.push("/search")}>
-              <SearchIcon
-                width={24}
-                height={24}
-                className="text-icon-neutral-primary"
-              />
-            </button>
-            <Link href="/mypage">
-              <ProfileIcon
-                width={24}
-                height={24}
-                className="text-icon-neutral-primary"
-              />
-            </Link>
-          </>
+          <AppHeaderActions
+            hasUnreadNotification={HAS_UNREAD_NOTIFICATION_PREVIEW}
+          />
         }
       />
       <StockTickerBar

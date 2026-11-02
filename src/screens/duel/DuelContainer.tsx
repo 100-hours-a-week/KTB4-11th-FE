@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -18,9 +17,9 @@ import {
 } from "@/features/ai/types/duel";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
 import PlusIcon from "@/assets/icons/fill/plus.svg";
-import SearchIcon from "@/assets/icons/fill/search.svg";
-import ProfileIcon from "@/assets/icons/fill/profile.svg";
 import TrophyHappyIcon from "@/assets/icons/stockspoon/trophy-happy.svg";
+import { HAS_UNREAD_NOTIFICATION_PREVIEW } from "@/features/notification/constants/notificationPreview";
+import { AppHeaderActions } from "@/shared/components/AppHeaderActions";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
@@ -100,22 +99,9 @@ export function DuelContainer() {
       <Header
         className="px-5"
         right={
-          <>
-            <button type="button" onClick={() => router.push("/search")}>
-              <SearchIcon
-                width={24}
-                height={24}
-                className="text-icon-neutral-primary"
-              />
-            </button>
-            <Link href="/mypage">
-              <ProfileIcon
-                width={24}
-                height={24}
-                className="text-icon-neutral-primary"
-              />
-            </Link>
-          </>
+          <AppHeaderActions
+            hasUnreadNotification={HAS_UNREAD_NOTIFICATION_PREVIEW}
+          />
         }
       />
       <StockTickerBar

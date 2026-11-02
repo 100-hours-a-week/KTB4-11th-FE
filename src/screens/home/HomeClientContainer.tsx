@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
+import { HAS_UNREAD_NOTIFICATION_PREVIEW } from "@/features/notification/constants/notificationPreview";
+import { AppHeaderActions } from "@/shared/components/AppHeaderActions";
 import { Header } from "@/shared/components/Header";
 import { StockTickerBar } from "@/shared/components/StockTickerBar";
 import { useKospiIndexQuery } from "@/features/stock/hooks/useKospiIndexQuery";
-import SearchIcon from "@/assets/icons/fill/search.svg";
-import ProfileIcon from "@/assets/icons/fill/profile.svg";
 import { useRouter } from "next/navigation";
 import { AccountSelector } from "@/features/account/components/AccountSelector";
 import { AccountBalanceCard } from "@/features/account/components/AccountBalanceCard";
@@ -114,31 +113,16 @@ export function HomeTradesSection() {
   );
 }
 
-// 검색 버튼과 코스피 갱신을 담당하는 클라이언트 영역
 export function HomeHeader() {
-  const router = useRouter();
   const { data: kospi } = useKospiIndexQuery();
   return (
     <>
       <Header
         className="px-5"
         right={
-          <>
-            <button type="button" onClick={() => router.push("/search")}>
-              <SearchIcon
-                width={24}
-                height={24}
-                className="text-icon-neutral-primary"
-              />
-            </button>
-            <Link href="/mypage">
-              <ProfileIcon
-                width={24}
-                height={24}
-                className="text-icon-neutral-primary"
-              />
-            </Link>
-          </>
+          <AppHeaderActions
+            hasUnreadNotification={HAS_UNREAD_NOTIFICATION_PREVIEW}
+          />
         }
       />
       <StockTickerBar
