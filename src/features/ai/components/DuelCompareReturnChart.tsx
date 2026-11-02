@@ -2,8 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import {
-  AreaSeries,
-  LineSeries,
   createChart,
   type IChartApi,
   type MouseEventParams,
@@ -11,7 +9,9 @@ import {
 } from "lightweight-charts";
 import { useChartTooltip } from "@/shared/hooks/useChartTooltip";
 import {
+  addHighlightableSeries,
   createBaseChartOptions,
+  createCompareCrosshairOptions,
   formatTooltipDate,
   resolveCssColor,
   toUnixTime,
@@ -55,35 +55,19 @@ export function DuelCompareReturnChart({
 
     const chart = createChart(container, {
       ...createBaseChartOptions(tertiaryColor),
-      crosshair: {
-        vertLine: { color: tertiaryColor, width: 1, labelVisible: false },
-        horzLine: { visible: false, labelVisible: false },
-      },
+      crosshair: createCompareCrosshairOptions(tertiaryColor),
     });
 
-    function addCompareSeries(isWinner: boolean) {
-      if (isWinner) {
-        return chart.addSeries(AreaSeries, {
-          lineColor: accentColor,
-          topColor: `${accentColor}40`,
-          bottomColor: `${accentColor}00`,
-          lineWidth: 2,
-          priceLineVisible: false,
-          lastValueVisible: false,
-          crosshairMarkerRadius: 3,
-        });
-      }
-      return chart.addSeries(LineSeries, {
-        color: neutralColor,
-        lineWidth: 2,
-        priceLineVisible: false,
-        lastValueVisible: false,
-        crosshairMarkerRadius: 3,
-      });
-    }
-
-    const mySeries = addCompareSeries(isWin);
-    const aiSeries = addCompareSeries(!isWin);
+    const mySeries = addHighlightableSeries(
+      chart,
+      isWin ? accentColor : neutralColor,
+      isWin,
+    );
+    const aiSeries = addHighlightableSeries(
+      chart,
+      isWin ? neutralColor : accentColor,
+      !isWin,
+    );
 
     mySeries.setData(
       data.map((point) => ({
@@ -165,7 +149,7 @@ export function DuelCompareReturnChart({
           </div>
         </div>
       </div>
-      <div ref={chartContainerRef} className="h-40 w-full" />
+      <div ref={chartContainerRef} className="h-48 w-full" />
     </div>
   );
 }
