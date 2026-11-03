@@ -75,11 +75,14 @@ export function ThemeCascaderField({
         trigger={
           <button
             type="button"
-            className="bg-bg-layer-default border-border-neutral-muted flex min-h-[54px] w-full items-center justify-between gap-2 rounded-2xl border-[1.4px] p-3"
+            disabled={categories.length === 0}
+            className="bg-bg-layer-default border-border-neutral-muted flex min-h-[54px] w-full items-center justify-between gap-2 rounded-2xl border-[1.4px] p-3 disabled:opacity-50"
           >
             {tags.length === 0 ? (
               <span className="body-2-medium text-text-neutral-tertiary">
-                테마를 선택해 주세요
+                {categories.length === 0
+                  ? "테마를 불러오는 중이에요"
+                  : "테마를 선택해 주세요"}
               </span>
             ) : (
               <div className="flex flex-1 flex-wrap gap-1.5">

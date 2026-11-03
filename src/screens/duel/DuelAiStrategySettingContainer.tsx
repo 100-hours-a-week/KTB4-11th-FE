@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { AI_STRATEGY_THEME_CATEGORIES } from "@/features/ai/constants/aiStrategyThemes";
 import { InvestmentTendencySelector } from "@/features/ai/components/InvestmentTendencySelector";
 import { ThemeCascaderField } from "@/features/ai/components/ThemeCascaderField";
 import { useCreateAiCompetitionSettingsMutation } from "@/features/ai/hooks/useCreateAiCompetitionSettingsMutation";
@@ -11,6 +10,7 @@ import {
   isDuelNameAlreadyExistsError,
   useCreateCompetitionMutation,
 } from "@/features/ai/hooks/useCreateCompetitionMutation";
+import { useThemesQuery } from "@/features/ai/hooks/useThemesQuery";
 import {
   toRiskLevel,
   type AiAgentStrategy,
@@ -41,6 +41,8 @@ export function DuelAiStrategySettingContainer() {
   const clearAiVsAiFlow = useDuelCreationDraftStore(
     (state) => state.clearAiVsAiFlow,
   );
+  const themesQuery = useThemesQuery();
+  const themeCategories = themesQuery.data ?? [];
 
   const aiSettingsMutation = useCreateAiCompetitionSettingsMutation({
     onSuccess: () => {
@@ -74,6 +76,12 @@ export function DuelAiStrategySettingContainer() {
   useEffect(() => {
     if (!flow) router.replace("/duel/create/ai-vs-ai");
   }, [flow, router]);
+
+  useEffect(() => {
+    if (themesQuery.isError) {
+      toast.error("테마 목록을 불러오지 못했어요. 다시 시도해 주세요.");
+    }
+  }, [themesQuery.isError]);
 
   if (!flow) return null;
 
@@ -146,14 +154,14 @@ export function DuelAiStrategySettingContainer() {
 
         <ThemeCascaderField
           label="관심 테마"
-          categories={AI_STRATEGY_THEME_CATEGORIES}
+          categories={themeCategories}
           value={current.interestThemes}
           onChange={(value) => updateCurrentAgent({ interestThemes: value })}
         />
 
         <ThemeCascaderField
           label="제외 테마"
-          categories={AI_STRATEGY_THEME_CATEGORIES}
+          categories={themeCategories}
           value={current.excludeThemes}
           onChange={(value) => updateCurrentAgent({ excludeThemes: value })}
         />
