@@ -2,6 +2,7 @@ import { http, HttpResponse, type HttpHandler } from "msw";
 import type {
   CompetitionApiItem,
   CompetitionDetailResponse,
+  CompetitionNameAvailabilityResponse,
   CompetitionExecution,
   CompetitionExecutionsResponse,
   CompetitionReportResponse,
@@ -402,6 +403,23 @@ export const duelHandlers: HttpHandler[] = [
       competitions: page,
     });
   }),
+
+  http.get(
+    "*/api/v2/users/me/competitions/name-availability",
+    async ({ request }) => {
+      const url = new URL(request.url);
+      const competitionName = url.searchParams.get("competition_name") ?? "";
+
+      const available = !DEMO_COMPETITIONS.some(
+        (competition) => competition.competition_name === competitionName,
+      );
+
+      return HttpResponse.json<CompetitionNameAvailabilityResponse>({
+        competition_name: competitionName,
+        available,
+      });
+    },
+  ),
 
   http.post("*/api/v2/users/me/competitions", async ({ request }) => {
     const body = (await request.json()) as CreateCompetitionRequest;
