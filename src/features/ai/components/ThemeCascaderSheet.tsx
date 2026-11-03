@@ -20,6 +20,12 @@ import {
 } from "@/shared/components/Sheet";
 import { cn } from "@/shared/utils/cn";
 
+function isLeafCategory(category: ThemeCategory): boolean {
+  return (
+    category.items.length === 1 && category.items[0].name === category.name
+  );
+}
+
 function CheckboxIndicator({ state }: { state: CheckboxState }) {
   return (
     <span
@@ -59,8 +65,11 @@ export function ThemeCascaderSheet({
   value,
   onChange,
 }: ThemeCascaderSheetProps) {
-  const [focusedIndex, setFocusedIndex] = useState(0);
-  const focusedCategory = categories[focusedIndex];
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const effectiveFocusedIndex =
+    focusedIndex ??
+    categories.findIndex((category) => !isLeafCategory(category));
+  const focusedCategory = categories[effectiveFocusedIndex];
 
   function toggleCategory(category: ThemeCategory) {
     const itemNames = category.items.map((item) => item.name);
@@ -98,7 +107,24 @@ export function ThemeCascaderSheet({
               <div className="border-border-neutral-muted w-1/2 overflow-y-auto border-r">
                 {categories.map((category, index) => {
                   const state = getCategoryState(category, value);
-                  const isFocused = index === focusedIndex;
+                  const isFocused = index === effectiveFocusedIndex;
+
+                  if (isLeafCategory(category)) {
+                    return (
+                      <button
+                        key={category.name}
+                        type="button"
+                        onClick={() => toggleCategory(category)}
+                        className="flex w-full items-center gap-2 px-3 py-3"
+                      >
+                        <CheckboxIndicator state={state} />
+                        <span className="body-2-medium text-text-neutral-primary text-left">
+                          {category.name}
+                        </span>
+                      </button>
+                    );
+                  }
+
                   return (
                     <div
                       key={category.name}
