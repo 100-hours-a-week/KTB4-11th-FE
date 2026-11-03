@@ -93,6 +93,14 @@ export function StockTradeResultSheet({
         )}
       </>
     );
+  } else if (displayResult?.type === "processing") {
+    title = "주문을 처리하고 있어요";
+    description = "잠시만 기다려 주세요";
+    icon = <CartHappyIcon width={60} height={60} className="animate-pulse" />;
+  } else if (displayResult?.type === "processing-timeout") {
+    title = "주문 접수는 완료됐어요";
+    description = "체결 결과는 내 주식에서 확인해 주세요";
+    icon = <CartHappyIcon width={60} height={60} />;
   } else if (displayResult?.type === "insufficient-cash") {
     title = "계좌에 잔액이 부족해요";
     description = `구매를 위해 ${displayResult.shortfall.toLocaleString()}원이 더 필요해요`;
@@ -102,11 +110,12 @@ export function StockTradeResultSheet({
     description = "판매 대기 중인 주식을 제외한 보유 수량을 확인해 주세요";
     icon = <BasketFlusteredIcon width={60} height={60} />;
   }
+  const isProcessing = displayResult?.type === "processing";
   return (
     <Sheet
       open={result !== null}
       onOpenChange={(open) => {
-        if (!open) onClose();
+        if (!open && !isProcessing) onClose();
       }}
     >
       <SheetPortal>
@@ -122,8 +131,15 @@ export function StockTradeResultSheet({
               </SheetDescription>
             </div>
           </div>
-          <Button onClick={isSuccess ? onViewHolding : onClose}>
-            {isSuccess ? "내 주식으로 이동" : "확인"}
+          <Button
+            disabled={isProcessing}
+            onClick={isSuccess ? onViewHolding : onClose}
+          >
+            {isProcessing
+              ? "주문 확인 중"
+              : isSuccess
+                ? "내 주식으로 이동"
+                : "확인"}
           </Button>
         </SheetContent>
       </SheetPortal>
