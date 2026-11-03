@@ -405,7 +405,7 @@ export const duelHandlers: HttpHandler[] = [
   }),
 
   http.get(
-    "*/api/v2/users/me/competitions/name-availability",
+    "*/api/v3/users/me/competitions/name-availability",
     async ({ request }) => {
       const url = new URL(request.url);
       const competitionName = url.searchParams.get("competition_name") ?? "";
