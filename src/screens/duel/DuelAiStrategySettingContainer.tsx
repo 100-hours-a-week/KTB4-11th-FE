@@ -82,6 +82,8 @@ export function DuelAiStrategySettingContainer() {
   const isLastAgent = currentAgentIndex === modelCount - 1;
   const isSubmitting =
     createCompetitionMutation.isPending || aiSettingsMutation.isPending;
+  const hasSelectedThemes =
+    current.interestThemes.length > 0 && current.excludeThemes.length > 0;
 
   function goToPreviousStep() {
     if (currentAgentIndex > 0) {
@@ -183,7 +185,7 @@ export function DuelAiStrategySettingContainer() {
           <Button
             className="flex-1"
             onClick={goToNextStep}
-            disabled={isLastAgent && isSubmitting}
+            disabled={!hasSelectedThemes || (isLastAgent && isSubmitting)}
           >
             {isLastAgent ? "대결 시작" : "다음"}
           </Button>
