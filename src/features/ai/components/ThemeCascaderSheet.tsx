@@ -141,7 +141,7 @@ export function ThemeCascaderSheet({
               </div>
 
               <div className="w-1/2 overflow-y-auto">
-                {focusedCategory.items.map((item) => (
+                {focusedCategory?.items.map((item) => (
                   <button
                     key={item.code}
                     type="button"
