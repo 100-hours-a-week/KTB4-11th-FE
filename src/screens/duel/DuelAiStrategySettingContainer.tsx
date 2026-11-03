@@ -3,9 +3,9 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { AI_STRATEGY_THEMES } from "@/features/ai/constants/aiStrategyThemes";
+import { AI_STRATEGY_THEME_CATEGORIES } from "@/features/ai/constants/aiStrategyThemes";
 import { InvestmentTendencySelector } from "@/features/ai/components/InvestmentTendencySelector";
-import { ThemeMultiSelect } from "@/features/ai/components/ThemeMultiSelect";
+import { ThemeCascaderField } from "@/features/ai/components/ThemeCascaderField";
 import { useCreateAiCompetitionSettingsMutation } from "@/features/ai/hooks/useCreateAiCompetitionSettingsMutation";
 import {
   isDuelNameAlreadyExistsError,
@@ -82,6 +82,8 @@ export function DuelAiStrategySettingContainer() {
   const isLastAgent = currentAgentIndex === modelCount - 1;
   const isSubmitting =
     createCompetitionMutation.isPending || aiSettingsMutation.isPending;
+  const hasSelectedThemes =
+    current.interestThemes.length > 0 && current.excludeThemes.length > 0;
 
   function goToPreviousStep() {
     if (currentAgentIndex > 0) {
@@ -142,16 +144,16 @@ export function DuelAiStrategySettingContainer() {
           }
         />
 
-        <ThemeMultiSelect
+        <ThemeCascaderField
           label="관심 테마"
-          options={AI_STRATEGY_THEMES}
+          categories={AI_STRATEGY_THEME_CATEGORIES}
           value={current.interestThemes}
           onChange={(value) => updateCurrentAgent({ interestThemes: value })}
         />
 
-        <ThemeMultiSelect
+        <ThemeCascaderField
           label="제외 테마"
-          options={AI_STRATEGY_THEMES}
+          categories={AI_STRATEGY_THEME_CATEGORIES}
           value={current.excludeThemes}
           onChange={(value) => updateCurrentAgent({ excludeThemes: value })}
         />
@@ -183,7 +185,7 @@ export function DuelAiStrategySettingContainer() {
           <Button
             className="flex-1"
             onClick={goToNextStep}
-            disabled={isLastAgent && isSubmitting}
+            disabled={!hasSelectedThemes || (isLastAgent && isSubmitting)}
           >
             {isLastAgent ? "대결 시작" : "다음"}
           </Button>
