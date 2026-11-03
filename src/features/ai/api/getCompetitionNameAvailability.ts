@@ -4,7 +4,7 @@ import type { CompetitionNameAvailabilityResponse } from "@/features/ai/types/du
 export async function getCompetitionNameAvailability(competitionName: string) {
   const { data: nameAvailabilityResponse } =
     await apiClient.get<CompetitionNameAvailabilityResponse>(
-      "/api/v2/users/me/competitions/name-availability",
+      "/api/v3/users/me/competitions/name-availability",
       { params: { competition_name: competitionName } },
     );
 
