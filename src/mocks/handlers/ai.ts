@@ -2,8 +2,9 @@ import { http, HttpResponse, type HttpHandler } from "msw";
 import type { Order, OrdersResponse } from "@/features/ai/types/aiTrade";
 import type { AiReportResponse } from "@/features/ai/types/aiTradeReasoning";
 import type {
+  CreateOrderAcceptedResponse,
   CreateOrderRequest,
-  CreateOrderResponse,
+  OrderRequestStatus,
 } from "@/features/stock/types/stockTrade";
 import { DEMO_ACCOUNTS } from "@/mocks/handlers/account";
 import { HOLDINGS } from "@/mocks/handlers/holdings";
@@ -347,6 +348,8 @@ const ORDERS: Order[] = [
 
 let nextOrderId = 206;
 
+const PENDING_ORDER_REQUESTS = new Map<string, Order>();
+
 export const aiHandlers: HttpHandler[] = [
   http.get(
     "*/api/v1/accounts/:accountId/orders",
@@ -404,6 +407,8 @@ export const aiHandlers: HttpHandler[] = [
     async ({ request, params }) => {
       const body = (await request.json()) as CreateOrderRequest;
       const accountId = Number(params.accountId);
+      const requestId =
+        request.headers.get("Idempotency-Key") ?? crypto.randomUUID();
       const account = DEMO_ACCOUNTS.find(
         (item) => item.account_id === accountId,
       );
@@ -485,27 +490,39 @@ export const aiHandlers: HttpHandler[] = [
       };
 
       ORDERS.unshift(order);
+      PENDING_ORDER_REQUESTS.set(requestId, order);
 
-      return HttpResponse.json<CreateOrderResponse>(
-        {
-          order_id: order.order_id,
-          account_id: accountId,
-          stock_code: order.stock_code,
-          order_side: order.order_side,
-          order_type: order.order_type,
-          limit_price: order.limit_price,
-          quantity: order.quantity,
-          order_status: isFilled ? "executed" : "pending",
-          reserved_cash: order.reserved_cash,
-          created_at: order.created_at,
-          executions: order.executions.map((execution) => ({
-            execution_id: execution.execution_id,
-            execution_price: execution.execution_price,
-            execution_quantity: execution.execution_quantity,
-          })),
-        },
-        { status: 201 },
+      return HttpResponse.json<CreateOrderAcceptedResponse>(
+        { request_id: requestId, status: "accepted" },
+        { status: 202 },
       );
+    },
+  ),
+
+  http.get(
+    "*/api/v3/accounts/:accountId/order-requests/:requestId",
+    async ({ params }) => {
+      const order = PENDING_ORDER_REQUESTS.get(String(params.requestId));
+
+      if (!order) {
+        return HttpResponse.json<OrderRequestStatus>({ status: "pending" });
+      }
+
+      return HttpResponse.json<OrderRequestStatus>({
+        status: "created",
+        request_id: String(params.requestId),
+        order_id: order.order_id,
+        stock_code: order.stock_code,
+        order_side: order.order_side,
+        order_type: order.order_type,
+        order_status:
+          order.order_status === "cancelled" ? "pending" : order.order_status,
+        quantity: order.quantity,
+        limit_price: order.limit_price,
+        executed_quantity: order.execution_summary?.quantity ?? 0,
+        execution_price: order.execution_summary?.average_price ?? null,
+        reason_code: null,
+      });
     },
   ),
 

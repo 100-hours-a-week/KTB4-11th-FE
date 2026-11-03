@@ -12,6 +12,8 @@ export type StockTradeResult =
       isFilled: boolean;
       pendingNextSession: boolean;
     }
+  | { type: "processing" }
+  | { type: "processing-timeout" }
   | { type: "insufficient-cash"; shortfall: number }
   | { type: "insufficient-shares" }
   | { type: "legacy-account" };
@@ -40,22 +42,28 @@ export interface CreateOrderRequest {
   quantity: number;
 }
 
-export interface CreateOrderExecution {
-  execution_id: number;
-  execution_price: number;
-  execution_quantity: number;
+export interface CreateOrderAcceptedResponse {
+  request_id: string;
+  status: "accepted";
 }
 
-export interface CreateOrderResponse {
+export interface OrderRequestProcessing {
+  status: "pending";
+}
+
+export interface OrderRequestCreated {
+  status: "created";
+  request_id: string;
   order_id: number;
-  account_id: number;
   stock_code: string;
   order_side: StockTradeSide;
   order_type: OrderType;
-  limit_price: number | null;
-  quantity: number;
   order_status: "pending" | "executed";
-  reserved_cash: number;
-  created_at: string;
-  executions: CreateOrderExecution[];
+  quantity: number;
+  limit_price: number | null;
+  executed_quantity: number;
+  execution_price: number | null;
+  reason_code: string | null;
 }
+
+export type OrderRequestStatus = OrderRequestProcessing | OrderRequestCreated;
