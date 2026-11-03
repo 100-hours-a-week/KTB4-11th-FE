@@ -3,12 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import {
   aiVsAiDuelCreationFormSchema,
   type AiVsAiDuelCreationFormValues,
 } from "@/features/ai/schemas/aiVsAiDuelCreationFormSchema";
 import { DuelModelCountSelector } from "@/features/ai/components/DuelModelCountSelector";
 import { DuelPeriodSelector } from "@/features/ai/components/DuelPeriodSelector";
+import { useCompetitionNameAvailabilityMutation } from "@/features/ai/hooks/useCompetitionNameAvailabilityMutation";
 import { InitialAmountInput } from "@/features/account/components/InitialAmountInput";
 import { useDuelCreationDraftStore } from "@/store/duelCreationDraftStore";
 import { Button } from "@/shared/components/Button";
@@ -27,9 +29,12 @@ export function DuelAiVsAiCreateFormContainer() {
     (state) => state.startAiVsAiFlow,
   );
 
+  const nameAvailabilityMutation = useCompetitionNameAvailabilityMutation();
+
   const {
     watch,
     setValue,
+    setError,
     handleSubmit,
     formState: { errors },
   } = useForm<AiVsAiDuelCreationFormValues>({
@@ -53,7 +58,19 @@ export function DuelAiVsAiCreateFormContainer() {
 
   const canSubmit = !!name && !!startDate && !!endDate && !!amount;
 
-  const onSubmit = handleSubmit((values) => {
+  const onSubmit = handleSubmit(async (values) => {
+    try {
+      const { available } = await nameAvailabilityMutation.mutateAsync(
+        values.name,
+      );
+      if (!available) {
+        setError("name", { message: "이미 존재하는 대결 이름이에요" });
+        return;
+      }
+    } catch {
+      toast.error("대결 이름 확인에 실패했어요. 다시 시도해 주세요.");
+      return;
+    }
     startAiVsAiFlow(values);
     router.push("/duel/create/ai-vs-ai/strategy");
   });
@@ -108,7 +125,7 @@ export function DuelAiVsAiCreateFormContainer() {
         <Button
           className="mt-auto mb-8 shrink-0"
           onClick={onSubmit}
-          disabled={!canSubmit}
+          disabled={!canSubmit || nameAvailabilityMutation.isPending}
         >
           전략 세팅하기
         </Button>

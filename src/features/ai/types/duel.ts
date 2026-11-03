@@ -86,6 +86,11 @@ export interface CreateCompetitionResponse {
   state: CompetitionState;
 }
 
+export interface CompetitionNameAvailabilityResponse {
+  competition_name: string;
+  available: boolean;
+}
+
 export interface AiAgentSettingRequest {
   risk_level: 1 | 2 | 3 | 4 | 5;
   preferred_themes: string[];
