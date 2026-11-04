@@ -4,9 +4,12 @@ import LockIcon from "@/assets/icons/fill/lock.svg";
 import type { DuelTrade } from "@/features/ai/types/duel";
 import { TradeCard } from "@/shared/components/TradeCard";
 
-type DuelAiTradeCardProps = DuelTrade;
+type DuelAiTradeCardProps = DuelTrade & {
+  accountId?: number;
+};
 
 export function DuelAiTradeCard({
+  accountId,
   hasReasoning,
   orderId,
   ...trade
@@ -18,9 +21,9 @@ export function DuelAiTradeCard({
         <>
           <hr className="border-border-neutral-muted" />
 
-          {hasReasoning && orderId !== undefined && (
+          {hasReasoning && orderId !== undefined && accountId !== undefined && (
             <Link
-              href={`/ai/trades/${orderId}`}
+              href={`/ai/trades/${orderId}?accountId=${accountId}`}
               className="text-text-neutral-primary caption-1-semibold flex w-full items-center justify-between"
             >
               판단 근거
