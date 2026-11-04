@@ -71,6 +71,13 @@ export interface CompetitionsResponse {
   competitions: CompetitionApiItem[];
 }
 
+export interface AiAgentSettingRequest {
+  risk_level: 1 | 2 | 3 | 4 | 5;
+  preferred_themes: string[];
+  excluded_themes: string[];
+  additional_request: string;
+}
+
 export interface CreateCompetitionRequest {
   competition_name: string;
   competition_type: "user_vs_ai" | "ai_vs_ai";
@@ -78,6 +85,7 @@ export interface CreateCompetitionRequest {
   end_date: string;
   initial_capital: number;
   ai_participant_count?: number;
+  agents?: AiAgentSettingRequest[];
 }
 
 export interface CreateCompetitionResponse {
@@ -89,27 +97,6 @@ export interface CreateCompetitionResponse {
 export interface CompetitionNameAvailabilityResponse {
   competition_name: string;
   available: boolean;
-}
-
-export interface AiAgentSettingRequest {
-  risk_level: 1 | 2 | 3 | 4 | 5;
-  preferred_themes: string[];
-  excluded_themes: string[];
-  additional_request: string;
-}
-
-export interface CreateAiCompetitionSettingsRequest {
-  agents: AiAgentSettingRequest[];
-}
-
-export interface AiCompetitionAgent {
-  agent_id: number;
-  participant_id: number;
-}
-
-export interface CreateAiCompetitionSettingsResponse {
-  competition_id: number;
-  agents: AiCompetitionAgent[];
 }
 
 export interface CompetitionDailyPerformance {
