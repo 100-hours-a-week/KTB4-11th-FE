@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { InvestmentTendencySelector } from "@/features/ai/components/InvestmentTendencySelector";
 import { ThemeCascaderField } from "@/features/ai/components/ThemeCascaderField";
-import { useCreateAiCompetitionSettingsMutation } from "@/features/ai/hooks/useCreateAiCompetitionSettingsMutation";
 import {
   isDuelNameAlreadyExistsError,
   useCreateCompetitionMutation,
@@ -44,24 +43,11 @@ export function DuelAiStrategySettingContainer() {
   const themesQuery = useThemesQuery();
   const themeCategories = themesQuery.data ?? [];
 
-  const aiSettingsMutation = useCreateAiCompetitionSettingsMutation({
+  const createCompetitionMutation = useCreateCompetitionMutation({
     onSuccess: () => {
       toast.success("대결이 생성됐어요");
       clearAiVsAiFlow();
       router.push("/duel");
-    },
-  });
-  const createCompetitionMutation = useCreateCompetitionMutation({
-    onSuccess: () => {
-      if (!flow) return;
-      aiSettingsMutation.mutate({
-        agents: flow.agents.map((agent) => ({
-          risk_level: toRiskLevel(agent.investmentTendency),
-          preferred_themes: agent.interestThemes,
-          excluded_themes: agent.excludeThemes,
-          additional_request: agent.additionalRequest,
-        })),
-      });
     },
     onError: (error) => {
       if (isDuelNameAlreadyExistsError(error)) {
@@ -88,8 +74,7 @@ export function DuelAiStrategySettingContainer() {
   const { agents, currentAgentIndex, modelCount } = flow;
   const current: AiAgentStrategy = agents[currentAgentIndex];
   const isLastAgent = currentAgentIndex === modelCount - 1;
-  const isSubmitting =
-    createCompetitionMutation.isPending || aiSettingsMutation.isPending;
+  const isSubmitting = createCompetitionMutation.isPending;
   const hasSelectedThemes =
     current.interestThemes.length > 0 && current.excludeThemes.length > 0;
 
@@ -111,6 +96,12 @@ export function DuelAiStrategySettingContainer() {
         end_date: flow.endDate,
         initial_capital: flow.amount,
         ai_participant_count: flow.modelCount,
+        agents: flow.agents.map((agent) => ({
+          risk_level: toRiskLevel(agent.investmentTendency),
+          preferred_themes: agent.interestThemes,
+          excluded_themes: agent.excludeThemes,
+          additional_request: agent.additionalRequest,
+        })),
       });
       return;
     }
