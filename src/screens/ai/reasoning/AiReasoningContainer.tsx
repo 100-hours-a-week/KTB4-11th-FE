@@ -12,18 +12,20 @@ import {
   toExecutionResult,
   toReasoningTitle,
 } from "@/features/ai/utils/toAiReasoningView";
-import { useSelectedAccountId } from "@/features/account/hooks/useSelectedAccountId";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { getElapsedBucket, trackEvent } from "@/shared/utils/analytics";
 
 interface AiReasoningContainerProps {
+  accountId: number;
   orderId: number;
 }
 
-export function AiReasoningContainer({ orderId }: AiReasoningContainerProps) {
+export function AiReasoningContainer({
+  accountId,
+  orderId,
+}: AiReasoningContainerProps) {
   const router = useRouter();
-  const accountId = useSelectedAccountId();
   const {
     data: report,
     error,

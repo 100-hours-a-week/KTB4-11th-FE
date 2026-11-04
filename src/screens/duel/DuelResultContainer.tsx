@@ -241,7 +241,11 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
               <>
                 {trades.map((trade) =>
                   tradeFilter === AI_TRADES_FILTER ? (
-                    <DuelAiTradeCard key={trade.tradeId} {...trade} />
+                    <DuelAiTradeCard
+                      key={trade.tradeId}
+                      {...trade}
+                      accountId={result?.aiAccountId}
+                    />
                   ) : (
                     <TradeCard key={trade.tradeId} {...trade} />
                   ),
