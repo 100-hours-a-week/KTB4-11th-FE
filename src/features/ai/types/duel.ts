@@ -179,12 +179,14 @@ export interface CompetitionJudgmentSummary {
   content: string;
 }
 
+export type CompetitionReportState = "pending" | "completed";
+
 export interface CompetitionReportResponse {
   competition_id: number;
   competition_name: string;
   start_date: string;
   end_date: string;
-  state: string;
+  report_state: CompetitionReportState;
   market_analyses: CompetitionMarketAnalysis[];
   judgment_summaries: CompetitionJudgmentSummary[];
 }
