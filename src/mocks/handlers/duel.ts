@@ -212,7 +212,7 @@ const DEMO_COMPETITION_REPORTS: Record<number, CompetitionReportResponse> = {
     competition_name: "5월 첫 대결",
     start_date: "2026-05-01",
     end_date: "2026-05-31",
-    state: "ready",
+    report_state: "completed",
     market_analyses: [
       {
         analysis_id: 201,
@@ -247,7 +247,7 @@ const DEMO_COMPETITION_REPORTS: Record<number, CompetitionReportResponse> = {
     competition_name: "4월 연습 대결",
     start_date: "2026-04-01",
     end_date: "2026-04-30",
-    state: "ready",
+    report_state: "completed",
     market_analyses: [
       {
         analysis_id: 301,
