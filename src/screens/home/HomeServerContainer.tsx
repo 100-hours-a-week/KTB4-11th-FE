@@ -1,9 +1,5 @@
 import "server-only";
 
-import { Suspense } from "react";
-import { Skeleton } from "@/shared/components/Skeleton";
-import { HoldingStockList } from "@/features/account/components/HoldingStockList";
-import { RecentTradeSection } from "@/features/stock/components/trade/RecentTradeSection";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { QueryHydration } from "@/shared/components/QueryHydration";
 import { SelectedAccountProvider } from "@/features/account/components/SelectedAccountProvider";
@@ -31,54 +27,53 @@ export async function HomeServerContainer() {
       )
     : null;
 
+  // 영역별 전환 대기를 줄이기 위한 병렬 조회 결과의 렌더링 전 대기
+  const [account, holdings, orders] = requests
+    ? await Promise.all([requests.account, requests.holdings, requests.orders])
+    : [null, null, null];
+
   const content = (
     <div className="bg-page-gradient pt-screen-top flex h-full flex-col">
       <HomeHeader />
       <div className="flex flex-col gap-1 px-5 pb-24">
         {requests && context ? (
-          <Suspense fallback={<HomeAccountSkeleton />}>
-            <QueryHydration
-              data={requests.account}
-              queryKey={["account", context.selectedAccountId]}
-            >
-              <HomeAccountSection />
-            </QueryHydration>
-          </Suspense>
+          <QueryHydration
+            data={account}
+            queryKey={["account", context.selectedAccountId]}
+          >
+            <HomeAccountSection />
+          </QueryHydration>
         ) : (
           <HomeAccountSection />
         )}
         <div className="mt-4">
           {requests && context ? (
-            <Suspense fallback={<HomeHoldingsSkeleton />}>
-              <QueryHydration
-                data={requests.holdings}
-                queryKey={[
-                  "holdings",
-                  context.selectedAccountId,
-                  HOME_HOLDINGS_PARAMS,
-                ]}
-              >
-                <HomeHoldingsSection />
-              </QueryHydration>
-            </Suspense>
+            <QueryHydration
+              data={holdings}
+              queryKey={[
+                "holdings",
+                context.selectedAccountId,
+                HOME_HOLDINGS_PARAMS,
+              ]}
+            >
+              <HomeHoldingsSection />
+            </QueryHydration>
           ) : (
             <HomeHoldingsSection />
           )}
         </div>
         <div className="mt-4">
           {requests && context ? (
-            <Suspense fallback={<HomeTradesSkeleton />}>
-              <QueryHydration
-                data={requests.orders}
-                queryKey={[
-                  "orders",
-                  context.selectedAccountId,
-                  HOME_ORDERS_PARAMS,
-                ]}
-              >
-                <HomeTradesSection />
-              </QueryHydration>
-            </Suspense>
+            <QueryHydration
+              data={orders}
+              queryKey={[
+                "orders",
+                context.selectedAccountId,
+                HOME_ORDERS_PARAMS,
+              ]}
+            >
+              <HomeTradesSection />
+            </QueryHydration>
           ) : (
             <HomeTradesSection />
           )}
@@ -95,28 +90,4 @@ export async function HomeServerContainer() {
   ) : (
     content
   );
-}
-
-// 서버 조회 중 브라우저의 중복 요청을 막기 위한 조회 훅 없는 로딩 화면
-export function HomeAccountSkeleton() {
-  return (
-    <>
-      <div className="flex h-12 items-center">
-        <Skeleton className="h-6 w-40" />
-      </div>
-      <div className="flex gap-2">
-        <Skeleton className="h-21 flex-1 rounded-2xl" />
-        <Skeleton className="h-21 flex-1 rounded-2xl" />
-      </div>
-      <Skeleton className="h-12 rounded-2xl" />
-    </>
-  );
-}
-
-export function HomeHoldingsSkeleton() {
-  return <HoldingStockList stocks={[]} isPending />;
-}
-
-export function HomeTradesSkeleton() {
-  return <RecentTradeSection trades={[]} isPending />;
 }

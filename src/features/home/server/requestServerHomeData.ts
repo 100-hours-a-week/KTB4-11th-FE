@@ -11,7 +11,7 @@ export function requestServerHomeData(
   const request = <T>(path: string) =>
     requestServerApi<T>(apiBaseUrl, accessToken, path).catch(() => null);
 
-  // 느린 조회가 다른 영역의 표시를 막지 않도록 병렬 요청 후 개별 스트리밍
+  // 호출 즉시 병렬 요청 시작 및 실패한 영역만 브라우저 조회로 전환
   return {
     account: request<AccountDetail>(`/api/v1/users/me/accounts/${accountId}`),
     holdings: request<HoldingsResponse>(
