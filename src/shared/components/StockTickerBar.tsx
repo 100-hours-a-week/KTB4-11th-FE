@@ -23,7 +23,15 @@ export function StockTickerBar({
     <div className="flex items-center gap-2 px-5 py-3">
       {logo ? (
         <>
-          <Image src={stockSpoonLogo} alt={title} className="h-9 w-auto" />
+          <Image
+            src={stockSpoonLogo}
+            alt={title}
+            width={137}
+            height={36}
+            sizes="137px"
+            loading="eager"
+            className="h-9 w-auto"
+          />
           <span className="sr-only">{title}</span>
         </>
       ) : (
