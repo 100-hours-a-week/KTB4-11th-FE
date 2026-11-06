@@ -29,6 +29,7 @@ export function StockTickerBar({
             width={137}
             height={36}
             sizes="137px"
+            loading="eager"
             className="h-9 w-auto"
           />
           <span className="sr-only">{title}</span>
