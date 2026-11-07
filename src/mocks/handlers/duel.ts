@@ -1,5 +1,6 @@
 import { http, HttpResponse, type HttpHandler } from "msw";
 import type {
+  CancelCompetitionResponse,
   CompetitionApiItem,
   CompetitionDetailResponse,
   CompetitionNameAvailabilityResponse,
@@ -501,6 +502,34 @@ export const duelHandlers: HttpHandler[] = [
       },
       { status: 201 },
     );
+  }),
+
+  http.post("*/api/v2/users/me/competitions/:id/cancel", async ({ params }) => {
+    const competition = DEMO_COMPETITIONS.find(
+      (item) => item.competition_id === Number(params.id),
+    );
+    if (!competition) {
+      return HttpResponse.json(
+        { code: "NOT_FOUND", message: "찾을 수 없습니다" },
+        { status: 404 },
+      );
+    }
+    if (competition.state !== "ready" && competition.state !== "in_progress") {
+      return HttpResponse.json(
+        {
+          code: "INVALID_STATE",
+          message: "시작 대기 또는 진행 중인 대결만 삭제할 수 있어요",
+        },
+        { status: 409 },
+      );
+    }
+
+    competition.state = "cancelled";
+
+    return HttpResponse.json<CancelCompetitionResponse>({
+      competition_id: competition.competition_id,
+      state: "cancelled",
+    });
   }),
 
   http.get("*/api/v2/users/me/competitions/:id", async ({ params }) => {
