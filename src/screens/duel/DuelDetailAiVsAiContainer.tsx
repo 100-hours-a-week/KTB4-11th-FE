@@ -2,75 +2,61 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AI_VS_AI_PREVIEW_DETAIL } from "@/features/ai/constants/aiVsAiPreview";
 import {
   AiVsAiCompareReturnChart,
   type AiVsAiCompareChartPoint,
 } from "@/features/ai/components/AiVsAiCompareReturnChart";
 import { AiVsAiAgentCards } from "@/features/ai/components/AiVsAiAgentCards";
 import { DuelAiTradeCard } from "@/features/ai/components/DuelAiTradeCard";
-import type {
-  AiVsAiAgentSummary,
-  AiVsAiTrade,
-} from "@/features/ai/types/aiVsAiDuelDetail";
+import { DuelReadyEmptyState } from "@/features/ai/components/DuelReadyEmptyState";
+import { useAiVsAiDuelDetailQuery } from "@/features/ai/hooks/useAiVsAiDuelDetailQuery";
+import { useCompetitionExecutionsInfiniteQuery } from "@/features/ai/hooks/useCompetitionExecutionsInfiniteQuery";
 import { FilterChips } from "@/shared/components/FilterChips";
 import FireIcon from "@/assets/icons/fill/fire.svg";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
+import { useInfiniteScroll } from "@/shared/hooks/useInfiniteScroll";
 
-const CHART_DAYS = 14;
+const EMPTY_CHART_DATA: AiVsAiCompareChartPoint[] = [];
 
-function generateDummyChartData(
-  agents: AiVsAiAgentSummary[],
-  days: number,
-): AiVsAiCompareChartPoint[] {
-  const today = new Date();
-  const points: AiVsAiCompareChartPoint[] = [];
-
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-    const progress = (days - 1 - i) / (days - 1);
-
-    const values: Record<string, number> = {};
-    agents.forEach((agent, index) => {
-      const wiggle = Math.sin(index * 3.7 + i * 1.3) * 0.6;
-      values[agent.agentLabel] = Number(
-        (agent.returnPercent * progress + wiggle).toFixed(2),
-      );
-    });
-    points.push({ date: date.toISOString().slice(0, 10), values });
-  }
-
-  const lastPoint = points[points.length - 1];
-  agents.forEach((agent) => {
-    lastPoint.values[agent.agentLabel] = agent.returnPercent;
-  });
-
-  return points;
+interface DuelDetailAiVsAiContainerProps {
+  id: string;
 }
 
-export function DuelAiVsAiDetailContainer() {
+export function DuelDetailAiVsAiContainer({
+  id,
+}: DuelDetailAiVsAiContainerProps) {
   const router = useRouter();
   const [strategyAgentLabel, setStrategyAgentLabel] = useState("AI 1");
   const [isStrategyOpen, setIsStrategyOpen] = useState(false);
-  const detail = AI_VS_AI_PREVIEW_DETAIL;
+  const { data: detail } = useAiVsAiDuelDetailQuery(id);
+  const agentLabels = (detail?.agents ?? []).map((agent) => agent.agentLabel);
+  const [selectedAgent, setSelectedAgent] = useState(agentLabels[0]);
+  const selectedParticipant = detail?.agents.find(
+    (agent) => agent.agentLabel === (selectedAgent ?? agentLabels[0]),
+  );
+  const executions = useCompetitionExecutionsInfiniteQuery(
+    selectedParticipant?.accountId,
+  );
+  const trades = (executions.data?.pages ?? []).flatMap((page) => page.trades);
+  const sentinelRef = useInfiniteScroll({
+    hasMore: executions.hasNextPage && !executions.isFetchingNextPage,
+    onLoadMore: () => executions.fetchNextPage(),
+  });
+
+  if (!detail) return null;
+
+  if (detail.state === "ready") {
+    return <DuelReadyEmptyState />;
+  }
+
   const leader = [...detail.agents].sort(
     (a, b) => b.returnPercent - a.returnPercent,
   )[0];
-  const agentLabels = detail.agents.map((agent) => agent.agentLabel);
-  const [selectedAgent, setSelectedAgent] = useState(agentLabels[0]);
-
   const strategyAgent =
     detail.agents.find((agent) => agent.agentLabel === strategyAgentLabel) ??
     detail.agents[0];
-
-  const trades: AiVsAiTrade[] = detail.trades.filter(
-    (trade) => trade.agentLabel === selectedAgent,
-  );
-
-  const chartData = generateDummyChartData(detail.agents, CHART_DAYS);
 
   return (
     <div className="pt-screen-top flex h-full flex-col">
@@ -124,7 +110,7 @@ export function DuelAiVsAiDetailContainer() {
             </div>
             <div className="border-border-neutral-muted mt-3 rounded-xl border px-2 pt-14 pb-2">
               <AiVsAiCompareReturnChart
-                data={chartData}
+                data={detail.chartData ?? EMPTY_CHART_DATA}
                 agents={isStrategyOpen ? [strategyAgent] : detail.agents}
               />
             </div>
@@ -150,11 +136,15 @@ export function DuelAiVsAiDetailContainer() {
                 />
               </div>
             ) : (
-              trades.map((trade) => {
-                const { agentLabel: _agentLabel, ...duelTrade } = trade;
-                return <DuelAiTradeCard key={trade.tradeId} {...duelTrade} />;
-              })
+              trades.map((trade) => (
+                <DuelAiTradeCard
+                  key={trade.tradeId}
+                  {...trade}
+                  accountId={selectedParticipant?.accountId}
+                />
+              ))
             )}
+            <div ref={sentinelRef} />
           </div>
         </div>
       </div>
