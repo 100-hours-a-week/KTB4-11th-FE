@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { Duel, DuelStatus } from "@/features/ai/types/duel";
 import { DuelDeleteConfirmModal } from "@/features/ai/components/DuelDeleteConfirmModal";
+import { getDuelHref } from "@/features/ai/utils/getDuelHref";
 import CalendarIcon from "@/assets/icons/fill/calendar.svg";
 import DeleteIcon from "@/assets/icons/fill/delete.svg";
 import FireIcon from "@/assets/icons/fill/fire.svg";
@@ -71,7 +72,7 @@ export function DuelCard({
       </div>
 
       <Link
-        href={status === "종료" ? `/duel/${id}/result` : `/duel/${id}`}
+        href={getDuelHref({ id, type, status })}
         onClick={() =>
           trackEvent("duel_card_click", {
             status: DUEL_STATUS_TO_CARD_STATUS[status],
