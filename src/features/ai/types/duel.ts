@@ -116,18 +116,38 @@ export interface CompetitionParticipant {
   display_name: string;
 }
 
+export interface CompetitionParticipantStrategy {
+  risk_level: 1 | 2 | 3 | 4 | 5;
+  preferred_themes: string[];
+  excluded_themes: string[];
+  additional_request: string;
+}
+
+export interface CompetitionTopReturnHolding {
+  stock_code: string;
+  stock_name: string;
+  return_percent: number;
+}
+
+export interface CompetitionDetailParticipant extends CompetitionParticipant {
+  executed_trade_count: number;
+  strategy: CompetitionParticipantStrategy | null;
+  top_return_holding: CompetitionTopReturnHolding | null;
+  total_assets: number;
+  cumulative_return_percent: number;
+  daily_performances: CompetitionDailyPerformance[];
+}
+
 export interface CompetitionDetailResponse {
   competition_id: number;
   competition_name: string;
-  competition_type: "user_vs_ai";
+  competition_type: "user_vs_ai" | "ai_vs_ai";
   state: CompetitionState;
   start_date: string;
   end_date: string;
   /** 잔여일 (목록 조회와 동일한 의미) */
   d_day: number;
-  participants: CompetitionParticipant[];
-  cumulative_return_percent: number;
-  daily_performances: CompetitionDailyPerformance[];
+  participants: CompetitionDetailParticipant[];
 }
 
 export interface DuelDetail {
