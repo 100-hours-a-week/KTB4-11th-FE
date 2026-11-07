@@ -1,4 +1,4 @@
-import { DuelDetailContainer } from "@/screens/duel/DuelDetailContainer";
+import { DuelDetailUserVsAiContainer } from "@/screens/duel/DuelDetailUserVsAiContainer";
 
 interface DuelDetailPageProps {
   params: Promise<{ id: string }>;
@@ -7,5 +7,5 @@ interface DuelDetailPageProps {
 export default async function DuelDetailPage({ params }: DuelDetailPageProps) {
   const { id } = await params;
 
-  return <DuelDetailContainer id={id} />;
+  return <DuelDetailUserVsAiContainer id={id} />;
 }
