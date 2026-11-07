@@ -65,7 +65,9 @@ export function DuelContainer() {
     isFetchingNextPage,
     fetchNextPage,
   } = useCompetitionsInfiniteQuery(STATUS_FILTER_TO_STATE[statusFilter]);
-  const filteredDuels = (duelsPages?.pages ?? []).flatMap((page) => page.duels);
+  const filteredDuels = (duelsPages?.pages ?? [])
+    .flatMap((page) => page.duels)
+    .filter((duel) => duel.status !== "취소");
   const sentinelRef = useInfiniteScroll({
     hasMore: hasNextPage && !isFetchingNextPage,
     onLoadMore: () => fetchNextPage(),
