@@ -99,6 +99,11 @@ export interface CompetitionNameAvailabilityResponse {
   available: boolean;
 }
 
+export interface CancelCompetitionResponse {
+  competition_id: number;
+  state: "cancelled";
+}
+
 export interface CompetitionDailyPerformance {
   date: string;
   cumulative_return_percent: number;
