@@ -11,14 +11,13 @@ import {
   DuelPortfolioToggle,
   type DuelPortfolioOption,
 } from "@/features/ai/components/DuelPortfolioToggle";
+import { DuelReadyEmptyState } from "@/features/ai/components/DuelReadyEmptyState";
 import { DuelReturnChart } from "@/features/ai/components/DuelReturnChart";
 import { useCompetitionDetailQuery } from "@/features/ai/hooks/useCompetitionDetailQuery";
 import FireIcon from "@/assets/icons/fill/fire.svg";
 import InfoIcon from "@/assets/icons/fill/info.svg";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
-import TrophyHappyIcon from "@/assets/icons/stockspoon/trophy-happy.svg";
 import { EmptyState } from "@/shared/components/EmptyState";
-import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { trackEvent } from "@/shared/utils/analytics";
 import { cn } from "@/shared/utils/cn";
@@ -27,11 +26,13 @@ import {
   getReturnRateInfo,
 } from "@/shared/utils/getReturnRateInfo";
 
-interface DuelDetailContainerProps {
+interface DuelDetailUserVsAiContainerProps {
   id: string;
 }
 
-export function DuelDetailContainer({ id }: DuelDetailContainerProps) {
+export function DuelDetailUserVsAiContainer({
+  id,
+}: DuelDetailUserVsAiContainerProps) {
   const router = useRouter();
   const [portfolio, setPortfolio] =
     useState<DuelPortfolioOption>("내 포트폴리오");
@@ -43,25 +44,7 @@ export function DuelDetailContainer({ id }: DuelDetailContainerProps) {
   if (!detail) return null;
 
   if (detail.state === "ready") {
-    return (
-      <div className="pt-screen-top flex h-full flex-col">
-        <Header
-          className="px-5 py-3"
-          title="대결 시작 대기"
-          left={<HeaderBackButton fallbackHref="/duel" />}
-        />
-        <EmptyStateCard className="mx-5 mt-4 mb-5 px-5 break-keep whitespace-pre-line">
-          <EmptyState
-            icon={TrophyHappyIcon}
-            textClassName="gap-2"
-            message="장이 마감된 후 생성한 대결이에요"
-            description={
-              "다음 장이 열리면 대결이 시작돼요\n진행 상황은 이 화면에서 확인할 수 있어요"
-            }
-          />
-        </EmptyStateCard>
-      </div>
-    );
+    return <DuelReadyEmptyState />;
   }
 
   const holdings = (holdingsData?.holdings ?? []).map(toHoldingStock);
