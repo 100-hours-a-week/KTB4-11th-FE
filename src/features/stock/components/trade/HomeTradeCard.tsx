@@ -1,7 +1,10 @@
 import CartIcon from "@/assets/icons/fill/cart.svg";
 import type { Trade } from "@/shared/types/trade";
 import { cn } from "@/shared/utils/cn";
-import { getReturnRateInfo } from "@/shared/utils/getReturnRateInfo";
+import {
+  formatSignedPercent,
+  getReturnRateInfo,
+} from "@/shared/utils/getReturnRateInfo";
 
 type HomeTradeCardProps = Trade;
 
@@ -49,8 +52,7 @@ export function HomeTradeCard({
                 colorClass,
               )}
             >
-              {sign}
-              {profitRate}%
+              {formatSignedPercent(profitRate)}
             </span>
           )}
         </div>
