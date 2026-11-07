@@ -26,5 +26,6 @@ export function createEmptyAiAgentStrategy(): AiAgentStrategy {
 export type AiAgentRiskLevel = 1 | 2 | 3 | 4 | 5;
 
 export function toRiskLevel(tendency: InvestmentTendency): AiAgentRiskLevel {
-  return (INVESTMENT_TENDENCIES.indexOf(tendency) + 1) as AiAgentRiskLevel;
+  return (INVESTMENT_TENDENCIES.length -
+    INVESTMENT_TENDENCIES.indexOf(tendency)) as AiAgentRiskLevel;
 }
