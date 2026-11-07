@@ -32,6 +32,8 @@ export function toDuel(competition: CompetitionApiItem): Duel {
         ? "WIN"
         : competition.winner === "ai"
           ? "LOSE"
-          : undefined,
+          : competition.winner === "draw"
+            ? "DRAW"
+            : undefined,
   };
 }
