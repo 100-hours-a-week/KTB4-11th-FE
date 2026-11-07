@@ -28,11 +28,13 @@ export interface DuelCompareChartPoint {
 interface DuelCompareReturnChartProps {
   data: DuelCompareChartPoint[];
   isWin: boolean;
+  isDraw?: boolean;
 }
 
 export function DuelCompareReturnChart({
   data,
   isWin,
+  isDraw = false,
 }: DuelCompareReturnChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tooltipDateRef = useRef<HTMLSpanElement>(null);
@@ -60,13 +62,13 @@ export function DuelCompareReturnChart({
 
     const mySeries = addHighlightableSeries(
       chart,
-      isWin ? accentColor : neutralColor,
-      isWin,
+      isDraw || isWin ? accentColor : neutralColor,
+      isDraw || isWin,
     );
     const aiSeries = addHighlightableSeries(
       chart,
-      isWin ? neutralColor : accentColor,
-      !isWin,
+      isDraw || !isWin ? accentColor : neutralColor,
+      isDraw || !isWin,
     );
 
     mySeries.setData(
@@ -118,7 +120,7 @@ export function DuelCompareReturnChart({
       chart.remove();
       chartRef.current = null;
     };
-  }, [data, isWin, showTooltip, hideTooltip]);
+  }, [data, isWin, isDraw, showTooltip, hideTooltip]);
 
   return (
     <div className="flex flex-col">
@@ -135,14 +137,18 @@ export function DuelCompareReturnChart({
             <span
               className={cn(
                 "caption-1-semibold",
-                isWin ? "text-text-accent" : "text-text-neutral-tertiary",
+                isDraw || isWin
+                  ? "text-text-accent"
+                  : "text-text-neutral-tertiary",
               )}
               ref={myValueRef}
             />
             <span
               className={cn(
                 "caption-1-semibold",
-                isWin ? "text-text-neutral-tertiary" : "text-text-accent",
+                isDraw || !isWin
+                  ? "text-text-accent"
+                  : "text-text-neutral-tertiary",
               )}
               ref={aiValueRef}
             />

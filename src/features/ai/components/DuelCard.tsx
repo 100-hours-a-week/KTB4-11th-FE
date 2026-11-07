@@ -8,6 +8,7 @@ import { getDuelHref } from "@/features/ai/utils/getDuelHref";
 import CalendarIcon from "@/assets/icons/fill/calendar.svg";
 import DeleteIcon from "@/assets/icons/fill/delete.svg";
 import FireIcon from "@/assets/icons/fill/fire.svg";
+import HandshakeIcon from "@/assets/icons/fill/handshake.svg";
 import PulseIcon from "@/assets/icons/fill/pulse.svg";
 import SmileyIcon from "@/assets/icons/fill/smiley.svg";
 import SmileyNervousIcon from "@/assets/icons/fill/smiley-nervous.svg";
@@ -41,7 +42,12 @@ export function DuelCard({
 }: DuelCardProps) {
   const { colorClass: returnColorClass } = getReturnRateInfo(returnPercent);
   const isWin = result === "WIN";
-  const ResultIcon = isWin ? SmileyIcon : SmileyNervousIcon;
+  const isDraw = result === "DRAW";
+  const ResultIcon = isDraw
+    ? HandshakeIcon
+    : isWin
+      ? SmileyIcon
+      : SmileyNervousIcon;
 
   const isReady = status === "시작 대기";
   const isOngoing = status === "진행 중";
@@ -125,12 +131,14 @@ export function DuelCard({
               <span
                 className={cn(
                   "caption-1-semibold flex items-center gap-0.5 rounded px-1.5 py-0.5",
-                  isWin
-                    ? "bg-green-100 text-green-700"
-                    : "bg-bg-error text-text-error",
+                  isDraw
+                    ? "bg-bg-neutral-tertiary text-text-neutral-secondary"
+                    : isWin
+                      ? "bg-green-100 text-green-700"
+                      : "bg-bg-error text-text-error",
                 )}
               >
-                {result}
+                {isDraw ? "무승부" : result}
                 <ResultIcon width={16} height={16} />
               </span>
             )

@@ -1,7 +1,6 @@
 import type { AiVsAiCompareChartPoint } from "@/features/ai/components/AiVsAiCompareReturnChart";
 import type { InvestmentTendency } from "@/features/ai/types/aiStrategy";
 import type { CompetitionState } from "@/features/ai/types/duel";
-import type { Trade } from "@/shared/types/trade";
 
 export interface AiVsAiAgentSummary {
   agentLabel: string;
@@ -13,22 +12,9 @@ export interface AiVsAiAgentSummary {
   additionalRequest: string;
 }
 
-export interface AiVsAiTrade extends Trade {
-  agentLabel: string;
-  orderId?: number;
-  hasReasoning?: boolean;
-}
-
 export interface AiVsAiAgentResult extends AiVsAiAgentSummary {
   tradeCount: number;
   summary: string;
-}
-
-export interface AiVsAiDuelDetail {
-  name: string;
-  dDay: number;
-  agents: AiVsAiAgentSummary[];
-  trades: AiVsAiTrade[];
 }
 
 export interface AiVsAiDuelDetailView {
@@ -39,10 +25,12 @@ export interface AiVsAiDuelDetailView {
   chartData: AiVsAiCompareChartPoint[];
 }
 
-export interface AiVsAiDuelResult {
+export interface AiVsAiDuelResultView {
   name: string;
   startDate: string;
   endDate: string;
   winnerLabel: string;
+  isDraw: boolean;
   agents: AiVsAiAgentResult[];
+  chartData: AiVsAiCompareChartPoint[];
 }
