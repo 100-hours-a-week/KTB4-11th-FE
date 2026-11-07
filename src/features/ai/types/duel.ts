@@ -10,7 +10,7 @@ export type DuelStatus = "시작 대기" | "진행 중" | "종료" | "취소";
 export type CompetitionState =
   "ready" | "in_progress" | "completed" | "cancelled";
 
-export type DuelResult = "WIN" | "LOSE";
+export type DuelResult = "WIN" | "LOSE" | "DRAW";
 
 export interface Duel {
   id: string;
@@ -44,8 +44,8 @@ export interface DuelJudgmentClue {
   description: string;
 }
 
-/** 진행 중이면 null, 완료되면 "user"(내 승리) 또는 "ai"(AI 승리) */
-export type DuelWinner = "user" | "ai" | null;
+/** 진행 중이면 null, 완료되면 "user"(내 승리)/"ai"(AI 승리)/"draw"(무승부) */
+export type DuelWinner = "user" | "ai" | "draw" | null;
 
 export interface CompetitionApiItem {
   competition_id: number;
