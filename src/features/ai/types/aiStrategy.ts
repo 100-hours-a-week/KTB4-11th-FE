@@ -29,3 +29,7 @@ export function toRiskLevel(tendency: InvestmentTendency): AiAgentRiskLevel {
   return (INVESTMENT_TENDENCIES.length -
     INVESTMENT_TENDENCIES.indexOf(tendency)) as AiAgentRiskLevel;
 }
+
+export function fromRiskLevel(riskLevel: AiAgentRiskLevel): InvestmentTendency {
+  return INVESTMENT_TENDENCIES[INVESTMENT_TENDENCIES.length - riskLevel];
+}
