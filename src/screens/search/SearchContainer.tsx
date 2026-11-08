@@ -36,9 +36,7 @@ export function SearchContainer() {
     isError,
     refetch,
   } = useStockSearchQuery(trimmedKeyword);
-  const { prices } = useMarketPrices(
-    searchItems.map((item) => item.stock_code),
-  );
+  const { prices } = useMarketPrices(searchItems.map((item) => item.code));
   const {
     recentSearches,
     addRecentSearch,
@@ -49,7 +47,7 @@ export function SearchContainer() {
   const results = useMemo(
     () =>
       searchItems.map((item) =>
-        toRankingStockFromSearchItem(item, prices[item.stock_code]),
+        toRankingStockFromSearchItem(item, prices[item.code]),
       ),
     [searchItems, prices],
   );

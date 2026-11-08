@@ -7,9 +7,9 @@ export function toRankingStockFromSearchItem(
   price?: MarketPriceTick,
 ): RankingStock {
   return {
-    stockCode: item.stock_code,
-    name: item.stock_name,
-    sector: item.sector,
+    stockCode: item.code,
+    name: item.name,
+    sector: item.sector ?? "",
     price:
       price && Number.isFinite(price.price) && price.price > 0
         ? price.price
