@@ -1,10 +1,10 @@
-import { apiClient } from "@/shared/lib/axios";
+import { marketApiClient } from "@/shared/lib/marketApiClient";
 import type { StockSearchResponse } from "@/features/stock/types/stockSearch";
 
 export async function getStockSearch(keyword: string, signal?: AbortSignal) {
   const { data: stockSearchResponse } =
-    await apiClient.get<StockSearchResponse>("/api/v1/search", {
-      params: { keyword },
+    await marketApiClient.get<StockSearchResponse>("/stocks/search", {
+      params: { q: keyword },
       signal,
     });
 
