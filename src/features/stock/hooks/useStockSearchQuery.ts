@@ -12,7 +12,7 @@ export function useStockSearchQuery(keyword: string) {
   });
 
   return {
-    stocks: query.data?.stocks ?? [],
+    stocks: query.data ?? [],
     isPending: query.isPending && trimmed.length > 0,
     isError: query.isError,
     refetch: query.refetch,
