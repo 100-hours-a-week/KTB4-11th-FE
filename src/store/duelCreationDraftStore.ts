@@ -23,7 +23,6 @@ interface DuelCreationDraftStore {
   startAiVsAiFlow: (draft: AiVsAiDuelDraft) => void;
   updateCurrentAgent: (partial: Partial<AiAgentStrategy>) => void;
   setCurrentAgentIndex: (index: number) => void;
-  clearAiVsAiFlow: () => void;
 }
 
 export const useDuelCreationDraftStore = create<DuelCreationDraftStore>(
@@ -58,6 +57,5 @@ export const useDuelCreationDraftStore = create<DuelCreationDraftStore>(
           ? { aiVsAiFlow: { ...state.aiVsAiFlow, currentAgentIndex: index } }
           : state,
       ),
-    clearAiVsAiFlow: () => set({ aiVsAiFlow: null }),
   }),
 );
