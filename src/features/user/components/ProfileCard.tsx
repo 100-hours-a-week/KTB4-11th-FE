@@ -22,6 +22,7 @@ export function ProfileCard({ nickname, profileImage }: ProfileCardProps) {
             width={40}
             height={40}
             sizes="40px"
+            preload={true}
             // 카카오 CDN 외 이미지는 원본 URL로 요청 (v3 Todo: 사용자 업로드 이미지 최적화)
             unoptimized={!profileImage.startsWith("https://k.kakaocdn.net/dn/")}
             alt={`${nickname} 프로필 이미지`}
