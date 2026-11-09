@@ -1,24 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import HeadCircuitIcon from "@/assets/icons/fill/head-circuit.svg";
 import TrophyIcon from "@/assets/icons/nav/filled/trophy.svg";
-import { Button } from "@/shared/components/Button";
-import {
-  Modal,
-  ModalClose,
-  ModalContent,
-  ModalDescription,
-  ModalPortal,
-  ModalTitle,
-} from "@/shared/components/Modal";
 import {
   Sheet,
   SheetContent,
   SheetPortal,
   SheetTitle,
 } from "@/shared/components/Sheet";
-import { trackEvent } from "@/shared/utils/analytics";
 
 interface DuelTypeSheetProps {
   open: boolean;
@@ -33,7 +23,7 @@ export function DuelTypeSheet({
   isCheckingExistingDuel,
   onSelectUserVsAi,
 }: DuelTypeSheetProps) {
-  const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <>
@@ -66,11 +56,8 @@ export function DuelTypeSheet({
               <button
                 type="button"
                 onClick={() => {
-                  trackEvent("unsupported_feature_click", {
-                    feature_name: "competition",
-                  });
                   onOpenChange(false);
-                  setIsComingSoonOpen(true);
+                  router.push("/duel/create/ai-vs-ai");
                 }}
                 className="border-border-neutral-muted flex flex-col items-start gap-1 rounded-2xl border p-4 text-left"
               >
@@ -90,22 +77,6 @@ export function DuelTypeSheet({
           </SheetContent>
         </SheetPortal>
       </Sheet>
-
-      <Modal open={isComingSoonOpen} onOpenChange={setIsComingSoonOpen}>
-        <ModalPortal>
-          <ModalContent>
-            <ModalTitle>지금은 나 vs AI 대결만 가능해요</ModalTitle>
-            <ModalDescription>
-              AI 전략 대결은 v3에서 이용할 수 있어요.
-              <br />
-              조금만 기다려 주세요!
-            </ModalDescription>
-            <ModalClose asChild>
-              <Button className="mt-6">확인</Button>
-            </ModalClose>
-          </ModalContent>
-        </ModalPortal>
-      </Modal>
     </>
   );
 }

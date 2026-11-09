@@ -5,21 +5,20 @@ import { isAxiosError } from "axios";
 import confetti from "canvas-confetti";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import BadgeIcon from "@/assets/icons/fill/badge.svg";
-import CalendarIcon from "@/assets/icons/fill/calendar.svg";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
 import CrownIcon from "@/assets/icons/fill/crown.svg";
+import HandshakeIcon from "@/assets/icons/fill/handshake.svg";
 import RobotIcon from "@/assets/icons/fill/robot.svg";
 import BasketFlusteredIcon from "@/assets/icons/stockspoon/basket-flustered.svg";
 import RobotFlusteredIcon from "@/assets/icons/stockspoon/robot-flustered.svg";
-import TrophyHappyIcon from "@/assets/icons/stockspoon/trophy-happy.svg";
+import { DuelResultHeading } from "@/features/ai/components/DuelResultHeading";
 import { DuelCompareReturnChart } from "@/features/ai/components/DuelCompareReturnChart";
+import { DuelResultNotCompletedEmptyState } from "@/features/ai/components/DuelResultNotCompletedEmptyState";
 import { TradeCard } from "@/shared/components/TradeCard";
 import { DuelAiTradeCard } from "@/features/ai/components/DuelAiTradeCard";
 import { useCompetitionExecutionsInfiniteQuery } from "@/features/ai/hooks/useCompetitionExecutionsInfiniteQuery";
 import { useCompetitionResultQuery } from "@/features/ai/hooks/useCompetitionResultQuery";
 import { EmptyState } from "@/shared/components/EmptyState";
-import { EmptyStateCard } from "@/shared/components/EmptyStateCard";
 import { Header, HeaderBackButton } from "@/shared/components/Header";
 import { FilterChips } from "@/shared/components/FilterChips";
 import { TradeCardSkeleton } from "@/shared/components/TradeCardSkeleton";
@@ -33,11 +32,13 @@ const AI_TRADES_FILTER = "AI 매매 내역";
 const TRADE_FILTERS = [MY_TRADES_FILTER, AI_TRADES_FILTER] as const;
 type TradeFilter = (typeof TRADE_FILTERS)[number];
 
-interface DuelResultContainerProps {
+interface DuelResultUserVsAiContainerProps {
   id: string;
 }
 
-export function DuelResultContainer({ id }: DuelResultContainerProps) {
+export function DuelResultUserVsAiContainer({
+  id,
+}: DuelResultUserVsAiContainerProps) {
   const router = useRouter();
   const [tradeFilter, setTradeFilter] = useState<TradeFilter>(MY_TRADES_FILTER);
   const { data: result, error } = useCompetitionResultQuery(id);
@@ -47,7 +48,8 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
   );
 
   const isWin = result?.result === "WIN";
-  const ResultIcon = isWin ? CrownIcon : RobotIcon;
+  const isDraw = result?.result === "DRAW";
+  const ResultIcon = isDraw ? HandshakeIcon : isWin ? CrownIcon : RobotIcon;
   const myTrades = (myExecutions.data?.pages ?? []).flatMap(
     (page) => page.trades,
   );
@@ -90,23 +92,9 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
 
   if (isNotCompleted) {
     return (
-      <div className="pt-screen-top flex h-full flex-col">
-        <Header
-          className="px-5 py-3"
-          title="대결 결과"
-          left={<HeaderBackButton fallbackHref="/duel" />}
-        />
-        <EmptyStateCard className="mx-5 mt-4 mb-5 px-5 break-keep">
-          <EmptyState
-            icon={TrophyHappyIcon}
-            textClassName="gap-2"
-            message="아직 완료되지 않은 대결이에요"
-            description="대결 상세에서 현재 상태를 확인해 주세요"
-            actionLabel="대결 상세 보기"
-            onAction={() => router.replace(`/duel/${id}`)}
-          />
-        </EmptyStateCard>
-      </div>
+      <DuelResultNotCompletedEmptyState
+        onViewDetail={() => router.replace(`/duel/${id}`)}
+      />
     );
   }
 
@@ -122,35 +110,32 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 pt-4 pb-10">
         <div className="bg-bg-layer-default flex flex-col items-center gap-1 rounded-2xl p-4">
-          <ResultIcon
-            width={40}
-            height={40}
-            className={isWin ? "text-[#FFD500]" : "text-icon-success"}
+          <DuelResultHeading
+            icon={ResultIcon}
+            iconClassName={
+              isDraw
+                ? "text-text-accent"
+                : isWin
+                  ? "text-[#FFD500]"
+                  : "text-icon-success"
+            }
+            title={
+              isDraw
+                ? "이번 대결은 비겼어요"
+                : isWin
+                  ? "내가 이겼어요"
+                  : "AI가 이겼어요"
+            }
+            name={result.name}
+            startDate={result.startDate}
+            endDate={result.endDate}
           />
-          <span className="heading-1-bold">
-            {isWin ? "내가 이겼어요" : "AI가 이겼어요"}
-          </span>
-          <span className="body-2-regular text-text-neutral-secondary flex items-center">
-            <BadgeIcon
-              width={14}
-              height={14}
-              className="text-icon-accent mr-0.5"
-            />
-            {result.name}
-            <span className="bg-border-neutral-muted mx-1.5 h-3 w-px" />
-            <CalendarIcon
-              width={13}
-              height={13}
-              className="text-icon-accent mr-0.5"
-            />
-            {result.startDate} ~ {result.endDate}
-          </span>
 
           <div className="mt-3 flex w-full items-center justify-center gap-4">
             <div
               className={cn(
                 "flex flex-1 flex-col items-center gap-1 rounded-2xl px-6 py-3",
-                isWin ? "bg-sky-blue-50" : "bg-bg-layer-basement",
+                isDraw || isWin ? "bg-sky-blue-50" : "bg-bg-layer-basement",
               )}
             >
               <span className="caption-1-semibold text-text-neutral-secondary font-bold">
@@ -159,7 +144,9 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
               <span
                 className={cn(
                   "heading-1-bold",
-                  isWin ? "text-text-accent" : "text-text-neutral-secondary",
+                  isDraw || isWin
+                    ? "text-text-accent"
+                    : "text-text-neutral-secondary",
                 )}
               >
                 {formatSignedPercent(result.myReturnPercent)}
@@ -169,7 +156,7 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
             <div
               className={cn(
                 "flex flex-1 flex-col items-center gap-1 rounded-2xl px-6 py-3",
-                isWin ? "bg-bg-layer-basement" : "bg-sky-blue-50",
+                isDraw || !isWin ? "bg-sky-blue-50" : "bg-bg-layer-basement",
               )}
             >
               <span className="caption-1-semibold text-text-neutral-secondary font-bold">
@@ -178,7 +165,9 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
               <span
                 className={cn(
                   "heading-1-bold",
-                  isWin ? "text-text-neutral-secondary" : "text-text-accent",
+                  isDraw || !isWin
+                    ? "text-text-accent"
+                    : "text-text-neutral-secondary",
                 )}
               >
                 {formatSignedPercent(result.aiReturnPercent)}
@@ -190,6 +179,7 @@ export function DuelResultContainer({ id }: DuelResultContainerProps) {
             <DuelCompareReturnChart
               data={result.compareHistory}
               isWin={isWin}
+              isDraw={isDraw}
             />
           </div>
         </div>

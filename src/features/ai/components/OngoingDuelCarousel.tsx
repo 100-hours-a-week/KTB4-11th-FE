@@ -2,6 +2,7 @@
 
 import { DuelProgressBar } from "@/features/ai/components/DuelProgressBar";
 import type { Duel } from "@/features/ai/types/duel";
+import { getDuelHref } from "@/features/ai/utils/getDuelHref";
 import Link from "next/link";
 import CalendarIcon from "@/assets/icons/fill/calendar.svg";
 import FireIcon from "@/assets/icons/fill/fire.svg";
@@ -85,7 +86,7 @@ export function OngoingDuelCarousel({ duels }: OngoingDuelCarouselProps) {
             return (
               <div key={duel.id} className="min-w-0 flex-[0_0_100%] pl-3">
                 <Link
-                  href={`/duel/${duel.id}`}
+                  href={getDuelHref(duel)}
                   onClick={() =>
                     trackEvent("duel_card_click", { status: "in_progress" })
                   }

@@ -1,4 +1,8 @@
-import { getReturnRateInfo } from "@/shared/utils/getReturnRateInfo";
+import { cn } from "@/shared/utils/cn";
+import {
+  formatSignedPercent,
+  getReturnRateInfo,
+} from "@/shared/utils/getReturnRateInfo";
 
 interface AccountPerformanceCardProps {
   returnPercent: number;
@@ -9,7 +13,7 @@ export function AccountPerformanceCard({
   returnPercent,
   tradeCount,
 }: AccountPerformanceCardProps) {
-  const { sign } = getReturnRateInfo(returnPercent);
+  const { colorClass } = getReturnRateInfo(returnPercent);
 
   return (
     <div className="bg-bg-layer-default divide-border-neutral-muted grid grid-cols-2 divide-x rounded-2xl p-4">
@@ -17,9 +21,8 @@ export function AccountPerformanceCard({
         <span className="body-2-medium text-text-neutral-secondary">
           누적 수익률
         </span>
-        <span className="heading-1-bold text-text-accent">
-          {sign}
-          {returnPercent}%
+        <span className={cn("heading-1-bold", colorClass)}>
+          {formatSignedPercent(returnPercent)}
         </span>
       </div>
       <div className="flex flex-col items-center gap-1">

@@ -65,7 +65,9 @@ export function DuelContainer() {
     isFetchingNextPage,
     fetchNextPage,
   } = useCompetitionsInfiniteQuery(STATUS_FILTER_TO_STATE[statusFilter]);
-  const filteredDuels = (duelsPages?.pages ?? []).flatMap((page) => page.duels);
+  const filteredDuels = (duelsPages?.pages ?? [])
+    .flatMap((page) => page.duels)
+    .filter((duel) => duel.status !== "취소");
   const sentinelRef = useInfiniteScroll({
     hasMore: hasNextPage && !isFetchingNextPage,
     onLoadMore: () => fetchNextPage(),
@@ -101,15 +103,7 @@ export function DuelContainer() {
         className="px-5"
         right={
           <>
-            <button
-              type="button"
-              onClick={() => {
-                trackEvent("unsupported_feature_click", {
-                  feature_name: "search",
-                });
-                toast.info("검색 기능은 v3에서 이용할 수 있어요");
-              }}
-            >
+            <button type="button" onClick={() => router.push("/search")}>
               <SearchIcon
                 width={24}
                 height={24}

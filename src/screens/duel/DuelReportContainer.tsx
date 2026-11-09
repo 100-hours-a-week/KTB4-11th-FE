@@ -14,11 +14,15 @@ import { trackEvent } from "@/shared/utils/analytics";
 
 interface DuelReportContainerProps {
   id: string;
+  agentLabel?: string;
 }
 
-export function DuelReportContainer({ id }: DuelReportContainerProps) {
+export function DuelReportContainer({
+  id,
+  agentLabel,
+}: DuelReportContainerProps) {
   const router = useRouter();
-  const { data: report } = useCompetitionReportQuery(id);
+  const { data: report } = useCompetitionReportQuery(id, agentLabel);
 
   useEffect(() => {
     if (report?.isReady) {

@@ -10,7 +10,7 @@ export type DuelStatus = "시작 대기" | "진행 중" | "종료" | "취소";
 export type CompetitionState =
   "ready" | "in_progress" | "completed" | "cancelled";
 
-export type DuelResult = "WIN" | "LOSE";
+export type DuelResult = "WIN" | "LOSE" | "DRAW";
 
 export interface Duel {
   id: string;
@@ -44,14 +44,14 @@ export interface DuelJudgmentClue {
   description: string;
 }
 
-/** 진행 중이면 null, 완료되면 "user"(내 승리) 또는 "ai"(AI 승리) */
-export type DuelWinner = "user" | "ai" | null;
+/** 진행 중이면 null, 완료되면 "user"(내 승리)/"ai"(AI 승리)/"draw"(무승부) */
+export type DuelWinner = "user" | "ai" | "draw" | null;
 
 export interface CompetitionApiItem {
   competition_id: number;
   state: CompetitionState;
   competition_name: string;
-  competition_type: "user_vs_ai";
+  competition_type: "user_vs_ai" | "ai_vs_ai";
   start_date: string;
   end_date: string;
   d_day: number;
@@ -71,18 +71,37 @@ export interface CompetitionsResponse {
   competitions: CompetitionApiItem[];
 }
 
+export interface AiAgentSettingRequest {
+  risk_level: 1 | 2 | 3 | 4 | 5;
+  preferred_themes: string[];
+  excluded_themes: string[];
+  additional_request: string;
+}
+
 export interface CreateCompetitionRequest {
   competition_name: string;
-  competition_type: "user_vs_ai";
+  competition_type: "user_vs_ai" | "ai_vs_ai";
   start_date: string;
   end_date: string;
   initial_capital: number;
+  ai_participant_count?: number;
+  agents?: AiAgentSettingRequest[];
 }
 
 export interface CreateCompetitionResponse {
   message: string;
   competition_id: number;
   state: CompetitionState;
+}
+
+export interface CompetitionNameAvailabilityResponse {
+  competition_name: string;
+  available: boolean;
+}
+
+export interface CancelCompetitionResponse {
+  competition_id: number;
+  state: "cancelled";
 }
 
 export interface CompetitionDailyPerformance {
@@ -97,18 +116,38 @@ export interface CompetitionParticipant {
   display_name: string;
 }
 
+export interface CompetitionParticipantStrategy {
+  risk_level: 1 | 2 | 3 | 4 | 5;
+  preferred_themes: string[];
+  excluded_themes: string[];
+  additional_request: string;
+}
+
+export interface CompetitionTopReturnHolding {
+  stock_code: string;
+  stock_name: string;
+  return_percent: number;
+}
+
+export interface CompetitionDetailParticipant extends CompetitionParticipant {
+  executed_trade_count: number;
+  strategy: CompetitionParticipantStrategy | null;
+  top_return_holding: CompetitionTopReturnHolding | null;
+  total_assets: number;
+  cumulative_return_percent: number;
+  daily_performances: CompetitionDailyPerformance[];
+}
+
 export interface CompetitionDetailResponse {
   competition_id: number;
   competition_name: string;
-  competition_type: "user_vs_ai";
+  competition_type: "user_vs_ai" | "ai_vs_ai";
   state: CompetitionState;
   start_date: string;
   end_date: string;
   /** 잔여일 (목록 조회와 동일한 의미) */
   d_day: number;
-  participants: CompetitionParticipant[];
-  cumulative_return_percent: number;
-  daily_performances: CompetitionDailyPerformance[];
+  participants: CompetitionDetailParticipant[];
 }
 
 export interface DuelDetail {
@@ -120,25 +159,27 @@ export interface DuelDetail {
   returnHistory: { date: string; value: number }[];
 }
 
-export interface CompetitionCompareDailyPerformance {
-  date: string;
-  user_cumulative_return_percent: number;
-  ai_cumulative_return_percent: number;
+export interface CompetitionResultParticipant extends CompetitionParticipant {
+  final_asset_value: number;
+  final_return_percent: number;
+  rank: number;
+  executed_trade_count: number;
+  strategy: CompetitionParticipantStrategy | null;
+  daily_performances: CompetitionDailyPerformance[];
 }
 
 export interface CompetitionResultResponse {
   competition_id: number;
   competition_name: string;
-  competition_type: "user_vs_ai";
+  competition_type: "user_vs_ai" | "ai_vs_ai";
   state: "completed";
   start_date: string;
   end_date: string;
   d_day: number | null;
-  participants: CompetitionParticipant[];
-  winner: DuelWinner;
-  user_final_return_percent: number;
-  ai_final_return_percent: number;
-  daily_performances: CompetitionCompareDailyPerformance[];
+  /** 승리한 참가자 디스플레이 이름 (공동 우승 시 "AI 1, AI 2"처럼 콤마로 연결) */
+  winner: string;
+  winner_participant_ids: number[];
+  participants: CompetitionResultParticipant[];
 }
 
 export interface DuelResultSummary {
@@ -167,14 +208,20 @@ export interface CompetitionJudgmentSummary {
 
 export type CompetitionReportState = "pending" | "completed";
 
-export interface CompetitionReportResponse {
-  competition_id: number;
-  competition_name: string;
-  start_date: string;
-  end_date: string;
+export interface CompetitionReportItem {
+  participant_id: number;
+  display_name: string;
   report_state: CompetitionReportState;
   market_analyses: CompetitionMarketAnalysis[];
   judgment_summaries: CompetitionJudgmentSummary[];
+}
+
+export interface CompetitionReportResponse {
+  competition_id: number;
+  competition_name?: string;
+  start_date?: string;
+  end_date?: string;
+  reports: CompetitionReportItem[];
 }
 
 export interface DuelReportData {

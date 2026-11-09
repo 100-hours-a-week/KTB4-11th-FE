@@ -8,6 +8,7 @@ interface EmptyStateProps {
   actionLabel?: string;
   onAction?: () => void;
   textClassName?: string;
+  iconSize?: number;
 }
 
 export function EmptyState({
@@ -17,10 +18,11 @@ export function EmptyState({
   actionLabel,
   onAction,
   textClassName,
+  iconSize = 48,
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-8">
-      <Icon width={48} height={48} />
+      <Icon width={iconSize} height={iconSize} />
       <div className={cn("flex flex-col items-center gap-1", textClassName)}>
         <span className="body-1-semibold text-text-neutral-primary">
           {message}

@@ -1,7 +1,7 @@
 export type TradeType = "buy" | "sell";
 
 export type UnsupportedFeature =
-  "manual_investment" | "favorites" | "competition" | "discover" | "search";
+  "manual_investment" | "favorites" | "competition" | "discover";
 
 export type ReasonSection = `step-${number}`;
 

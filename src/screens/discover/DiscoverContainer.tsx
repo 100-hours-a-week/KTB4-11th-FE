@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { RankingList } from "@/features/stock/components/RankingList";
@@ -25,6 +26,7 @@ import { StockTickerBar } from "@/shared/components/StockTickerBar";
 import { trackEvent } from "@/shared/utils/analytics";
 
 export function DiscoverContainer() {
+  const router = useRouter();
   const { data: kospi } = useKospiIndexQuery();
   const { rankingType, setRankingType } = useRankingTab();
 
@@ -89,15 +91,7 @@ export function DiscoverContainer() {
         className="px-5"
         right={
           <>
-            <button
-              type="button"
-              onClick={() => {
-                trackEvent("unsupported_feature_click", {
-                  feature_name: "search",
-                });
-                toast.info("검색 기능은 v3에서 이용할 수 있어요");
-              }}
-            >
+            <button type="button" onClick={() => router.push("/search")}>
               <SearchIcon
                 width={24}
                 height={24}
@@ -123,9 +117,8 @@ export function DiscoverContainer() {
         <SearchInput
           placeholder="종목 검색"
           onFocus={(event) => {
-            trackEvent("unsupported_feature_click", { feature_name: "search" });
-            toast.info("검색 기능은 v3에서 이용할 수 있어요");
             event.currentTarget.blur();
+            router.push("/search");
           }}
         />
         <span className="heading-2-semibold">실시간 차트</span>

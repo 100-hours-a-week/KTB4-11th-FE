@@ -2,8 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import {
-  AreaSeries,
-  LineSeries,
   createChart,
   type IChartApi,
   type MouseEventParams,
@@ -11,7 +9,9 @@ import {
 } from "lightweight-charts";
 import { useChartTooltip } from "@/shared/hooks/useChartTooltip";
 import {
+  addHighlightableSeries,
   createBaseChartOptions,
+  createCompareCrosshairOptions,
   formatTooltipDate,
   resolveCssColor,
   toUnixTime,
@@ -28,11 +28,13 @@ export interface DuelCompareChartPoint {
 interface DuelCompareReturnChartProps {
   data: DuelCompareChartPoint[];
   isWin: boolean;
+  isDraw?: boolean;
 }
 
 export function DuelCompareReturnChart({
   data,
   isWin,
+  isDraw = false,
 }: DuelCompareReturnChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tooltipDateRef = useRef<HTMLSpanElement>(null);
@@ -55,35 +57,19 @@ export function DuelCompareReturnChart({
 
     const chart = createChart(container, {
       ...createBaseChartOptions(tertiaryColor),
-      crosshair: {
-        vertLine: { color: tertiaryColor, width: 1, labelVisible: false },
-        horzLine: { visible: false, labelVisible: false },
-      },
+      crosshair: createCompareCrosshairOptions(tertiaryColor),
     });
 
-    function addCompareSeries(isWinner: boolean) {
-      if (isWinner) {
-        return chart.addSeries(AreaSeries, {
-          lineColor: accentColor,
-          topColor: `${accentColor}40`,
-          bottomColor: `${accentColor}00`,
-          lineWidth: 2,
-          priceLineVisible: false,
-          lastValueVisible: false,
-          crosshairMarkerRadius: 3,
-        });
-      }
-      return chart.addSeries(LineSeries, {
-        color: neutralColor,
-        lineWidth: 2,
-        priceLineVisible: false,
-        lastValueVisible: false,
-        crosshairMarkerRadius: 3,
-      });
-    }
-
-    const mySeries = addCompareSeries(isWin);
-    const aiSeries = addCompareSeries(!isWin);
+    const mySeries = addHighlightableSeries(
+      chart,
+      isDraw || isWin ? accentColor : neutralColor,
+      isDraw || isWin,
+    );
+    const aiSeries = addHighlightableSeries(
+      chart,
+      isDraw || !isWin ? accentColor : neutralColor,
+      isDraw || !isWin,
+    );
 
     mySeries.setData(
       data.map((point) => ({
@@ -134,7 +120,7 @@ export function DuelCompareReturnChart({
       chart.remove();
       chartRef.current = null;
     };
-  }, [data, isWin, showTooltip, hideTooltip]);
+  }, [data, isWin, isDraw, showTooltip, hideTooltip]);
 
   return (
     <div className="flex flex-col">
@@ -151,21 +137,25 @@ export function DuelCompareReturnChart({
             <span
               className={cn(
                 "caption-1-semibold",
-                isWin ? "text-text-accent" : "text-text-neutral-tertiary",
+                isDraw || isWin
+                  ? "text-text-accent"
+                  : "text-text-neutral-tertiary",
               )}
               ref={myValueRef}
             />
             <span
               className={cn(
                 "caption-1-semibold",
-                isWin ? "text-text-neutral-tertiary" : "text-text-accent",
+                isDraw || !isWin
+                  ? "text-text-accent"
+                  : "text-text-neutral-tertiary",
               )}
               ref={aiValueRef}
             />
           </div>
         </div>
       </div>
-      <div ref={chartContainerRef} className="h-40 w-full" />
+      <div ref={chartContainerRef} className="h-48 w-full" />
     </div>
   );
 }
