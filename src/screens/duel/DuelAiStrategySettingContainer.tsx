@@ -37,6 +37,9 @@ export function DuelAiStrategySettingContainer() {
   const setCurrentAgentIndex = useDuelCreationDraftStore(
     (state) => state.setCurrentAgentIndex,
   );
+  const clearAiVsAiFlow = useDuelCreationDraftStore(
+    (state) => state.clearAiVsAiFlow,
+  );
   const themesQuery = useThemesQuery();
   const themeCategories = themesQuery.data ?? [];
 
@@ -59,7 +62,15 @@ export function DuelAiStrategySettingContainer() {
     if (!flow) {
       router.replace("/duel/create/ai-vs-ai");
     }
-  }, [flow, router, createCompetitionMutation.isSuccess]);
+  }, [flow, router]);
+
+  useEffect(() => {
+    return () => {
+      if (createCompetitionMutation.isSuccess) {
+        clearAiVsAiFlow();
+      }
+    };
+  }, [createCompetitionMutation.isSuccess, clearAiVsAiFlow]);
 
   useEffect(() => {
     if (themesQuery.isError) {
