@@ -1,7 +1,18 @@
 import { cn } from "@/shared/utils/cn";
 
+const MAX_SIGNIFICANT_DIGITS = 10;
+
 export function formatSignedPercent(value: number, digits = 1): string {
-  return `${value > 0 ? "+" : ""}${value.toFixed(digits)}%`;
+  let precision = digits;
+  while (
+    value !== 0 &&
+    Number(value.toFixed(precision)) === 0 &&
+    precision < MAX_SIGNIFICANT_DIGITS
+  ) {
+    precision++;
+  }
+
+  return `${value > 0 ? "+" : ""}${value.toFixed(precision)}%`;
 }
 
 export function getReturnRateInfo(returnRate: number) {
