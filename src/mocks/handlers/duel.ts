@@ -528,33 +528,39 @@ const DEMO_COMPETITION_REPORTS: Record<number, CompetitionReportResponse> = {
     competition_name: "5월 첫 대결",
     start_date: "2026-05-01",
     end_date: "2026-05-31",
-    report_state: "completed",
-    market_analyses: [
+    reports: [
       {
-        analysis_id: 201,
-        date: "2026-05-25",
-        title: "반도체 업황 반등 신호, 메모리 가격 상승세 전환",
-        content:
-          "메모리 반도체 가격이 바닥을 다지고 상승세로 전환했다는 분석이 나왔다. 주요 증권사들은 하반기 실적 개선을 전망했다.",
-      },
-      {
-        analysis_id: 202,
-        date: "2026-05-18",
-        title: "2차전지 소재주, 공급 과잉 우려로 조정",
-        content:
-          "2차전지 소재 업종이 공급 과잉 우려로 단기 조정을 받았다. 다만 중장기 수요 전망은 여전히 긍정적이라는 평가다.",
-      },
-    ],
-    judgment_summaries: [
-      {
-        title: "금리 전망",
-        content:
-          "5월 기준금리가 동결되면서 시장의 금리 인하 기대가 다소 늦춰졌습니다. 이는 성장주보다 실적 기반 종목에 유리한 환경을 만들었습니다.",
-      },
-      {
-        title: "업종 로테이션",
-        content:
-          "반도체·2차전지 중심의 순환매 장세가 이어지며, 업황 반등 신호가 뚜렷한 종목 위주로 비중을 조정했습니다.",
+        participant_id: 2,
+        display_name: "AI",
+        report_state: "completed",
+        market_analyses: [
+          {
+            analysis_id: 201,
+            date: "2026-05-25",
+            title: "반도체 업황 반등 신호, 메모리 가격 상승세 전환",
+            content:
+              "메모리 반도체 가격이 바닥을 다지고 상승세로 전환했다는 분석이 나왔다. 주요 증권사들은 하반기 실적 개선을 전망했다.",
+          },
+          {
+            analysis_id: 202,
+            date: "2026-05-18",
+            title: "2차전지 소재주, 공급 과잉 우려로 조정",
+            content:
+              "2차전지 소재 업종이 공급 과잉 우려로 단기 조정을 받았다. 다만 중장기 수요 전망은 여전히 긍정적이라는 평가다.",
+          },
+        ],
+        judgment_summaries: [
+          {
+            title: "금리 전망",
+            content:
+              "5월 기준금리가 동결되면서 시장의 금리 인하 기대가 다소 늦춰졌습니다. 이는 성장주보다 실적 기반 종목에 유리한 환경을 만들었습니다.",
+          },
+          {
+            title: "업종 로테이션",
+            content:
+              "반도체·2차전지 중심의 순환매 장세가 이어지며, 업황 반등 신호가 뚜렷한 종목 위주로 비중을 조정했습니다.",
+          },
+        ],
       },
     ],
   },
@@ -563,21 +569,84 @@ const DEMO_COMPETITION_REPORTS: Record<number, CompetitionReportResponse> = {
     competition_name: "4월 연습 대결",
     start_date: "2026-04-01",
     end_date: "2026-04-30",
-    report_state: "completed",
-    market_analyses: [
+    reports: [
       {
-        analysis_id: 301,
-        date: "2026-04-20",
-        title: "플랫폼 업종, 광고 매출 둔화 우려로 약세",
-        content:
-          "주요 플랫폼 기업들의 1분기 광고 매출 증가율이 둔화되며 관련 종목이 약세를 보였다.",
+        participant_id: 2,
+        display_name: "AI",
+        report_state: "completed",
+        market_analyses: [
+          {
+            analysis_id: 301,
+            date: "2026-04-20",
+            title: "플랫폼 업종, 광고 매출 둔화 우려로 약세",
+            content:
+              "주요 플랫폼 기업들의 1분기 광고 매출 증가율이 둔화되며 관련 종목이 약세를 보였다.",
+          },
+        ],
+        judgment_summaries: [
+          {
+            title: "소비 심리",
+            content:
+              "4월 소비자심리지수가 전월 대비 하락하며 소비 관련 업종 전반에 보수적으로 접근했습니다.",
+          },
+        ],
       },
     ],
-    judgment_summaries: [
+  },
+  6: {
+    competition_id: 6,
+    competition_name: "7월 배당주 실험",
+    start_date: "2026-07-01",
+    end_date: "2026-07-31",
+    reports: [
       {
-        title: "소비 심리",
-        content:
-          "4월 소비자심리지수가 전월 대비 하락하며 소비 관련 업종 전반에 보수적으로 접근했습니다.",
+        participant_id: 11,
+        display_name: "AI 1",
+        report_state: "completed",
+        market_analyses: [
+          {
+            analysis_id: 401,
+            date: "2026-07-20",
+            title: "배당주 강세, 고배당 종목 자금 유입 지속",
+            content:
+              "금리 인하 기대감 속에 고배당 종목으로의 자금 유입이 이어지고 있다는 분석이 나왔다.",
+          },
+        ],
+        judgment_summaries: [
+          {
+            title: "배당 수익률",
+            content:
+              "시중금리 대비 배당 수익률 매력이 부각되며 배당주 중심의 포트폴리오를 유지했습니다.",
+          },
+        ],
+      },
+      {
+        participant_id: 12,
+        display_name: "AI 2",
+        report_state: "completed",
+        market_analyses: [
+          {
+            analysis_id: 402,
+            date: "2026-07-18",
+            title: "금융주 실적 호조, 배당 확대 기대감 반영",
+            content:
+              "주요 금융지주의 2분기 실적이 시장 예상치를 상회하며 배당 확대 기대감이 커지고 있다.",
+          },
+        ],
+        judgment_summaries: [
+          {
+            title: "업종 분산",
+            content:
+              "금융 업종 비중을 늘리며 실적 개선이 뚜렷한 종목 위주로 포트폴리오를 재조정했습니다.",
+          },
+        ],
+      },
+      {
+        participant_id: 13,
+        display_name: "AI 3",
+        report_state: "pending",
+        market_analyses: [],
+        judgment_summaries: [],
       },
     ],
   },
