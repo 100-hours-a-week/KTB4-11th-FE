@@ -9,7 +9,7 @@ export function toRankingStockFromSearchItem(
   return {
     stockCode: item.code,
     name: item.name,
-    sector: item.sector ?? "",
+    sector: item.sector,
     price:
       price && Number.isFinite(price.price) && price.price > 0
         ? price.price
