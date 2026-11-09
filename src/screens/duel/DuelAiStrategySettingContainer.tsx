@@ -60,8 +60,10 @@ export function DuelAiStrategySettingContainer() {
   });
 
   useEffect(() => {
-    if (!flow) router.replace("/duel/create/ai-vs-ai");
-  }, [flow, router]);
+    if (!flow && !createCompetitionMutation.isSuccess) {
+      router.replace("/duel/create/ai-vs-ai");
+    }
+  }, [flow, router, createCompetitionMutation.isSuccess]);
 
   useEffect(() => {
     if (themesQuery.isError) {
