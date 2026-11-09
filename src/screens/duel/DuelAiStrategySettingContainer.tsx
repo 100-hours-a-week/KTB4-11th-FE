@@ -37,16 +37,12 @@ export function DuelAiStrategySettingContainer() {
   const setCurrentAgentIndex = useDuelCreationDraftStore(
     (state) => state.setCurrentAgentIndex,
   );
-  const clearAiVsAiFlow = useDuelCreationDraftStore(
-    (state) => state.clearAiVsAiFlow,
-  );
   const themesQuery = useThemesQuery();
   const themeCategories = themesQuery.data ?? [];
 
   const createCompetitionMutation = useCreateCompetitionMutation({
     onSuccess: () => {
       toast.success("대결이 생성됐어요");
-      clearAiVsAiFlow();
       router.push("/duel");
     },
     onError: (error) => {
@@ -60,7 +56,7 @@ export function DuelAiStrategySettingContainer() {
   });
 
   useEffect(() => {
-    if (!flow && !createCompetitionMutation.isSuccess) {
+    if (!flow) {
       router.replace("/duel/create/ai-vs-ai");
     }
   }, [flow, router, createCompetitionMutation.isSuccess]);
