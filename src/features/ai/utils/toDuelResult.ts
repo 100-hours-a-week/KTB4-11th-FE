@@ -33,7 +33,7 @@ export function toDuelResultSummary(
           : "LOSE",
     compareHistory: me.daily_performances.map((performance, index) => ({
       date: performance.date,
-      myValue: performance.cumulative_return_percent,
+      myValue: performance.cumulative_return_percent ?? 0,
       aiValue: ai.daily_performances[index]?.cumulative_return_percent ?? 0,
     })),
   };

@@ -52,7 +52,7 @@ export function DuelDetailAiVsAiContainer({
   }
 
   const leader = [...detail.agents].sort(
-    (a, b) => b.returnPercent - a.returnPercent,
+    (a, b) => (b.returnPercent ?? 0) - (a.returnPercent ?? 0),
   )[0];
   const strategyAgent =
     detail.agents.find((agent) => agent.agentLabel === strategyAgentLabel) ??
