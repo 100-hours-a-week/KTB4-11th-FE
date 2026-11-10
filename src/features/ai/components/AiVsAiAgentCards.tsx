@@ -68,11 +68,13 @@ export function AiVsAiAgentCards({
                 />
               )}
             </div>
-            <span
-              className={`text-xl font-bold tracking-tight tabular-nums ${agent.returnPercent >= 0 ? "text-text-accent" : "text-text-neutral-secondary"}`}
-            >
-              {formatSignedPercent(agent.returnPercent)}
-            </span>
+            {agent.returnPercent !== null && (
+              <span
+                className={`text-xl font-bold tracking-tight tabular-nums ${agent.returnPercent >= 0 ? "text-text-accent" : "text-text-neutral-secondary"}`}
+              >
+                {formatSignedPercent(agent.returnPercent)}
+              </span>
+            )}
             <span className="caption-1-regular text-text-neutral-secondary">
               {agent.investmentTendency}
             </span>

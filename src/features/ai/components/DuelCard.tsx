@@ -40,7 +40,10 @@ export function DuelCard({
   winner,
   result,
 }: DuelCardProps) {
-  const { colorClass: returnColorClass } = getReturnRateInfo(returnPercent);
+  const returnColorClass =
+    returnPercent !== null
+      ? getReturnRateInfo(returnPercent).colorClass
+      : undefined;
   const isWin = result === "WIN";
   const isDraw = result === "DRAW";
   const ResultIcon = isDraw
@@ -106,7 +109,7 @@ export function DuelCard({
                 <FireIcon width={12} height={12} />
                 <span className="caption-1-regular">D-{dDay}</span>
               </>
-            ) : !isReady ? (
+            ) : !isReady && returnPercent !== null ? (
               <>
                 <PulseIcon width={14} height={14} />
                 <span className="caption-1-regular">내 수익률</span>
@@ -123,9 +126,11 @@ export function DuelCard({
               시작 대기
             </span>
           ) : isOngoing ? (
-            <span className={cn("body-1-semibold", returnColorClass)}>
-              {formatSignedPercent(returnPercent)}
-            </span>
+            returnPercent !== null && (
+              <span className={cn("body-1-semibold", returnColorClass)}>
+                {formatSignedPercent(returnPercent)}
+              </span>
+            )
           ) : (
             result && (
               <span

@@ -80,7 +80,6 @@ export function OngoingDuelCarousel({ duels }: OngoingDuelCarouselProps) {
       <div className="-ml-3 overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {displayedDuels.map((duel) => {
-            const { colorClass } = getReturnRateInfo(duel.returnPercent);
             const progressPercent = getDuelProgressPercent(duel);
 
             return (
@@ -108,12 +107,21 @@ export function OngoingDuelCarousel({ duels }: OngoingDuelCarouselProps) {
                       {duel.startDate} ~ {duel.endDate}
                     </span>
                   </span>
-                  <span className="caption-1-regular text-text-neutral-tertiary mt-1">
-                    내 수익률
-                  </span>
-                  <span className={cn("heading-1-bold", colorClass)}>
-                    {formatSignedPercent(duel.returnPercent)}
-                  </span>
+                  {duel.returnPercent !== null && (
+                    <>
+                      <span className="caption-1-regular text-text-neutral-tertiary mt-1">
+                        내 수익률
+                      </span>
+                      <span
+                        className={cn(
+                          "heading-1-bold",
+                          getReturnRateInfo(duel.returnPercent).colorClass,
+                        )}
+                      >
+                        {formatSignedPercent(duel.returnPercent)}
+                      </span>
+                    </>
+                  )}
                   <DuelProgressBar
                     progressPercent={progressPercent}
                     dDay={duel.dDay}
