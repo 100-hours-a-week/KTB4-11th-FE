@@ -5,7 +5,7 @@ import type { CompetitionState } from "@/features/ai/types/duel";
 export interface AiVsAiAgentSummary {
   agentLabel: string;
   accountId?: number;
-  returnPercent: number;
+  returnPercent: number | null;
   investmentTendency: InvestmentTendency;
   interestThemes: string[];
   excludeThemes: string[];

@@ -16,7 +16,7 @@ export function toDuelDetail(detail: CompetitionDetailResponse): DuelDetail {
     myReturnPercent: me.cumulative_return_percent,
     returnHistory: me.daily_performances.map((performance) => ({
       date: performance.date,
-      value: performance.cumulative_return_percent,
+      value: performance.cumulative_return_percent ?? 0,
     })),
   };
 }

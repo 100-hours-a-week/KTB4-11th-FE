@@ -49,13 +49,15 @@ export function DuelDetailUserVsAiContainer({
 
   const holdings = (holdingsData?.holdings ?? []).map(toHoldingStock);
 
-  const { colorClass } = getReturnRateInfo(detail.myReturnPercent);
-  const chartColorVar =
-    detail.myReturnPercent > 0
-      ? "var(--color-text-price-rise)"
-      : detail.myReturnPercent < 0
-        ? "var(--color-text-price-fall)"
-        : "var(--color-text-price-flat)";
+  const { colorClass, isRise, isFall } =
+    detail.myReturnPercent !== null
+      ? getReturnRateInfo(detail.myReturnPercent)
+      : { colorClass: "text-text-price-flat", isRise: false, isFall: false };
+  const chartColorVar = isRise
+    ? "var(--color-text-price-rise)"
+    : isFall
+      ? "var(--color-text-price-fall)"
+      : "var(--color-text-price-flat)";
 
   return (
     <div className="pt-screen-top flex h-full flex-col">
@@ -73,12 +75,16 @@ export function DuelDetailUserVsAiContainer({
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 pt-4 pb-10">
         <div className="bg-bg-layer-default flex flex-col gap-2 rounded-2xl p-4">
-          <span className="body-2-semibold text-text-neutral-secondary">
-            내 수익률
-          </span>
-          <span className={cn("title-1", colorClass)}>
-            {formatSignedPercent(detail.myReturnPercent, 2)}
-          </span>
+          {detail.myReturnPercent !== null && (
+            <>
+              <span className="body-2-semibold text-text-neutral-secondary">
+                내 수익률
+              </span>
+              <span className={cn("title-1", colorClass)}>
+                {formatSignedPercent(detail.myReturnPercent, 2)}
+              </span>
+            </>
+          )}
 
           {detail.returnHistory.length === 0 ? (
             <div className="border-border-neutral-muted mt-3 flex h-64 items-center justify-center rounded-xl border px-2">
