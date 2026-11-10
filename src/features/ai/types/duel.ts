@@ -20,7 +20,7 @@ export interface Duel {
   startDate: string;
   endDate: string;
   dDay: number;
-  returnPercent: number;
+  returnPercent: number | null;
   /** AI끼리 대결 종료 시 우승 전략명 */
   winner?: string;
   /** 나 vs AI 대결 종료 시 결과 (나 기준) */
@@ -55,7 +55,7 @@ export interface CompetitionApiItem {
   start_date: string;
   end_date: string;
   d_day: number;
-  cumulative_return_percent: number;
+  cumulative_return_percent: number | null;
   winner: DuelWinner;
 }
 
@@ -106,7 +106,7 @@ export interface CancelCompetitionResponse {
 
 export interface CompetitionDailyPerformance {
   date: string;
-  cumulative_return_percent: number;
+  cumulative_return_percent: number | null;
 }
 
 export interface CompetitionParticipant {
@@ -134,7 +134,7 @@ export interface CompetitionDetailParticipant extends CompetitionParticipant {
   strategy: CompetitionParticipantStrategy | null;
   top_return_holding: CompetitionTopReturnHolding | null;
   total_assets: number;
-  cumulative_return_percent: number;
+  cumulative_return_percent: number | null;
   daily_performances: CompetitionDailyPerformance[];
 }
 
@@ -155,7 +155,7 @@ export interface DuelDetail {
   name: string;
   dDay: number;
   accountId: number;
-  myReturnPercent: number;
+  myReturnPercent: number | null;
   returnHistory: { date: string; value: number }[];
 }
 
