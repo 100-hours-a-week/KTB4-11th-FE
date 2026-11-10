@@ -54,6 +54,7 @@ interface ThemeCascaderFieldProps {
   categories: ThemeCategory[];
   value: string[];
   onChange: (value: string[]) => void;
+  excludedValue: string[];
 }
 
 export function ThemeCascaderField({
@@ -61,6 +62,7 @@ export function ThemeCascaderField({
   categories,
   value,
   onChange,
+  excludedValue,
 }: ThemeCascaderFieldProps) {
   const tags = getSelectedTags(categories, value, onChange);
 
@@ -72,6 +74,7 @@ export function ThemeCascaderField({
         categories={categories}
         value={value}
         onChange={onChange}
+        excludedValue={excludedValue}
         trigger={
           <button
             type="button"
