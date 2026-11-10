@@ -157,6 +157,7 @@ export function DuelAiStrategySettingContainer() {
           categories={themeCategories}
           value={current.interestThemes}
           onChange={(value) => updateCurrentAgent({ interestThemes: value })}
+          excludedValue={current.excludeThemes}
         />
 
         <ThemeCascaderField
@@ -164,6 +165,7 @@ export function DuelAiStrategySettingContainer() {
           categories={themeCategories}
           value={current.excludeThemes}
           onChange={(value) => updateCurrentAgent({ excludeThemes: value })}
+          excludedValue={current.interestThemes}
         />
 
         <div className="flex flex-col gap-3">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { toast } from "sonner";
 import CheckIcon from "@/assets/icons/fill/check.svg";
 import ChevronForwardIcon from "@/assets/icons/fill/chevron-forward.svg";
 import type { ThemeCategory } from "@/features/ai/types/theme";
@@ -56,6 +57,7 @@ interface ThemeCascaderSheetProps {
   categories: ThemeCategory[];
   value: string[];
   onChange: (value: string[]) => void;
+  excludedValue: string[];
 }
 
 export function ThemeCascaderSheet({
@@ -64,6 +66,7 @@ export function ThemeCascaderSheet({
   categories,
   value,
   onChange,
+  excludedValue,
 }: ThemeCascaderSheetProps) {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const effectiveFocusedIndex =
@@ -74,6 +77,15 @@ export function ThemeCascaderSheet({
   function toggleCategory(category: ThemeCategory) {
     const itemNames = category.items.map((item) => item.name);
     const state = getCategoryState(category, value);
+
+    if (
+      state !== "all" &&
+      itemNames.some((name) => excludedValue.includes(name))
+    ) {
+      toast.error("관심 테마와 제외 테마에 같은 테마를 선택할 수 없어요.");
+      return;
+    }
+
     onChange(
       state === "all"
         ? value.filter((name) => !itemNames.includes(name))
@@ -82,6 +94,11 @@ export function ThemeCascaderSheet({
   }
 
   function toggleItem(itemName: string) {
+    if (!value.includes(itemName) && excludedValue.includes(itemName)) {
+      toast.error("관심 테마와 제외 테마에 같은 테마를 선택할 수 없어요.");
+      return;
+    }
+
     onChange(
       value.includes(itemName)
         ? value.filter((name) => name !== itemName)
