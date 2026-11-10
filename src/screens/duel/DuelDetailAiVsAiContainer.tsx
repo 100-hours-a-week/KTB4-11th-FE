@@ -51,9 +51,14 @@ export function DuelDetailAiVsAiContainer({
     return <DuelReadyEmptyState />;
   }
 
-  const leader = [...detail.agents].sort(
-    (a, b) => (b.returnPercent ?? 0) - (a.returnPercent ?? 0),
-  )[0];
+  const maxReturnPercent = Math.max(
+    ...detail.agents.map((agent) => agent.returnPercent ?? 0),
+  );
+  const leaders = detail.agents.filter(
+    (agent) => (agent.returnPercent ?? 0) === maxReturnPercent,
+  );
+  const isTied = leaders.length > 1;
+  const leader = leaders[0];
   const strategyAgent =
     detail.agents.find((agent) => agent.agentLabel === strategyAgentLabel) ??
     detail.agents[0];
@@ -79,11 +84,21 @@ export function DuelDetailAiVsAiContainer({
         >
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-1">
-              <span className="caption-1-regular text-text-neutral-secondary">
-                현재 선두
+              <span className="caption-1-regular text-text-neutral-secondary flex items-center">
+                {isTied ? (
+                  <>
+                    현재 동률
+                    <span className="bg-border-neutral-muted mx-1.5 h-3 w-px" />
+                    {leaders.map((agent) => agent.agentLabel).join(", ")}
+                  </>
+                ) : (
+                  "현재 선두"
+                )}
               </span>
               <h2 className="body-1-bold">
-                {leader.agentLabel}가 앞서고 있어요
+                {isTied
+                  ? "지금은 동률이에요"
+                  : `${leader.agentLabel}가 앞서고 있어요`}
               </h2>
             </div>
             <span className="bg-sky-blue-50 text-text-accent caption-1-semibold rounded-full px-2.5 py-1">
