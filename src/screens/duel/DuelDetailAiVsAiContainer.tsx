@@ -11,6 +11,7 @@ import { DuelAiTradeCard } from "@/features/ai/components/DuelAiTradeCard";
 import { DuelReadyEmptyState } from "@/features/ai/components/DuelReadyEmptyState";
 import { useAiVsAiDuelDetailQuery } from "@/features/ai/hooks/useAiVsAiDuelDetailQuery";
 import { useCompetitionExecutionsInfiniteQuery } from "@/features/ai/hooks/useCompetitionExecutionsInfiniteQuery";
+import { getLeadingAgents } from "@/features/ai/utils/getLeadingAgents";
 import { FilterChips } from "@/shared/components/FilterChips";
 import FireIcon from "@/assets/icons/fill/fire.svg";
 import { EmptyState } from "@/shared/components/EmptyState";
@@ -51,12 +52,7 @@ export function DuelDetailAiVsAiContainer({
     return <DuelReadyEmptyState />;
   }
 
-  const maxReturnPercent = Math.max(
-    ...detail.agents.map((agent) => agent.returnPercent ?? 0),
-  );
-  const leaders = detail.agents.filter(
-    (agent) => (agent.returnPercent ?? 0) === maxReturnPercent,
-  );
+  const leaders = getLeadingAgents(detail.agents);
   const isTied = leaders.length > 1;
   const leader = leaders[0];
   const strategyAgent =
