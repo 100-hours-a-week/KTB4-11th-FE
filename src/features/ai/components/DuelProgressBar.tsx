@@ -1,6 +1,10 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
+import { useDragToReveal } from "@/features/ai/hooks/useDragToReveal";
+import { cn } from "@/shared/utils/cn";
+
+const DRAG_REVEAL_THRESHOLD_PERCENT = 33;
 
 interface DuelProgressBarProps {
   progressPercent: number;
@@ -14,6 +18,10 @@ export function DuelProgressBar({
   const trackRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const progress = Math.min(100, Math.max(0, progressPercent));
+  const { isDragging, handlers: dragHandlers } = useDragToReveal();
+  const [isHovering, setIsHovering] = useState(false);
+  const revealOnDragOnly = progress < DRAG_REVEAL_THRESHOLD_PERCENT;
+  const isTooltipVisible = !revealOnDragOnly || isDragging || isHovering;
 
   useLayoutEffect(() => {
     const track = trackRef.current;
@@ -44,11 +52,22 @@ export function DuelProgressBar({
   }, [progress, dDay]);
 
   return (
-    <div ref={trackRef} className="relative mt-1 h-1.5 w-full">
+    <div
+      ref={trackRef}
+      className="relative mt-1 h-1.5 w-full"
+      {...dragHandlers}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
       {dDay > 0 && (
         <div
           ref={tooltipRef}
-          className="bg-bg-layer-floating text-text-neutral-secondary border-border-neutral-muted absolute bottom-full left-0 mb-2.5 w-max max-w-full rounded-lg border px-2 py-1 text-center text-[10px] leading-[14px] font-semibold"
+          className={cn(
+            "bg-bg-layer-floating text-text-neutral-secondary border-border-neutral-muted absolute bottom-full left-0 mb-2.5 w-max max-w-full rounded-lg border px-2 py-1 text-center text-[10px] leading-[14px] font-semibold transition-all duration-300 ease-out",
+            isTooltipVisible
+              ? "translate-y-0 opacity-100"
+              : "pointer-events-none translate-y-1 opacity-0",
+          )}
         >
           대결 종료까지 {dDay}일 남았어요!
           <svg
