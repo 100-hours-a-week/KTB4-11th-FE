@@ -86,6 +86,7 @@ export function useStockTradeOrder({
             queryKey: ["stockHolding", accountId],
           }),
           queryClient.invalidateQueries({ queryKey: ["account", accountId] }),
+          queryClient.invalidateQueries({ queryKey: ["holdings", accountId] }),
         ]);
         if (!unmountedRef.current) {
           setResult({
