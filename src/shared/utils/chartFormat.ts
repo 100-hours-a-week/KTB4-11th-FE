@@ -1,3 +1,4 @@
+import { toChartColor } from "./chartColor";
 import {
   AreaSeries,
   LineSeries,
@@ -24,11 +25,11 @@ export function formatTooltipDate(time: Time) {
 
 export function resolveCssColor(cssVar: string) {
   const match = /var\((--[\w-]+)\)/.exec(cssVar);
-  if (!match) return cssVar;
+  if (!match) return toChartColor(cssVar);
   const resolved = getComputedStyle(document.documentElement)
     .getPropertyValue(match[1])
     .trim();
-  return resolved || cssVar;
+  return toChartColor(resolved || cssVar);
 }
 
 // 공통 차트 기본 설정 (십자선 옵션은 사용하는 차트에서 지정)
