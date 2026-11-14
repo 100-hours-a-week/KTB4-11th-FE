@@ -1,5 +1,7 @@
 "use client";
 
+import { toChartColor } from "@/shared/utils/chartColor";
+
 import { useEffect, useRef } from "react";
 import {
   AreaSeries,
@@ -63,8 +65,8 @@ export function DuelReturnChart({
 
     const series = chart.addSeries(AreaSeries, {
       lineColor,
-      topColor: `${lineColor}40`,
-      bottomColor: `${lineColor}00`,
+      topColor: toChartColor(lineColor, 64 / 255),
+      bottomColor: toChartColor(lineColor, 0),
       lineWidth: 2,
       priceLineVisible: false,
       lastValueVisible: false,
