@@ -81,8 +81,8 @@ export function addHighlightableSeries(
   if (highlighted) {
     return chart.addSeries(AreaSeries, {
       lineColor: color,
-      topColor: `${color}40`,
-      bottomColor: `${color}00`,
+      topColor: toChartColor(color, 64 / 255),
+      bottomColor: toChartColor(color, 0),
       lineWidth: 2,
       priceLineVisible: false,
       lastValueVisible: false,
