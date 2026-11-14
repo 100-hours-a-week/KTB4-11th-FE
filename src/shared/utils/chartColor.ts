@@ -1,4 +1,4 @@
-// 브라우저가 해석한 CSS 색상을 차트가 지원하는 sRGB RGBA로 정규화한다.
+// 브라우저가 해석한 CSS 색상을 차트용 sRGB RGBA로 정규화
 export function toChartColor(color: string, opacity = 1): string {
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = 1;
