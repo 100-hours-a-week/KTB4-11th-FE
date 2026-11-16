@@ -28,12 +28,14 @@ export function toDuel(competition: CompetitionApiItem): Duel {
     dDay: competition.d_day,
     returnPercent: competition.cumulative_return_percent,
     result:
-      competition.winner === "user"
-        ? "WIN"
-        : competition.winner === "ai"
-          ? "LOSE"
-          : competition.winner === "draw"
-            ? "DRAW"
-            : undefined,
+      competition.competition_type === "ai_vs_ai"
+        ? undefined
+        : competition.winner === "user"
+          ? "WIN"
+          : competition.winner === "ai"
+            ? "LOSE"
+            : competition.winner === "draw"
+              ? "DRAW"
+              : undefined,
   };
 }
